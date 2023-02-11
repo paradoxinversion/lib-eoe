@@ -5,12 +5,15 @@ const gameEvents = require("./src/gameEvents");
 const nations = require("./src/nations");
 const organizations = require("./src/organization");
 const utilities = require("./src/utilities");
+const zones = require("./src/zones");
+
 module.exports = {
     gameGenerators,
     citizens,
     combat,
-    gameEvents,
+    gameEvents, 
     nations,
     organizations,
-    utilities
+    utilities,
+    zones
 }

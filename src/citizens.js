@@ -12,3 +12,7 @@ const getCitizens = (peopleArray, nationId) => {
     }
     return peopleArray;
 }
+
+module.exports = {
+    getCitizens
+}
