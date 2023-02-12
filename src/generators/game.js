@@ -153,7 +153,8 @@ const generateGoverningOrg = ({nationId, evil=false, name="Unnamed Organization"
         id: "o_" + uuidv4(),
         nationId,
         evil,
-        name
+        name,
+        wealth: 100
     }
 }
 
