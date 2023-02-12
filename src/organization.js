@@ -1,3 +1,5 @@
+const { throwErrorFromArray } = require("./utilities");
+
 /**
  * Returns a copy of the recruited person
  * @param {string} organizationId - The recruiting org's id
@@ -14,6 +16,17 @@ const recruitAgent = (organizationId, person, department=0) => {
     }
 }
 
+const getAgents = (peopleArray, organizationId) => {
+    const errors = [];
+    if (!organizationId){
+        errors.push("'organizationId' is a required parameter")
+    }
+    throwErrorFromArray(errors);
+
+    return peopleArray.filter((person) => person.agent && person.agent.organizationId === organizationId);
+}
+
 module.exports = {
-    recruitAgent
+    recruitAgent,
+    getAgents
 }

@@ -123,10 +123,11 @@ const generateZones = (zonesAmt) => {
  /**
   * Generate agent data that can be attached to a person
   * @param {string} organizationId  - The ID of the organization this agent will be associated with
-  * @param {number} department - 0 (troop), 1 (administrator), or 2 (scientist)
+  * @param {number} department - 0 (troop), 1 (administrator), 2 (scientist), or 3 (governing org leader)
   * @returns {import("../typedef").AgentData}
   */
  const generateAgentData = (organizationId, department) => {
+    //TODO: Make sure department is a valid number
     return {
         department,
         organizationId

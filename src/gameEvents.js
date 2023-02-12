@@ -49,10 +49,6 @@ class CombatEvent extends GameEvent {
             result: doCombat(this.aggressingForce, this.defendingForce)
         };
     }
-
-    resolveEvent(){
-        return this.eventData;
-    }
 }
 
 /**
@@ -65,14 +61,16 @@ class RecruitEvent extends GameEvent {
      * @param {import("./typedef").Person} recruit 
      */
     constructor(recruit, organizationId, department = 0){
+        super();
         this.eventName = "Agent Recruited";
         this.recruit = recruit;
         this.organizationId = organizationId;
         this.department = department;
+        this.eventText = "";
     }
-
-    resolveEvent(){
-        generateAgentData(this.organizationId, this.department)
+    executeEvent(){
+        this.eventData = generateAgentData(this.organizationId, this.department);
+        this.eventText = `${this.recruit.name} (C${this.recruit.combat}/I${this.recruit.intelligence}/A${this.recruit.administration}) has been recruited to the Empire!`
     }
 }
 
