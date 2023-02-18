@@ -39,6 +39,8 @@ const getZonesInfrastructureCost = (zones) => {
     }, 0)
 }
 
+
+
 module.exports = {
     getZones,
     getZoneWealth,

@@ -26,6 +26,19 @@ class GameEvent {
     }
 }
 
+class StandardReportEvent extends GameEvent {
+    constructor(aggressingForce, defendingForce){
+        super();
+        this.eventName = "Standard Report";
+    }
+
+    executeEvent(){
+        this.eventData = {
+            result: "All is well"
+        };
+    }
+}
+
 /**
  * A combat event.
  * @extends GameEvent
@@ -74,7 +87,40 @@ class RecruitEvent extends GameEvent {
     }
 }
 
+class GameEventQueue {
+    /**
+     * 
+     * @param {GameEvent[]} events 
+     */
+    constructor(events){
+        this.events = events || [];
+        this.eventIndex = 0;
+    }
+
+    executeCurrentEvent() {
+        
+        const currentEvent = this.events[this.eventIndex]
+        currentEvent.executeEvent();
+        const eventResolution = currentEvent.resolveEvent();
+
+        if (this.eventIndex === this.events.length - 1){
+            return eventResolution;
+        }
+        // this.eventIndex = this.eventIndex + 1;
+        console.log(eventResolution)
+        return eventResolution;
+    }
+
+    incrementEventIndex () {
+        this.eventIndex = this.eventIndex + 1;
+        console.log("Event Index: ", this.eventIndex)
+    }
+}
+
+
 module.exports = {
+    StandardReportEvent,
     CombatEvent,
-    RecruitEvent
+    RecruitEvent,
+    GameEventQueue
 }

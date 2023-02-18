@@ -1,4 +1,5 @@
 const gameGenerators = require("./src/generators/game");
+const eventGenerators = require("./src/generators/gameEvents");
 const citizens = require("./src/citizens");
 const combat = require("./src/combat");
 const gameEvents = require("./src/gameEvents");
@@ -9,6 +10,7 @@ const zones = require("./src/zones");
 
 module.exports = {
     gameGenerators,
+    eventGenerators,
     citizens,
     combat,
     gameEvents, 
