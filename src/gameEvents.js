@@ -7,19 +7,26 @@ const { throwErrorFromArray } = require("./utilities");
  */
 class GameEvent {
     eventData;
+
+    /**
+     * Create a game event
+     */
     constructor(){
         this.eventName = "Uninitialized GameEvent";
     }
 
     /**
-     * Fires the logic of the event
+     * Fires the inital logic of the event
      */
     executeEvent(){
 
     }
 
     /**
-     * Finish the event, running any finalization steps as needed
+     * Finish the event, running any finalization steps as needed.
+     * This is the step at which data input by the player should be
+     * considered/handled by subclasses.
+     * @returns {object}
      */
     resolveEvent(){
         return this.eventData;
@@ -68,22 +75,54 @@ class CombatEvent extends GameEvent {
  * A recruitment event
  * @extends GameEvent
  */
-class RecruitEvent extends GameEvent {
+class EvilApplicantEvent extends GameEvent {
     /**
-     * 
-     * @param {import("./typedef").Person} recruit 
+     * Create a recruitment event
+     * @param {import("./typedef").Person} recruit
+     * @param {string} organizationId
+     * @param {number} department 
      */
     constructor(recruit, organizationId, department = 0){
         super();
-        this.eventName = "Agent Recruited";
+        this.eventName = "EVIL Applicant";
         this.recruit = recruit;
         this.organizationId = organizationId;
         this.department = department;
         this.eventText = "";
     }
+
+    
     executeEvent(){
-        this.eventData = generateAgentData(this.organizationId, this.department);
-        this.eventText = `${this.recruit.name} (C${this.recruit.combat}/I${this.recruit.intelligence}/A${this.recruit.administration}) has been recruited to the Empire!`
+        this.eventText = `${this.recruit.name} has applied to be an EVIL Agent!`;
+    }
+    
+    /**
+     * Returns an updated version of gamedata and some metadata
+     * @param {object} resolveArgs 
+     * @param {number} resolveArgs.resolutionValue - 0 Deny Applicant; 1 Accept Applicant
+     * @param {object} resolveArgs.data
+     * @param {number} resolveArgs.data.department - The department the recruit will be an agent in
+     */
+    resolveEvent(gameData, resolveArgs){
+        let result;
+        let updatedGameData = JSON.parse(JSON.stringify(gameData));
+        switch (resolveArgs.resolutionValue) {
+            case 1:
+                this.department = parseInt(resolveArgs.data.department);
+                result = generateAgentData(this.organizationId, this.department);
+                updatedGameData.people[this.recruit.id].agent = result;
+                break;
+
+            default:
+                break;
+        }
+
+        this.eventData = {
+            type: "recruit",
+            result,
+            updatedGameData
+        }
+        return super.resolveEvent();
     }
 }
 
@@ -121,6 +160,6 @@ class GameEventQueue {
 module.exports = {
     StandardReportEvent,
     CombatEvent,
-    RecruitEvent,
+    EvilApplicantEvent,
     GameEventQueue
 }
