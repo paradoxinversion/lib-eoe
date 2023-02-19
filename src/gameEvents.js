@@ -138,21 +138,26 @@ class GameEventQueue {
 
     executeCurrentEvent() {
         
-        const currentEvent = this.events[this.eventIndex]
+        const currentEvent = this.events[this.eventIndex];
         currentEvent.executeEvent();
-        const eventResolution = currentEvent.resolveEvent();
 
-        if (this.eventIndex === this.events.length - 1){
-            return eventResolution;
-        }
-        // this.eventIndex = this.eventIndex + 1;
-        console.log(eventResolution)
-        return eventResolution;
+    }
+
+    resolveCurrentEvent(gamedata, resolveArgs){
+        return this.events[this.eventIndex].resolveEvent(gamedata, resolveArgs);
     }
 
     incrementEventIndex () {
         this.eventIndex = this.eventIndex + 1;
         console.log("Event Index: ", this.eventIndex)
+    }
+
+    setEvents(events){
+        this.events = events;
+    }
+
+    getCurrentEvent(){
+        return this.events[this.eventIndex];
     }
 }
 
