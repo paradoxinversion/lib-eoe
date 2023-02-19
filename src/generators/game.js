@@ -1,5 +1,6 @@
 const { throwErrorFromArray, randomInt } = require("../utilities");
 const { v4: uuidv4 } = require('uuid');
+const {generateName} = require("../generators/names");
 
 /**
  * 
@@ -96,6 +97,10 @@ const generateZones = (zonesAmt) => {
     const intelligence = randomInt(1,10);
     const combat = randomInt(1,10);
     const administration = randomInt(1,10);
+
+    if (name === "Unnamed Person"){
+        name = generateName();
+    }
     return {
         id: "p_" + uuidv4(),
         nationId,

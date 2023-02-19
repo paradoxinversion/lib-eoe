@@ -7,7 +7,7 @@ const nations = require("./src/nations");
 const organizations = require("./src/organization");
 const utilities = require("./src/utilities");
 const zones = require("./src/zones");
-
+const nameGenerators = require("./src/generators/names");
 module.exports = {
     gameGenerators,
     eventGenerators,
@@ -17,5 +17,6 @@ module.exports = {
     nations,
     organizations,
     utilities,
-    zones
+    zones,
+    nameGenerators
 }
