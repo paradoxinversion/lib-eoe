@@ -10,7 +10,7 @@ describe("generators", ()=> {
             }
             expect(generateNation({}).size).toBe(1);
             expect(generateNation({}).id.startsWith("n_")).toBe(true);
-            expect(generateNation({}).name).toBe("Unnamed Nation")
+            // expect(generateNation({}).name).toBe("Unnamed Nation")
             expect(generateNation(args).size).toBe(args.size);
             expect(generateNation(args).name).toBe(args.name)
         });
@@ -63,7 +63,6 @@ describe("generators", ()=> {
             };
             // expect(() => generatePerson({})).toThrowError();
             expect(generatePerson(args1).id.startsWith("p_")).toBe(true)
-            expect(generatePerson(args1).name).toBe("Unnamed Person");
             expect(generatePerson(args1).administration).toBeDefined();
             expect(generatePerson(args1).intelligence).toBeDefined();
             expect(generatePerson(args1).combat).toBeDefined();

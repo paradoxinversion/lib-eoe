@@ -97,7 +97,7 @@ const generateZones = (zonesAmt) => {
     const intelligence = randomInt(1,10);
     const combat = randomInt(1,10);
     const administration = randomInt(1,10);
-
+    const leadership = randomInt(1,10);
     if (name === "Unnamed Person"){
         name = generateName();
     }
@@ -110,6 +110,7 @@ const generateZones = (zonesAmt) => {
         intelligence,
         combat,
         administration,
+        leadership,
         health: 10,
         currentHealth: 10,
         agent: null
