@@ -32,7 +32,7 @@ const generateName = () => {
   "Chan"
  ]
 
- const name = `${firstNames[randomInt(0,firstNames.length)]} ${lastNames[randomInt(0,lastNames.length)]}`;
+ const name = `${firstNames[randomInt(0,firstNames.length-1)]} ${lastNames[randomInt(0,lastNames.length-1)]}`;
  return name;
 }
 
