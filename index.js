@@ -8,6 +8,7 @@ const organizations = require("./src/organization");
 const utilities = require("./src/utilities");
 const zones = require("./src/zones");
 const nameGenerators = require("./src/generators/names");
+const plots = require("./src/plots")
 module.exports = {
     gameGenerators,
     eventGenerators,
@@ -18,5 +19,6 @@ module.exports = {
     organizations,
     utilities,
     zones,
-    nameGenerators
+    nameGenerators,
+    plots
 }
