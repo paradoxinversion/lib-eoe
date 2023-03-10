@@ -16,6 +16,12 @@ const recruitAgent = (organizationId, person, department=0) => {
     }
 }
 
+/**
+ * 
+ * @param {*} peopleArray 
+ * @param {*} organizationId 
+ * @returns {import("./typedef").Person[]}
+ */
 const getAgents = (peopleArray, organizationId) => {
     const errors = [];
     if (!organizationId){
@@ -27,12 +33,12 @@ const getAgents = (peopleArray, organizationId) => {
 }
 
 /**
- * 
- * @param {import("./typedef").Person[]} peopleArray 
+ * Return the max number of agents an organization can support.
+ * @param {import("./typedef").Person[]} peopleArray - An array of all people
  */
 const getMaxAgents = (peopleArray, organizationId) => {
     return peopleArray.reduce((maxAgentValue, currentAgent) => {
-        if (currentAgent.agent.organizationId === organizationId){
+        if (currentAgent.agent && currentAgent.agent.organizationId === organizationId){
 
             return maxAgentValue + currentAgent.leadership
         }
@@ -41,8 +47,31 @@ const getMaxAgents = (peopleArray, organizationId) => {
     }, 0);
 }
 
+const getScience = (peopleArray, organizationId) => {
+    return getAgents(peopleArray, organizationId).reduce((science, currentAgent) => {
+        if (currentAgent.agent.department === 2){
+            return science + currentAgent.intelligence
+        }
+
+        return science;
+    }, 0);
+}
+
+const getInfrastructure = (peopleArray, organizationId) => {
+    
+    return getAgents(peopleArray, organizationId).reduce((science, currentAgent) => {
+        if (currentAgent.agent.department === 1){
+            return science + currentAgent.administration
+        }
+
+        return science;
+    }, 0);
+}
+
 module.exports = {
     recruitAgent,
     getAgents,
-    getMaxAgents
+    getMaxAgents,
+    getScience,
+    getInfrastructure
 }
