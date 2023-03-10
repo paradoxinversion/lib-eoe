@@ -1,11 +1,15 @@
+# Events
+
 Events are situations the player responds to. Events (with rare exception) are assumed to have already happened by the time the player sees them.
 
-GameEvent
+## GameEvent
 
 All events build off of this one. Supplies some basic properties and methods.
 
+### GameEvent Properties
+
 eventData
-eventData is the data ultimate returned back to the game. It contains the `type` of event, the `result`, or resulting data of event (this will often be what is removed or added to the gamedata, or some piece of information to be shown), and the `updatedGameData`, which can be used to update the state of the game implemenation. `updatedGameData` can pass unmodified data back if no data needs to be modified.
+eventData is the data ultimately returned back to the game. It contains the `type` of event, the `result`, or resulting data of the event (this will often be what is removed or added to the gamedata, or some piece of information to be shown), and the `updatedGameData`, which can be used to update the state of the game implemenation. `updatedGameData` can pass unmodified data back if no data needs to be modified.
 
 ```
 {
@@ -18,10 +22,12 @@ eventData is the data ultimate returned back to the game. It contains the `type`
 eventName
 This is the name of the event, intended to be shown in the UI.
 
-executeEvent
+### GameEvent Methods
+
+executeEvent()
 This method is responsible for handling the setup of an event for user response. 
 
-resolveEvent
+resolveEvent()
 In the base method, this method is responsible for returning `eventData`. In sublasses, this method is responsible for taking user input in the form of `resolveArgs` and creating updated `gameData` as necessary before returning `eventData`.
 
 resolveArgs
