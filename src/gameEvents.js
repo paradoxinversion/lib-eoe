@@ -1,6 +1,7 @@
 const { doCombat } = require("./combat");
 const { generatePeople, generateAgentData } = require("./generators/game");
-const { throwErrorFromArray } = require("./utilities");
+const { getMaxAgents, getAgents } = require("./organization");
+const { throwErrorFromArray, randomInt } = require("./utilities");
 
 /**
  * A base GameEvent.
@@ -34,15 +35,28 @@ class GameEvent {
 }
 
 class StandardReportEvent extends GameEvent {
-    constructor(aggressingForce, defendingForce){
+    constructor(){
         super();
         this.eventName = "Standard Report";
+        this.eventText = "Nothing to report.";
     }
 
     executeEvent(){
+        this.eventData = {};
+    }
+    /**
+     * Returns an updated version of gamedata and some metadata
+     * @param {object} resolveArgs 
+     * @param {number} resolveArgs.resolutionValue - 0 Deny Applicant; 1 Accept Applicant
+     * @param {object} resolveArgs.data
+     * @param {number} resolveArgs.data.department - The department the recruit will be an agent in
+     */
+    resolveEvent(gameData, resolveArgs){
         this.eventData = {
-            result: "All is well"
-        };
+            type: "standard-report",
+            updatedGameData: gameData
+        }
+        return super.resolveEvent();
     }
 }
 
@@ -88,12 +102,11 @@ class EvilApplicantEvent extends GameEvent {
         this.recruit = recruit;
         this.organizationId = organizationId;
         this.department = department;
-        this.eventText = "";
+        this.eventText = `${recruit.name} has applied to be an EVIL Agent!`;
     }
 
     
     executeEvent(){
-        this.eventText = `${this.recruit.name} has applied to be an EVIL Agent!`;
     }
     
     /**
@@ -126,9 +139,59 @@ class EvilApplicantEvent extends GameEvent {
     }
 }
 
+class WealthModificationEvent extends GameEvent {
+    constructor(amount){
+        super();
+        this.eventName = "Wealth Change";
+        this.modAmount = amount;
+        this.eventText = `The empire has ${amount > 0 ? "gained" : "lost"} ${amount}$!`
+    }
+
+    resolveEvent(gameData){
+        let updatedGameData = JSON.parse(JSON.stringify(gameData));
+        updatedGameData.governingOrganizations[gameData.player.organizationId].wealth += this.modAmount;
+        // mod cash here
+        this.eventData = {
+            type: "cashmod",
+            result: this.modAmount,
+            updatedGameData
+        }
+        return super.resolveEvent();
+    }
+}
+
+const generateStandardReportEvent = () => {
+    return new StandardReportEvent();
+}
+
+const generateWealthMod = () => {
+    return new WealthModificationEvent(randomInt(-10,10))
+}
+
+/**
+ * 
+ * @param {import("./typedef").Person[]} peopleArray 
+ * @param {*} playerOrganizationId 
+ */
+const generateEvilApplicantEvent = (peopleArray, playerOrganizationId) => {
+    if (peopleArray.length === 0){
+        return null;
+    }
+
+    if (getAgents(peopleArray, playerOrganizationId).length >= getMaxAgents(peopleArray, playerOrganizationId)){
+        return null;
+    }
+
+    const recruitIndex = randomInt(0, peopleArray.length);
+    const selectedAgent = peopleArray[recruitIndex];
+
+    const event = new EvilApplicantEvent(selectedAgent, playerOrganizationId, 0);
+    return event;
+}
+
 class GameEventQueue {
     /**
-     * 
+     * Initialize the GameEventQueue
      * @param {GameEvent[]} events 
      */
     constructor(events){
@@ -136,28 +199,53 @@ class GameEventQueue {
         this.eventIndex = 0;
     }
 
+    /**
+     * Fire the game event. 
+     */
     executeCurrentEvent() {
-        
         const currentEvent = this.events[this.eventIndex];
         currentEvent.executeEvent();
-
     }
 
+    /**
+     * Resolve the current game event with player input (resolveArgs)
+     * @param {*} gamedata 
+     * @param {*} resolveArgs 
+     * @returns 
+     */
     resolveCurrentEvent(gamedata, resolveArgs){
         return this.events[this.eventIndex].resolveEvent(gamedata, resolveArgs);
     }
 
+    /**
+     * Set the event index to the next event
+     */
     incrementEventIndex () {
         this.eventIndex = this.eventIndex + 1;
         console.log("Event Index: ", this.eventIndex)
     }
 
+    /**
+     * Set the events for the queue to handle
+     * @param {*} events 
+     */
     setEvents(events){
         this.events = events;
     }
 
+    /**
+     * Return the current game event
+     * @returns 
+     */
     getCurrentEvent(){
         return this.events[this.eventIndex];
+    }
+
+    /**
+     * Clear the event queue
+     */
+    clearEvents(){
+        this.events = [];
     }
 }
 
@@ -166,5 +254,8 @@ module.exports = {
     StandardReportEvent,
     CombatEvent,
     EvilApplicantEvent,
-    GameEventQueue
+    GameEventQueue,
+    generateStandardReportEvent,
+    generateEvilApplicantEvent,
+    generateWealthMod,
 }
