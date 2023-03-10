@@ -30,6 +30,7 @@
  * @property {number} health - the person's max health
  * @property {number} currentHealth - the person's current health
  * @property {AgentData} agent - If present, data about the peron's agent status
+ * @property {number} leadership - the max possible agents the agent can manag
  */
 
 /**

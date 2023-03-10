@@ -26,7 +26,23 @@ const getAgents = (peopleArray, organizationId) => {
     return peopleArray.filter((person) => person.agent && person.agent.organizationId === organizationId);
 }
 
+/**
+ * 
+ * @param {import("./typedef").Person[]} peopleArray 
+ */
+const getMaxAgents = (peopleArray, organizationId) => {
+    return peopleArray.reduce((maxAgentValue, currentAgent) => {
+        if (currentAgent.agent.organizationId === organizationId){
+
+            return maxAgentValue + currentAgent.leadership
+        }
+
+        return maxAgentValue;
+    }, 0);
+}
+
 module.exports = {
     recruitAgent,
-    getAgents
+    getAgents,
+    getMaxAgents
 }
