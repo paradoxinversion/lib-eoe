@@ -46,6 +46,7 @@ class StandardReportEvent extends GameEvent {
     }
     /**
      * Returns an updated version of gamedata and some metadata
+     * @param {import("./typedef").GameData} gameData
      * @param {object} resolveArgs 
      * @param {number} resolveArgs.resolutionValue - 0 Deny Applicant; 1 Accept Applicant
      * @param {object} resolveArgs.data
@@ -111,10 +112,12 @@ class EvilApplicantEvent extends GameEvent {
     
     /**
      * Returns an updated version of gamedata and some metadata
+     * @param {import("./typedef").GameData} gameData
      * @param {object} resolveArgs 
      * @param {number} resolveArgs.resolutionValue - 0 Deny Applicant; 1 Accept Applicant
      * @param {object} resolveArgs.data
      * @param {number} resolveArgs.data.department - The department the recruit will be an agent in
+     * @param {string} resolveArgs.data.commander
      */
     resolveEvent(gameData, resolveArgs){
         let result;
@@ -122,7 +125,7 @@ class EvilApplicantEvent extends GameEvent {
         switch (resolveArgs.resolutionValue) {
             case 1:
                 this.department = parseInt(resolveArgs.data.department);
-                result = generateAgentData(this.organizationId, this.department);
+                result = generateAgentData(this.organizationId, this.department, resolveArgs.data.commander);
                 updatedGameData.people[this.recruit.id].agent = result;
                 break;
 
