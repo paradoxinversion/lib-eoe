@@ -20,6 +20,11 @@ const getNationOrganization = (orgArray, nationId) => {
     return orgArray.find((org)=> org.nationId === nationId) || null;
 }
 
+const getNationCitizens = (peopleArray, nationId) => {
+    return peopleArray.filter(person => person.nationId === nationId)
+}
+
 module.exports = {
-    getNationOrganization
+    getNationOrganization,
+    getNationCitizens
 }
