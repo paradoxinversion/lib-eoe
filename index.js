@@ -9,6 +9,7 @@ const utilities = require("./src/utilities");
 const zones = require("./src/zones");
 const nameGenerators = require("./src/generators/names");
 const plots = require("./src/plots")
+const buildings = require("./src/buildings");
 module.exports = {
     gameGenerators,
     eventGenerators,
@@ -20,5 +21,6 @@ module.exports = {
     utilities,
     zones,
     nameGenerators,
-    plots
+    plots,
+    buildings
 }
