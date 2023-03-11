@@ -1,3 +1,5 @@
+const { doCombat } = require("./combat");
+const { getAgentsInZone } = require("./organization");
 const { randomInt } = require("./utilities");
 
 const activityConfig = [
@@ -50,6 +52,25 @@ const activityConfig = [
     },
   },
 ];
+/**
+ * 
+ * @param {import("./typedef").Zone} zone 
+ * @param {import("./typedef").Person[]} participants 
+ */
+const plotAttackZone = ({zone, participants, gamedata}) => {
+  const peopleArray = Object.values(gamedata.people);
+  const playerOrganizationId = gamedata.player.organizationId;
+  const defendingAgents = getAgentsInZone(peopleArray, playerOrganizationId, zone.id);
+  const result = doCombat(participants,defendingAgents);
+  return result;
+}
+const plotConfig = {
+  "attack-zone": {
+    name: "Attack Zone",
+    type: "attack-zone",
+    fn: plotAttackZone
+  }
+}
 
 class Activity {
   constructor(name, fn) {
@@ -76,11 +97,24 @@ class Activity {
   }
 
   executeActivity() {
-    console.log("executing", this.name);
     const result = this.fn(this.agents);
     if (result.people){
       this.agents = Object.values(result.people)
     }
+    return result;
+  }
+}
+
+class Plot {
+  constructor(name, agents, plotType, plotParams) {
+    this.name = name;
+    this.agents = agents;
+    this.plotParams = plotParams;
+    this.plotType
+  }
+
+  executePlot() {
+    plotConfig[this.plotType].fn (this.plotParams)
     return result;
   }
 }
@@ -117,7 +151,19 @@ class ActivityManager {
     return activitiesResults;
   }
 }
-
+class PlotManager {
+  constructor(){
+    this.plotQueue = [];
+    this.currentPlot = 0;
+    this.plots = []
+  }
+  setPlots(plots){
+    this.plots = plots;
+  }
+  addPlot(plot){
+    this.plotQueue.push(plot);
+  }
+}
 const populateActivities = (activityManager) => {
   const activities = [];
   for (
@@ -133,8 +179,25 @@ const populateActivities = (activityManager) => {
   activityManager.setActivities(activities);
 };
 
+const populatePlots = (plotManager) => {
+  const plots = [];
+  const plotConfigArray = Object.values(plotConfig);
+  for (let plotIndex = 0; plotIndex < plotConfigArray.length; plotIndex++) {
+    const element = plotConfigArray[plotIndex];
+    plots.push(
+      element
+    )
+  }
+  plotManager.setPlots(plots);
+}
+
+
 module.exports = {
   Activity,
   ActivityManager,
   populateActivities,
+  Plot,
+  PlotManager,
+  populatePlots,
+  plotConfig
 };

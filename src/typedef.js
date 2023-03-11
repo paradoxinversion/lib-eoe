@@ -21,7 +21,7 @@
  * @typedef {Object} Person
  * @property {string} id - The person's indentifier, prefixed with `p_`
  * @property {string} nationId - The ID of the nation the Person belongs to
- * @property {string} zoneId - The ID of the Zone this Person calls home
+ * @property {string} homeZoneId - The ID of the Zone this Person calls home
  * @property {string} name - The name of the person.
  * @property {number} administration - how smart the person is, related to Administration
  * @property {number} combat - How capable of combat the character is, related to Evil Troops
@@ -55,6 +55,8 @@
  * @typedef {Object} AgentData
  * @property {number} department - 0 (troop), 1 (administrator), or 2 (scientist)
  * @property {string} organizationId - the id of the org this Agent works for
+ * @property {number} salary - the amount of money it costs per month to retain the agent
+ * @property {string} commanderId - the id of the agent commanding this one
  */
 
 /**
@@ -67,4 +69,33 @@
  * @property {Person[]} characters.defendrs 
  */
 
+/**
+ * @typedef {Object} GameData
+ * @property {Object.<string, Person>} GameData.people - A key-value pair object of ids and their associated people
+ * @property {Object.<string, Nation>} GameData.nations - A key-value pair object of ids and their associated nations
+ * @property {Object.<string, GoverningOrganization>} GameData.governingOrganizations - A key-value pair object of ids and their associated orgs
+ * @property {Object.<string, Zone>} GameData.zones - A key-value pair object of ids and their associated zones
+ * @property {Object.<string, Building>} GameData.buildings
+ * @property {Object} player - Player data
+ * @property {string} player.empireId
+ * @property {string} player.overlordId
+ * @property {string} player.organizationId
+ * @property {Date} gameDate - The current date in the game
+ */
+
+/**
+ * Data about the agent status of a charactr
+ * @typedef {Object} Building
+ * @property {string} id - 0 (troop), 1 (administrator), or 2 (scientist)
+ * @property {string} organizationId - the id of the org this Agent works for
+ * @property {string} name
+ * @property {string} zoneId
+ * @property {number} wealthBonus  
+ * @property {number} infrastructureCost 
+ * @property {number} upkeepCost 
+ * @property {number} housingCapacity  
+ * @property {number} type
+ * @property {number} maxPersonnel
+ * @property {string[]} personnel
+ */
 module.exports = {}

@@ -39,11 +39,23 @@ const getZonesInfrastructureCost = (zones) => {
     }, 0)
 }
 
+/**
+ * 
+ * @param {import("./typedef").Person[]} peopleArray 
+ * @param {*} zoneId 
+ */
+const getZoneCitizens = (peopleArray, zoneId) => {
+    return peopleArray.filter(person => person.homeZoneId === zoneId);
+}
 
+const getZoneNationAgents = (peopleArray, zoneId) => {
+    return peopleArray.filter(person => person.homeZoneId === zoneId && person.agent);
+}
 
 module.exports = {
     getZones,
     getZoneWealth,
     getZonesWealth,
-    getZonesInfrastructureCost
+    getZonesInfrastructureCost,
+    getZoneCitizens
 }
