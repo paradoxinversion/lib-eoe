@@ -78,30 +78,52 @@ const doCombat = (aggressingForce, defendingForce) => {
     ){
         initiativeArray.forEach(combatInitiative => {
             const possibleTargets = getPossibleTargets(combatInitiative.attackingForce ? defendingForce : aggressingForce);
-            if (possibleTargets.length > 0){
-                const targetIndex = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
-                const attacker = combatInitiative.attackingForce 
+            const attacker = combatInitiative.attackingForce 
                     ? aggressingForce[combatInitiative.characterIndex]
                     : defendingForce[combatInitiative.characterIndex];
-
-                const defender = combatInitiative.attackingForce 
-                    ? defendingForce[targetIndex]
-                    : aggressingForce[targetIndex];
-                    
-                let damage = Math.floor(Math.random() * 6 + 1) + attacker.combat - defender.combat;
-                if (damage <= 0){
-                    damage = 1;
-                }
+            if (attacker.currentHealth >= 0){
+                
+                if (possibleTargets.length > 0){
+                    const targetIndex = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
     
-                defender.currentHealth = defender.currentHealth - damage;
-                combatLog.push(`${attacker.name} deals ${damage} damage to ${defender.name}`);
-            } 
+                    const defender = combatInitiative.attackingForce 
+                        ? defendingForce[targetIndex]
+                        : aggressingForce[targetIndex];
+                        
+                    let damage = Math.floor(Math.random() * 6 + 1) + attacker.combat - defender.combat;
+                    if (damage <= 0){
+                        damage = 1;
+                    }
+        
+                    defender.currentHealth = defender.currentHealth - damage;
+                    combatLog.push(`${attacker.name} deals ${damage} damage to ${defender.name} (${defender.currentHealth})`);
+                    if (defender.currentHealth <= 0){
+                        console.log(defender.name, "has been killed");
+                    }
+                } 
+            }
         });
         rounds++;
     }
+    const livingAttackers = aggressingForce.reduce((total, currentAgent) => {
+        if (currentAgent.currentHealth > 0){
+            return total + 1;
+        }
+        return total;
+    }, 0);
+    console.log(aggressingForce)
+    const livingDefenders = defendingForce.reduce((total, currentAgent) => {
+        if (currentAgent.currentHealth > 0){
+            return total+ 1;
+        }
+        return total;
+    }, 0);
+    console.log("LA:", livingAttackers, "LD:", livingDefenders)
+    const victoryResult = livingAttackers === 0 && livingDefenders > 0 ? 0 : livingAttackers > 0 && livingDefenders === 0 ? 1 : 2
     return {
         combatLog,
         rounds,
+        victoryResult,
         characters: {
             attackers: aggressingForce,
             defenders: defendingForce

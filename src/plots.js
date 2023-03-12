@@ -53,24 +53,28 @@ const activityConfig = [
   },
 ];
 /**
- * 
- * @param {import("./typedef").Zone} zone 
- * @param {import("./typedef").Person[]} participants 
+ *
+ * @param {import("./typedef").Zone} zone
+ * @param {import("./typedef").Person[]} participants
  */
-const plotAttackZone = ({zone, participants, gamedata}) => {
-  const peopleArray = Object.values(gamedata.people);
-  const playerOrganizationId = gamedata.player.organizationId;
-  const defendingAgents = getAgentsInZone(peopleArray, playerOrganizationId, zone.id);
-  const result = doCombat(participants,defendingAgents);
+const plotAttackZone = (gameData, { zone, participants }) => {
+  const peopleArray = Object.values(gameData.people);
+  const playerOrganizationId = gameData.player.organizationId;
+  const defendingAgents = getAgentsInZone(
+    peopleArray,
+    zone.organizationId,
+    zone.id
+  );
+  const result = doCombat(participants, defendingAgents);
   return result;
-}
+};
 const plotConfig = {
   "attack-zone": {
     name: "Attack Zone",
     type: "attack-zone",
-    fn: plotAttackZone
-  }
-}
+    fn: plotAttackZone,
+  },
+};
 
 class Activity {
   constructor(name, fn) {
@@ -98,8 +102,8 @@ class Activity {
 
   executeActivity() {
     const result = this.fn(this.agents);
-    if (result.people){
-      this.agents = Object.values(result.people)
+    if (result.people) {
+      this.agents = Object.values(result.people);
     }
     return result;
   }
@@ -110,11 +114,13 @@ class Plot {
     this.name = name;
     this.agents = agents;
     this.plotParams = plotParams;
-    this.plotType
+    this.plotType = plotType;
+    this.resolution = {};
   }
 
-  executePlot() {
-    plotConfig[this.plotType].fn (this.plotParams)
+  executePlot(gameData) {
+    const result = plotConfig[this.plotType].fn(gameData, this.plotParams);
+    this.resolution = result;
     return result;
   }
 }
@@ -152,16 +158,41 @@ class ActivityManager {
   }
 }
 class PlotManager {
-  constructor(){
+  constructor() {
     this.plotQueue = [];
     this.currentPlot = 0;
-    this.plots = []
+    this.plots = [];
+    this.plotResolutions = [];
   }
-  setPlots(plots){
+  setPlots(plots) {
     this.plots = plots;
   }
-  addPlot(plot){
+
+  addPlot(plot) {
     this.plotQueue.push(plot);
+  }
+
+  executeCurrentPlot(gameData) {
+    if (this.plotQueue.length === 0) {
+      return null;
+    }
+    const result = this.plotQueue[this.currentPlot].executePlot(gameData);
+    this.currentPlot++;
+    return result;
+  }
+
+  executePlot(plot, gameData) {
+    return plot.executePlot(gameData);
+  }
+
+  executePlots(gameData) {
+    this.plotQueue.forEach((plot) => {
+      this.plotResolutions.push({
+        plot,
+        resolution: this.executePlot(plot, gameData)
+      });
+    });
+    return this.plotResolutions;
   }
 }
 const populateActivities = (activityManager) => {
@@ -184,13 +215,10 @@ const populatePlots = (plotManager) => {
   const plotConfigArray = Object.values(plotConfig);
   for (let plotIndex = 0; plotIndex < plotConfigArray.length; plotIndex++) {
     const element = plotConfigArray[plotIndex];
-    plots.push(
-      element
-    )
+    plots.push(element);
   }
   plotManager.setPlots(plots);
-}
-
+};
 
 module.exports = {
   Activity,
@@ -199,5 +227,5 @@ module.exports = {
   Plot,
   PlotManager,
   populatePlots,
-  plotConfig
+  plotConfig,
 };

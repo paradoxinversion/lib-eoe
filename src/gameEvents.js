@@ -1,6 +1,7 @@
 const { doCombat } = require("./combat");
 const { generatePeople, generateAgentData } = require("./generators/game");
 const { getMaxAgents, getAgents } = require("./organization");
+const { Plot } = require("./plots");
 const { throwErrorFromArray, randomInt } = require("./utilities");
 
 /**
@@ -163,6 +164,42 @@ class WealthModificationEvent extends GameEvent {
     }
 }
 
+class AttackZonePlotEvent extends GameEvent {
+    constructor(plot){
+        super();
+        this.eventName = "Attack Zone";
+        this.eventText = `The empire has attacked a zone`;
+        this.plot = plot;
+    }
+
+    resolveEvent(gameData, resolveArgs){
+        const updatedGameData = {
+            people: {},
+            zones: {}
+        };
+        this.plot.resolution.characters.attackers.forEach(agent => {
+            updatedGameData.people[agent.id] = agent;
+        });
+        this.plot.resolution.characters.defenders.forEach(agent => {
+            updatedGameData.people[agent.id] = agent;
+        });
+        if (this.plot.resolution.victoryResult === 1){
+            const updatedZone = JSON.parse(JSON.stringify(this.plot.plotParams.zone));
+            updatedZone.organizationId = gameData.player.organizationId;
+            updatedZone.nationId = gameData.player.empireId;
+            updatedGameData.zones[updatedZone.id] = updatedZone;
+        }
+        this.eventData = {
+            type: "attack-zone",
+            result: this.plotResolution,
+            updatedGameData
+        }
+        console.log(this.eventData)
+        return super.resolveEvent();
+    }
+}
+
+
 const generateStandardReportEvent = () => {
     return new StandardReportEvent();
 }
@@ -171,6 +208,14 @@ const generateWealthMod = () => {
     return new WealthModificationEvent(randomInt(-10,10))
 }
 
+/**
+ * 
+ * @param {Plot} plot 
+ * @returns 
+ */
+const generateAttackZonePlotEvent = (plot) => {
+    return new AttackZonePlotEvent(plot)
+}
 /**
  * 
  * @param {import("./typedef").Person[]} peopleArray 
@@ -190,6 +235,32 @@ const generateEvilApplicantEvent = (peopleArray, playerOrganizationId) => {
 
     const event = new EvilApplicantEvent(selectedAgent, playerOrganizationId, 0);
     return event;
+}
+
+/**
+ * Generates events for each plot resolution
+ * @param {*} plotResolutions 
+ * @param {*} eventQueue 
+ * @returns 
+ */
+const addPlotResolutions = (plotResolutions, eventQueue) => {
+    const plotResolutionEvents = [];
+    plotResolutions.forEach(plotResolution => {
+        let resolutionEvent;
+        switch (plotResolution.plot.plotType) {
+            case "attack-zone":
+                resolutionEvent = generateAttackZonePlotEvent(plotResolution.plot);
+                break;
+        
+            default:
+                break;
+        }
+        if (resolutionEvent){
+            plotResolutionEvents.push(resolutionEvent)
+            eventQueue.addEvent(resolutionEvent);
+        }
+    });
+    return plotResolutionEvents;
 }
 
 class GameEventQueue {
@@ -235,7 +306,12 @@ class GameEventQueue {
     setEvents(events){
         this.events = events;
     }
-
+    addEvent(event){
+        this.events.push(event);
+    }
+    addEvents(events){
+        this.events.concat(events);
+    }
     /**
      * Return the current game event
      * @returns 
@@ -261,4 +337,6 @@ module.exports = {
     generateStandardReportEvent,
     generateEvilApplicantEvent,
     generateWealthMod,
+    generateAttackZonePlotEvent,
+    addPlotResolutions
 }
