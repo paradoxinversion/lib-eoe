@@ -22,6 +22,5 @@ const generateStandardReportEvent = () => {
 
 module.exports = {
     generateRecruitEvent,
-    generateStandardReportEvent, 
-    eventConfig
+    generateStandardReportEvent
 }

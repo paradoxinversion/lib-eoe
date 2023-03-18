@@ -1,5 +1,5 @@
 const { doCombat } = require("./combat");
-const { generatePeople, generateAgentData } = require("./generators/game");
+const { generateAgentData } = require("./generators/game");
 const { getMaxAgents, getAgents, getControlledZones } = require("./organization");
 const { getZoneCitizens } = require("./zones");
 const { Plot } = require("./plots");
@@ -138,7 +138,8 @@ const eventConfig = {
   attackZone: {
       name: "Attack Zone",
       setParams: () => null,
-      requirements: {}
+      requirements: {},
+      resolve: resolveAttackZone
   }
 }
 
@@ -499,4 +500,5 @@ module.exports = {
   generateWealthMod,
   generateAttackZonePlotEvent,
   addPlotResolutions,
+  eventConfig
 };
