@@ -6,6 +6,8 @@
  * @property {number} size - The size (amount of zones) of the nation
  */
 
+const { Activity } = require("./plots");
+
 /**
  * A Zone
  * @typedef {Object} Zone
@@ -84,6 +86,17 @@
  */
 
 /**
+ * @typedef {Object} PlotData
+ * @property {Object.<string, SerializedActivity>} activities
+ */
+
+/**
+ * @typedef {Object} SaveData
+ * @property {GameData} gameData
+ * @property {PlotData} plotData
+ */
+
+/**
  * Data about the agent status of a charactr
  * @typedef {Object} Building
  * @property {string} id - 0 (troop), 1 (administrator), or 2 (scientist)
@@ -97,5 +110,24 @@
  * @property {number} type
  * @property {number} maxPersonnel
  * @property {string[]} personnel
+ */
+
+/**
+ * @typedef {Object} PlotResolution
+ * @property {Object} data - The resulting data from the plot resolution
+ */
+
+/**
+ * @typedef {Object} SerializedActivity
+ * @property {string} name
+ * @property {string[]} agents
+ */
+
+/**
+ * @typedef {Object} EventOrPlotRequirements
+ * @property {Object} agents
+ * @property {number} agents.min
+ * @property {number} agents.max 
+ * @property {number} science
  */
 module.exports = {}
