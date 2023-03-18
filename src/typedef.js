@@ -136,6 +136,7 @@ const { Activity } = require("./plots");
  * @property {string} name
  * @property {Function} setParams
  * @property {EventOrPlotRequirements} requirements
+ * @property {Function} resolve
  */
 
 /**

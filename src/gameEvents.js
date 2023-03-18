@@ -6,6 +6,143 @@ const { Plot } = require("./plots");
 const { throwErrorFromArray, randomInt } = require("./utilities");
 
 /**
+ * Create a recruitment event
+ * @param {import("./typedef").Person} recruit
+ * @param {string} organizationId
+ * @param {number} department
+ */
+const setEvilApplicantParams = (recruit, organizationId, department) => {
+  return {
+      organizationId,
+      department,
+      recruit
+  }
+}
+
+/**
+* 
+* @param {import("./typedef").Person[]} aggressingForce 
+* @param {import("./typedef").Person[]} defendingForce 
+*/
+const setCombatParams = (aggressingForce, defendingForce) => {
+  return {
+      aggressingForce, defendingForce
+  }
+}
+
+const resolveStandardReport = () => {
+  this.eventData = {
+    type: "standard-report",
+    updatedGameData: gameData,
+  };
+}
+
+/**
+ * 
+ * @param {import("./typedef").GameData} gamedata 
+ * @param {*} resolveArgs 
+ */
+const resolveEvilApplicant = (gamedata, resolveArgs) => {
+  let result;
+  const updatedGameData = {
+    people: {},
+  };
+  switch (resolveArgs.resolutionValue) {
+    case 1:
+      this.department = parseInt(resolveArgs.data.department);
+      result = generateAgentData(
+        this.organizationId,
+        this.department,
+        resolveArgs.data.commander
+      );
+      const updatedAgent = JSON.parse(JSON.stringify(gameData.people[this.recruit.id]));
+      updatedAgent.agent = result;
+      updatedGameData.people[this.recruit.id] = updatedAgent;
+      break;
+
+    default:
+      break;
+  }
+
+  this.eventData = {
+    type: "recruit",
+    result,
+    updatedGameData,
+  };
+}
+
+const resolveWealthMod = (gameData) => {
+  const updatedGameData = { governingOrganizations: {} };
+  const updatedOrg = JSON.parse(JSON.stringify(gameData.governingOrganizations[gameData.player.organizationId]));
+  updatedGameData.governingOrganizations[gameData.player.organizationId] = updatedOrg;
+  updatedOrg.wealth += this.modAmount;
+  this.eventData = {
+    type: "cashmod",
+    result: this.modAmount,
+    updatedGameData,
+  };
+}
+
+const resolveAttackZone = (gameData) => {
+  const updatedGameData = {
+    people: {},
+    zones: {},
+  };
+  this.plot.resolution.data.characters.attackers.forEach((agent) => {
+    updatedGameData.people[agent.id] = agent;
+  });
+  this.plot.resolution.data.characters.defenders.forEach((agent) => {
+    updatedGameData.people[agent.id] = agent;
+  });
+  if (this.plot.resolution.data.victoryResult === 1) {
+    const updatedZone = JSON.parse(JSON.stringify(this.plot.plotParams.zone));
+    updatedZone.organizationId = gameData.player.organizationId;
+    updatedZone.nationId = gameData.player.empireId;
+    updatedGameData.zones[updatedZone.id] = updatedZone;
+  }
+  this.eventData = {
+    type: "attack-zone",
+    result: this.plotResolution,
+    updatedGameData,
+  };
+  console.log(this.eventData);
+}
+
+/**
+* @type {import("./typedef").EventConfig}
+*/
+const eventConfig = {
+  recruit: {
+      name: "Evil Applicant",
+      setParams: setEvilApplicantParams,
+      requirements: {},
+      resolve: resolveEvilApplicant
+  },
+  standardReport: {
+      name: "Standard Report",
+      setParams: () => null,
+      requirements: {},
+      resolve: resolveStandardReport
+  },
+  combat: {
+      name: "Combat",
+      setParams: setCombatParams,
+      requirements: {}
+  },
+  wealthMod: {
+      name: "Wealth Change",
+      setParams: () => null,
+      requirements: {},
+      resolve: resolveWealthMod
+  },
+  attackZone: {
+      name: "Attack Zone",
+      setParams: () => null,
+      requirements: {}
+  }
+}
+
+/**
  * A base GameEvent.
  */
 class GameEvent {
