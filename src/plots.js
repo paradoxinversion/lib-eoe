@@ -5,11 +5,12 @@ const { randomInt } = require("./utilities");
 const activityConfig = [
   {
     name: "Training",
+    type: "training",
     /**
-     *
-     * @param {import("./typedef").Person[]} participantArray
+     * @param {import("./typedef").GameData} gameData
+     * @param {string[]} participantArray - An array of id's of participating agents
      */
-    fn: (participantArray) => {
+    fn: (gameData, participantArray) => {
       // increase a random stat of each participant
       // return an obj that contains an array of the updated agents
       const updatedAgents = participantArray.reduce(
@@ -17,7 +18,7 @@ const activityConfig = [
           /**
            * @type {import("./typedef").Person}
            */
-          const updatedParticipant = JSON.parse(JSON.stringify(participant));
+          const updatedParticipant = JSON.parse(JSON.stringify(gameData.people[participant]));
           const stat = randomInt(0, 2);
           switch (stat) {
             case 0:
@@ -35,7 +36,7 @@ const activityConfig = [
             default:
               break;
           }
-          participants[participant.id] = updatedParticipant;
+          participants[updatedParticipant.id] = updatedParticipant;
           return participants;
         },
         {}
@@ -43,30 +44,32 @@ const activityConfig = [
       return { people: updatedAgents };
     },
   },
-  {
-    name: "Foo",
-    fn: () => {
-      return {
-        bar: "baz",
-      };
-    },
-  },
+  // {
+  //   name: "Foo",
+  //   fn: () => {
+  //     return {
+  //       bar: "baz",
+  //     };
+  //   },
+  // },
 ];
 /**
- *
- * @param {import("./typedef").Zone} zone
- * @param {import("./typedef").Person[]} participants
+ * @param {import("./typedef").GameData} gameData
+ * @param {Object} plotArgs
+ * @param {import("./typedef").Zone} plotArgs.zone
+ * @param {string[]} plotArgs.participants
+ * @returns {import("./typedef").PlotResolution}
  */
 const plotAttackZone = (gameData, { zone, participants }) => {
-  const peopleArray = Object.values(gameData.people);
-  const playerOrganizationId = gameData.player.organizationId;
   const defendingAgents = getAgentsInZone(
-    peopleArray,
+    gameData,
     zone.organizationId,
     zone.id
   );
   const result = doCombat(participants, defendingAgents);
-  return result;
+  return {
+    data: result
+  };
 };
 const plotConfig = {
   "attack-zone": {
@@ -78,14 +81,31 @@ const plotConfig = {
 
 class Activity {
   constructor(name, fn) {
+    /**
+     * @type {string[]}
+     */
     this.name = name;
+
+    /**
+     * @type {string[]}
+     */
     this.agents = [];
+    /**
+     * @type {Function}
+     */
     this.fn = fn;
   }
 
   /**
+   * Sets agents for this task. Overwrites the current list.
+   * @param {string[]} agents
+   */
+  setAgents(agents) {
+    this.agents = agents;
+  }
+  /**
    * Add an agent to the activity
-   * @param {import("./typedef").Person} agent
+   * @param {string} agent - The id of the agent participating
    */
   addAgent(agent) {
     if (!this.agents.includes(agent)) {
@@ -93,6 +113,10 @@ class Activity {
     }
   }
 
+  /**
+   * Remove an agent from the activity
+   * @param {string} agent - The id of the agent to remove
+   */
   removeAgent(agent) {
     const agentIndex = this.agents.findIndex(agent);
     if (agentIndex != -1) {
@@ -100,12 +124,20 @@ class Activity {
     }
   }
 
-  executeActivity() {
-    const result = this.fn(this.agents);
-    if (result.people) {
-      this.agents = Object.values(result.people);
+  /**
+   * 
+   * @param {import("./typedef").GameData} gameData 
+   * @returns 
+   */
+  executeActivity(gameData) {
+    const result = this.fn(gameData, this.agents);
+    const updatedGameData = {
+      people: {}
     }
-    return result;
+    Object.values(result.people).forEach(person => {
+      updatedGameData.people[person.id] = person;
+    })
+    return {result, updatedGameData};
   }
 }
 
@@ -118,7 +150,15 @@ class Plot {
     this.resolution = {};
   }
 
+  /**
+   * Execute a plot, returning the plot's ResolutionValue.
+   * @param {import("./typedef").GameData} gameData 
+   * @returns {import("./typedef").PlotResolution}
+   */
   executePlot(gameData) {
+    /**
+     * @type {import("./typedef").PlotResolution}
+     */
     const result = plotConfig[this.plotType].fn(gameData, this.plotParams);
     this.resolution = result;
     return result;
@@ -127,8 +167,9 @@ class Plot {
 
 class ActivityManager {
   constructor() {
+    // TODO: Make this a map?
     /**
-     * @type {Activity}
+     * @type {Activity[]}
      */
     this.activities = [];
   }
@@ -141,10 +182,10 @@ class ActivityManager {
     this.activities = activities;
   }
 
-  executeActivities() {
+  executeActivities(gameData) {
     const activitiesResults = this.activities.reduce(
       (activityResults, activity) => {
-        const result = activity.executeActivity();
+        const result = activity.executeActivity(gameData);
         const output = {
           activity: activity.name,
           result,
@@ -156,6 +197,23 @@ class ActivityManager {
     );
     return activitiesResults;
   }
+
+  /**
+   * Return a JSON compatible collection of activities
+   * and their participants
+   */
+  serializeActivities(){
+    const activities = this.activities.reduce((serializedActivities, activity)=>{
+      const currentActivity = {
+        name: activity.name,
+        agents: activity.agents
+      }
+      serializedActivities[activity.name] = currentActivity;
+      return serializedActivities;
+    }, {});
+
+    return activities;
+  }
 }
 class PlotManager {
   constructor() {
@@ -164,27 +222,54 @@ class PlotManager {
     this.plots = [];
     this.plotResolutions = [];
   }
+
+  /**
+   * Set the game plots (not individual playerp lots)
+   * @param {Plot} plots 
+   */
   setPlots(plots) {
     this.plots = plots;
   }
 
+  /**
+   * Remove all plots 
+   */
+  clearPlots(){
+    this.plots = [];
+  }
+
+  /**
+   * Add a plot to the queue
+   * @param {Plot} plot 
+   */
   addPlot(plot) {
     this.plotQueue.push(plot);
   }
 
-  executeCurrentPlot(gameData) {
-    if (this.plotQueue.length === 0) {
-      return null;
-    }
-    const result = this.plotQueue[this.currentPlot].executePlot(gameData);
-    this.currentPlot++;
-    return result;
+  /**
+   * Remove all plots from the plot queue
+   */
+   clearPlotQueue(){
+    this.plotQueue = [];
   }
 
+  /**
+   * Execute a plot, returning...
+   * @param {Plot} plot 
+   * @param {import("./typedef").GameData} gameData 
+   * @returns {import("./typedef").PlotResolution}
+   */
   executePlot(plot, gameData) {
     return plot.executePlot(gameData);
   }
 
+  /**
+   * Executes all plots in the queue. Adds each resolution
+   * to the plot's `plotResolutions` property. Returns
+   * the resolutions.
+   * @param {import("./typedef").GameData} gameData 
+   * @returns {import("./typedef").PlotResolution[]} The 
+   */
   executePlots(gameData) {
     this.plotQueue.forEach((plot) => {
       this.plotResolutions.push({

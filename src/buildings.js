@@ -22,7 +22,8 @@ const buildingsSchematics = {
  * @param {import("./typedef").Building[]} buildingsArray 
  * @param {string} organizationId 
  */
-const getInfrastructureLoad = (buildingsArray, organizationId) => {
+const getInfrastructureLoad = (gameData, organizationId) => {
+    const buildingsArray = Object.values(gameData.buildings);
     return buildingsArray.reduce((totalLoad, building) => {
         if (building.organizationId === organizationId){
             totalLoad = totalLoad + building.infrastructureCost;
@@ -37,7 +38,8 @@ const getInfrastructureLoad = (buildingsArray, organizationId) => {
  * @param {import("./typedef").Building[]} buildingsArray 
  * @param {string} organizationId 
  */
-const getUpkeep = (buildingsArray, organizationId) => {
+const getUpkeep = (gameData, organizationId) => {
+    const buildingsArray = Object.values(gameData.buildings);
     return buildingsArray.reduce((totalUpkeep, building) => {
         if (building.organizationId === organizationId){
             totalUpkeep = totalUpkeep + building.upkeepCost;
@@ -51,7 +53,8 @@ const getUpkeep = (buildingsArray, organizationId) => {
  * @param {import("./typedef").Building[]} buildingsArray 
  * @param {string} organizationId 
  */
-const getHousingCapacity = (buildingsArray, organizationId) => {
+const getHousingCapacity = (gameData, organizationId) => {
+    const buildingsArray = Object.values(gameData.buildings);
     return buildingsArray.reduce((totalCapacity, building) => {
         if (building.organizationId === organizationId){
             totalCapacity = totalCapacity + building.housingCapacity;
@@ -65,7 +68,8 @@ const getHousingCapacity = (buildingsArray, organizationId) => {
  * @param {import("./typedef").Building[]} buildingsArray 
  * @param {string} organizationId 
  */
-const getWealthBonuses = (buildingsArray, organizationId) => {
+const getWealthBonuses = (gameData, organizationId) => {
+    const buildingsArray = Object.values(gameData.buildings);
     return buildingsArray.reduce((totalWealth, building) => {
         if (building.organizationId === organizationId){
             totalWealth = totalWealth + building.wealthBonus;
@@ -80,7 +84,8 @@ const getWealthBonuses = (buildingsArray, organizationId) => {
  * @param {import("./typedef").Building[]} buildingsArray 
  * @param {string} organizationId 
  */
-const getOrgLabs = (buildingsArray, organizationId) => {
+const getOrgLabs = (gameData, organizationId) => {
+    const buildingsArray = Object.values(gameData.buildings);
     return buildingsArray.filter(building => building.organizationId === organizationId && building.type === "laboratory")
 }
 

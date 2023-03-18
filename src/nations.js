@@ -20,7 +20,8 @@ const getNationOrganization = (orgArray, nationId) => {
     return orgArray.find((org)=> org.nationId === nationId) || null;
 }
 
-const getNationCitizens = (peopleArray, nationId) => {
+const getNationCitizens = (gameData, nationId) => {
+    const peopleArray = Object.values(gameData.people);
     return peopleArray.filter(person => person.nationId === nationId)
 }
 

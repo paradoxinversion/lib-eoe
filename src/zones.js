@@ -1,4 +1,11 @@
-const getZones = (zoneArray, nationId) => {
+/**
+ * 
+ * @param {import("./typedef").GameData} gameData 
+ * @param {string} nationId 
+ * @returns {import("./typedef").Zone[]}
+ */
+const getZones = (gameData, nationId) => {
+    const zoneArray = Object.values(gameData.zones);
     if (nationId){
         return zoneArray.filter((zone) => zone.nationId === nationId);
     }
@@ -7,10 +14,11 @@ const getZones = (zoneArray, nationId) => {
 
 /**
  * 
- * @param {import("./typedef").Person[]} peopleArray 
+ * @param {import("./typedef").GameData} gameData 
  * @param {import("./typedef").Zone} zone 
  */
-const getZoneWealth = (peopleArray, zone) => {
+const getZoneWealth = (gameData, zone) => {
+    const peopleArray = Object.values(gameData.people);
     peopleArray
         .filter(person => person.homeZoneId === zone.id)
         .reduce((totalWealth, person)=>{
@@ -23,7 +31,8 @@ const getZoneWealth = (peopleArray, zone) => {
  * @param {import("./typedef").Person[]} peopleArray 
  * @param {import("./typedef").Zone[]} zones 
  */
-const getZonesWealth = (peopleArray, zones) => {
+const getZonesWealth = (gameData, zones) => {
+    const peopleArray = Object.values(gameData.people);
     return zones.reduce((total, zone) =>{
         return total += peopleArray
             .filter(person => person.homeZoneId === zone.id)
@@ -41,14 +50,28 @@ const getZonesInfrastructureCost = (zones) => {
 
 /**
  * 
- * @param {import("./typedef").Person[]} peopleArray 
+ * @param {import("./typedef").GameData} gameData 
  * @param {*} zoneId 
  */
-const getZoneCitizens = (peopleArray, zoneId) => {
-    return peopleArray.filter(person => person.homeZoneId === zoneId);
+const getZoneCitizens = (gameData, zoneId, excludeAgents, excludeDead) => {
+    const peopleArray = Object.values(gameData.people);
+    const citizens =  peopleArray.filter(person => {
+
+        if (excludeAgents && person.agent){
+            return false;
+        }
+
+        if (excludeDead && person.currentHealth <= 0){
+            return false;
+        }
+        
+        return person.homeZoneId === zoneId;
+    });
+    return citizens;
 }
 
-const getZoneNationAgents = (peopleArray, zoneId) => {
+const getZoneNationAgents = (gameData, zoneId) => {
+    const peopleArray = Object.values(gameData.people);
     return peopleArray.filter(person => person.homeZoneId === zoneId && person.agent);
 }
 
