@@ -125,9 +125,20 @@ const { Activity } = require("./plots");
 
 /**
  * @typedef {Object} EventOrPlotRequirements
- * @property {Object} agents
- * @property {number} agents.min
- * @property {number} agents.max 
- * @property {number} science
+ * @property {Object} [agents]
+ * @property {number} [agents.min]
+ * @property {number} [agents.max]
+ * @property {number} [science]
+ */
+
+/**
+ * @typedef {Object} EventConfigOptions
+ * @property {string} name
+ * @property {Function} setParams
+ * @property {EventOrPlotRequirements} requirements
+ */
+
+/**
+ * @typedef {Object.<string, EventConfigOptions>} EventConfig
  */
 module.exports = {}
