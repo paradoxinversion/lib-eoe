@@ -58,7 +58,7 @@ const generateNations = (nationsAmt, minSize, maxSize) => {
  * @param {number} [generateZoneOptions.size] - The size (amount of citizens...?)
  * @returns {import("../typedef").Zone}
  */
-const generateZone = ({ nationId, name = "Unnamed Zone", size = 1, organizationId }) => {
+const generateZone = ({ nationId, name = "Unnamed Zone", size = 5, organizationId }) => {
   return {
     id: "z_" + uuidv4(),
     nationId,
