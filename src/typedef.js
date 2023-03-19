@@ -145,4 +145,11 @@ const { Activity } = require("./plots");
 /**
  * @typedef {Object.<string, EventConfigOptions>} EventConfig
  */
+
+/**
+ * @typedef {Object} EventParamsEvilApplicant
+ * @property {Person} recruit
+ * @property {number} department
+ * @property {string} organizationId
+ */
 module.exports = {}
