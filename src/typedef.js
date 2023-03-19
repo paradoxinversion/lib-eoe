@@ -129,6 +129,9 @@ const { Activity } = require("./plots");
  * @property {number} [agents.min]
  * @property {number} [agents.max]
  * @property {number} [science]
+ * @property {number} [infrastructure]
+ * @property {Object} [people]
+ * @property {boolean} [people.eoeCitizenAvailable]
  */
 
 /**
