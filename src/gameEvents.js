@@ -120,14 +120,14 @@ function resolveAttackZone(gameData){
     people: {},
     zones: {},
   };
-  this.plot.resolution.data.characters.attackers.forEach((agent) => {
+  this.params.plot.resolution.data.characters.attackers.forEach((agent) => {
     updatedGameData.people[agent.id] = agent;
   });
-  this.plot.resolution.data.characters.defenders.forEach((agent) => {
+  this.params.plot.resolution.data.characters.defenders.forEach((agent) => {
     updatedGameData.people[agent.id] = agent;
   });
-  if (this.plot.resolution.data.victoryResult === 1) {
-    const updatedZone = JSON.parse(JSON.stringify(this.plot.plotParams.zone));
+  if (this.params.plot.resolution.data.victoryResult === 1) {
+    const updatedZone = JSON.parse(JSON.stringify(this.params.plot.plotParams.zone));
     updatedZone.organizationId = gameData.player.organizationId;
     updatedZone.nationId = gameData.player.empireId;
     updatedGameData.zones[updatedZone.id] = updatedZone;
@@ -169,12 +169,18 @@ const eventConfig = {
       name: "Standard Report",
       setParams: setEmptyParams,
       requirements: {},
-      resolve: resolveStandardReport
+      resolve: resolveStandardReport,
+      getEventText(){
+        this.eventText = `There is nothing special to report.`
+      }
   },
   combat: {
       name: "Combat",
       setParams: setCombatParams,
-      requirements: {}
+      requirements: {},
+      getEventText(){
+        this.eventText = `Combat has occured!`
+      }
   },
   wealthMod: {
       name: "Wealth Change",
@@ -189,7 +195,10 @@ const eventConfig = {
       name: "Attack Zone",
       setParams: setAttackZoneParams,
       requirements: {},
-      resolve: resolveAttackZone
+      resolve: resolveAttackZone,
+      getEventText(){
+        this.eventText = `The Empire has attacked a Zone!`
+      }
   }
 }
 
@@ -235,31 +244,6 @@ class GameEvent {
     return this.eventData;
   }
 }
-
-// /**
-//  * A combat event.
-//  * @extends GameEvent
-//  */
-// class CombatEvent extends GameEvent {
-//   constructor(aggressingForce, defendingForce) {
-//     super();
-//     this.eventName = "Combat";
-//     this.aggressingForce = aggressingForce;
-//     this.defendingForce = defendingForce;
-//   }
-
-//   executeEvent() {
-//     const errors = [];
-//     if (this.eventData) {
-//       errors.push("Combat event has already been executed");
-//     }
-//     throwErrorFromArray(errors);
-//     this.eventData = {
-//       type: "combat",
-//       result: doCombat(this.aggressingForce, this.defendingForce),
-//     };
-//   }
-// }
 
 const generateStandardReportEvent = () => {
   // return new StandardReportEvent();
