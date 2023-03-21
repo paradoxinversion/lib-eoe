@@ -6,7 +6,7 @@
  * @property {number} size - The size (amount of zones) of the nation
  */
 
-const { Activity } = require("./plots");
+const { Activity, Plot } = require("./plots");
 
 /**
  * A Zone
@@ -91,6 +91,11 @@ const { Activity } = require("./plots");
  */
 
 /**
+ * @typedef {Object} PlotResolution
+ * @property {Plot} plot
+ */
+
+/**
  * @typedef {Object} SaveData
  * @property {GameData} gameData
  * @property {PlotData} plotData
@@ -136,10 +141,10 @@ const { Activity } = require("./plots");
 
 /**
  * @typedef {Object} EventConfigOptions
- * @property {string} name
- * @property {Function} setParams
- * @property {EventOrPlotRequirements} requirements
- * @property {Function} resolve
+ * @property {string} name - The name of the event
+ * @property {Function} setParams - Set the event parameters
+ * @property {Function} resolve - Resolve the event, optionally with arguments
+ * @property {Function} getEventText - Return the event text to show the client
  */
 
 /**
@@ -151,5 +156,16 @@ const { Activity } = require("./plots");
  * @property {Person} recruit
  * @property {number} department
  * @property {string} organizationId
+ */
+
+/**
+ * @typedef {Object} EventData
+ * @property {string} type - the type of event
+ * @property {Object} resolution
+ * @property {Object} resolution.updatedGameData
+ */
+
+/**
+ * @typedef {Object.<string, Object>} EventResolveArgs
  */
 module.exports = {}
