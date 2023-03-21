@@ -4,24 +4,27 @@ Events are situations the player responds to. Events (with rare exception) are a
 
 ## GameEvent
 
-All events build off of this one. Supplies some basic properties and methods. GameEvents are not meant to be saved.
+This is the class used for Game Events.
 
-### GameEvent Properties
+Properties
 
-eventData
-eventData is the data ultimately returned back to the game. It contains the `type` of event, the `result`, or resulting data of the event (this will often be what is removed or added to the gamedata, or some piece of information to be shown), and the `updatedGameData`, which can be used to update the state of the game implemenation. `updatedGameData` can pass unmodified data back if no data needs to be modified.
+|  Property |  Description |
+|---|---|
+| eventName | the name of the event, as shown in the client app |
+| eventData | An Object of accumulated data relevent to the event. This object was meant to be referenced at runtime and act as a resolution value. |
+| params | A key-value map of parameters for setting up the event. Parameters can be any type of object. |
 
-```
-{
-  type,
-  result,
-  updatedGameData,
-}
-```
+|  Method |  Description |
+|---|---|
+| setParams(params) | A function that sets the parameters of the event. |
+| getEventText() | Sets an event's `eventText`, using params |
+| resolveEvent |  |
 
-eventName
+Handling a GameEvent takes two steps. The first step is showing the user relevant information according the data supplied by the event. This step is largely handled by the client. The second step is resolving the event, in which the client may return some data with which to resolve the event. Event resolution happens via `resolveEvent`, and once that has been run, the event is considered resolved. Resolved events should not be run again.
 
-This is the name of the event, intended to be shown in the UI.
+GameEvents are managed by the `GameEventQueue`
+
+
 
 ### GameEvent Methods
 
@@ -31,24 +34,7 @@ This method is responsible for handling the setup of an event for user response.
 
 resolveEvent()
 
-In the base method, this method is responsible for returning `eventData`. In sublasses, this method is responsible for taking user input in the form of `resolveArgs` and creating updated `gameData` as necessary before returning `eventData`. The `eventData` is important, as the client should use that data for displaying information.
 
-```
-this.eventData = {
-    type: "event-type",
-    result: {...},
-    updatedGameData: {...}
-}
-```
-
-`updatedGameData` should be a key value pair of actually-updated values. The result is whatever data came out of the event.
-
-resolveArgs
-
-`resolveArgs` inform the event how it should go about resolving itself. 
-
-resolveArgs.resolutionValue
-Resolves to `0` if the event should have a negative resolution (such as denying an applicant to the evil empire), `1` if the event should have a positive resolution (such as accepting an applicant into the evil empire), or greather than/equal to `2` (such as TERMINATING an applicant to the evil empire). The logic in each individual event type (ie, `CombatEvent`) will determine how to handle resolution values.
 
 GameEventQueue
 

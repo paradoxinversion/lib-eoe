@@ -46,14 +46,16 @@ function setAttackZoneParams({plot}){
 
 /**
  * Resolve a Standard Report Event
- * @param {import("./typedef").GameData} gameData 
  * @returns 
  */
-function resolveStandardReport(gameData){
+function resolveStandardReport(){
   this.eventData = {
     type: "standard-report",
-    updatedGameData: gameData,
+    resolution: {
+      updatedGameData: {},
+    }
   };
+
   return this.eventData;
 }
 
@@ -63,20 +65,20 @@ function resolveStandardReport(gameData){
  * @param {*} resolveArgs 
  */
 function resolveEvilApplicant(gameData, resolveArgs){
-  let result;
   const updatedGameData = {
     people: {},
   };
+
   switch (resolveArgs.resolutionValue) {
     case 1:
       this.params.department = parseInt(resolveArgs.data.department);
-      result = generateAgentData(
+      const agentData = generateAgentData(
         this.params.organizationId,
         this.params.department,
         resolveArgs.data.commander
       );
       const updatedAgent = JSON.parse(JSON.stringify(gameData.people[this.params.recruit.id]));
-      updatedAgent.agent = result;
+      updatedAgent.agent = agentData;
       updatedGameData.people[this.params.recruit.id] = updatedAgent;
       break;
 
@@ -86,9 +88,11 @@ function resolveEvilApplicant(gameData, resolveArgs){
 
   this.eventData = {
     type: "recruit",
-    result,
-    updatedGameData,
+    resolution: {
+      updatedGameData
+    }
   };
+
   return this.eventData;
 }
 
@@ -102,11 +106,14 @@ function resolveWealthMod(gameData){
   const updatedOrg = JSON.parse(JSON.stringify(gameData.governingOrganizations[gameData.player.organizationId]));
   updatedGameData.governingOrganizations[gameData.player.organizationId] = updatedOrg;
   updatedOrg.wealth += this.params.modAmount;
+
   this.eventData = {
     type: "cashmod",
-    result: this.params.modAmount,
-    updatedGameData,
+    resolution: {
+      updatedGameData
+    }
   };
+  
   return this.eventData;
 }
 
@@ -132,12 +139,12 @@ function resolveAttackZone(gameData){
     updatedZone.nationId = gameData.player.empireId;
     updatedGameData.zones[updatedZone.id] = updatedZone;
   }
+
   this.eventData = {
     type: "attack-zone",
-    result: this.plotResolution,
     updatedGameData,
   };
-  console.log(this.eventData);
+
   return this.eventData;
 }
 
@@ -148,18 +155,15 @@ function resolveAttackZone(gameData){
 function setEmptyParams(){
   this.params = {};
 }
+
+/**
+ * Event configuration to be used with GameEvents
+ * @type {import("./typedef").EventConfig}
+ */
 const eventConfig = {
   recruit: {
       name: "EVIL Applicant",
       setParams: setEvilApplicantParams,
-      /**
-       * @type {import("./typedef").EventOrPlotRequirements}
-       */
-      requirements: {
-        people: {
-          eoeCitizenAvailable: true
-        }
-      },
       resolve: resolveEvilApplicant,
       getEventText(){
         this.eventText = `A citizen, ${this.params.recruit.name}, has applied to become an EVIL Agent.`
@@ -168,7 +172,6 @@ const eventConfig = {
   standardReport: {
       name: "Standard Report",
       setParams: setEmptyParams,
-      requirements: {},
       resolve: resolveStandardReport,
       getEventText(){
         this.eventText = `There is nothing special to report.`
@@ -177,7 +180,6 @@ const eventConfig = {
   combat: {
       name: "Combat",
       setParams: setCombatParams,
-      requirements: {},
       getEventText(){
         this.eventText = `Combat has occured!`
       }
@@ -185,7 +187,6 @@ const eventConfig = {
   wealthMod: {
       name: "Wealth Change",
       setParams: setWealthModParams,
-      requirements: {},
       resolve: resolveWealthMod,
       getEventText(){
         this.eventText = `The Empire's wealth has fluctuated by ${this.params.modAmount}`
@@ -194,7 +195,6 @@ const eventConfig = {
   attackZone: {
       name: "Attack Zone",
       setParams: setAttackZoneParams,
-      requirements: {},
       resolve: resolveAttackZone,
       getEventText(){
         this.eventText = `The Empire has attacked a Zone!`
@@ -203,74 +203,74 @@ const eventConfig = {
 }
 
 /**
- * A base GameEvent.
+ * A GameEvent.
  */
 class GameEvent {
-  eventData;
   /**
-   * @type {import("./typedef").EventOrPlotRequirements}
-   */
-  requirements;
-  params;
-  /**
-   * Create a game event
-   * @param {import("./typedef").EventConfigOptions} eventConfig
+   * Create a game event using configuration. 
+   * @param {import("./typedef").EventConfigOptions} config
    * @param {Object} eventSetupData - An object of arbitrary data pertinent to event setup
    */
-  constructor(eventConfig, eventSetupData = {}) {
-    this.setParams = eventConfig.setParams.bind(this);
-    this.getEventText = eventConfig.getEventText.bind(this);
+  constructor(config, eventSetupData = {}) {
+    /**
+     * Gets the event text based on params
+     * @type {Function}
+     */
+    this.getEventText = config.getEventText.bind(this);
+    /**
+     * Set parameters for the event.
+     * @type {Function}
+    */
+    this.setParams = config.setParams.bind(this);
+    /**
+     * @type {Function}
+     */
+    this.resolveEvent = config.resolve;
+    /**
+     * @type {import("./typedef").EventData}
+     */
+    this.eventData = {};
+    /**
+     * @type {Object.<string, Object>} 
+     */
     this.params = {}
+    /**
+     * The name of the event
+     * @type {string}
+     */
+    this.eventName = config.name;
     this.setParams(eventSetupData);
     this.getEventText();
-    this.eventName = eventConfig.name;
-    this.requirements = eventConfig.requirements;
-    this.resolveEvent = eventConfig.resolve;
-  }
-
-  /**
-   * Fires the inital logic of the event
-   */
-  executeEvent() {}
-
-  /**
-   * Finish the event, running any finalization steps as needed.
-   * This is the step at which data input by the player should be
-   * considered/handled by subclasses.
-   * @returns {object}
-   */
-  resolveEvent() {
-    console.log("Resolve Event: ", this.eventName, this.eventData)
-    return this.eventData;
   }
 }
 
+/**
+ * Create and return a new Standard Report Game Event
+ */
 const generateStandardReportEvent = () => {
-  // return new StandardReportEvent();
-  const config = eventConfig.standardReport;
-  return new GameEvent(config);
-};
-
-const generateWealthMod = () => {
-  const config = eventConfig.wealthMod;
-  return new GameEvent(config);
+  return new GameEvent(eventConfig.standardReport);
 };
 
 /**
- *
+ * Create and return a new Wealth Mod Game Event
+ */
+const generateWealthMod = () => {
+  return new GameEvent(eventConfig.wealthMod);
+};
+
+/**
+ * Create and return a new Attack Zone Plot Event
  * @param {Plot} plot
- * @returns
  */
 const generateAttackZonePlotEvent = (plot) => {
-  const config = eventConfig.attackZone;
-  return new GameEvent(config, {
+  return new GameEvent(eventConfig.attackZone, {
     plot
   });
 };
+
 /**
- *
- * @param {import("./typedef").Person[]} peopleArray
- * @param {*} playerOrganizationId
+ * Create and return a new EVIL Applicant Game Event
+ * @param {import("./typedef").GameData} gameData
  */
 const generateEvilApplicantEvent = (
   gameData
@@ -282,6 +282,10 @@ const generateEvilApplicantEvent = (
   ) {
     return null;
   }
+
+  /**
+   * @type {import("./typedef").Person[]}
+   */
   const potentialRecruits = [];
   playerZonesArray.map(zone => {
     getZoneCitizens(gameData, zone.id, true).forEach(person => {
@@ -295,7 +299,6 @@ const generateEvilApplicantEvent = (
   const recruitIndex = randomInt(0, potentialRecruits.length - 1);
   const selectedAgent = potentialRecruits[recruitIndex];
 
-  // const event = new EvilApplicantEvent(selectedAgent, gameData.player.organizationId, 0);
   const event = new GameEvent(eventConfig.recruit, {
     recruit: selectedAgent,
     organizationId: gameData.player.organizationId,
@@ -306,13 +309,18 @@ const generateEvilApplicantEvent = (
 
 /**
  * Generates events for each plot resolution
- * @param {*} plotResolutions
- * @param {*} eventQueue
- * @returns
+ * @param {import("./typedef").PlotResolution[]} plotResolutions
+ * @param {GameEventQueue} eventQueue
  */
 const addPlotResolutions = (plotResolutions, eventQueue) => {
+  /**
+   * @type {GameEvent[]}
+   */
   const plotResolutionEvents = [];
   plotResolutions.forEach((plotResolution) => {
+    /**
+     * @type {GameEvent}
+     */
     let resolutionEvent;
     switch (plotResolution.plot.plotType) {
       case "attack-zone":
@@ -330,29 +338,26 @@ const addPlotResolutions = (plotResolutions, eventQueue) => {
   return plotResolutionEvents;
 };
 
+/**
+ * Manages game events
+ */
 class GameEventQueue {
   /**
    * Initialize the GameEventQueue
    * @param {GameEvent[]} events
    */
   constructor(events) {
+    /**
+     * @type {GameEvent[]}
+     */
     this.events = events || [];
     this.eventIndex = 0;
   }
 
   /**
-   * Fire the game event.
-   */
-  executeCurrentEvent() {
-    const currentEvent = this.events[this.eventIndex];
-    currentEvent.executeEvent();
-  }
-
-  /**
    * Resolve the current game event with player input (resolveArgs)
-   * @param {*} gamedata
-   * @param {*} resolveArgs
-   * @returns
+   * @param {import("./typedef").GameData} gamedata
+   * @param {import("./typedef").EventResolveArgs} resolveArgs
    */
   resolveCurrentEvent(gamedata, resolveArgs) {
     return this.events[this.eventIndex].resolveEvent(gamedata, resolveArgs);
@@ -363,32 +368,48 @@ class GameEventQueue {
    */
   incrementEventIndex() {
     this.eventIndex = this.eventIndex + 1;
-    console.log("Event Index: ", this.eventIndex);
   }
 
   /**
-   * Set the events for the queue to handle
-   * @param {*} events
+   * Set the events for the queue to handle. This method
+   * should not be used to add events to a queue with
+   * existing events, as it will replace the contents
+   * of the array.
+   * @param {GameEvent[]} events
    */
   setEvents(events) {
     this.events = events;
   }
+
+  /**
+   * Push a new event to the queue.
+   * @param {GameEvent} event 
+   */
   addEvent(event) {
     this.events.push(event);
   }
+
+  /**
+   * Concatenates an array of events to the queue.
+   * This should be used instead of `setEvents`
+   * when multiple events should be appended to the 
+   * queue at once when the array is not empty.
+   * @param {GameEvent[]} events 
+   */
   addEvents(events) {
     this.events.concat(events);
   }
+
   /**
    * Return the current game event
-   * @returns
    */
   getCurrentEvent() {
     return this.events[this.eventIndex];
   }
 
   /**
-   * Clear the event queue
+   * Clear the event queue. This should be done after
+   * all events are resolved.
    */
   clearEvents() {
     this.events = [];
