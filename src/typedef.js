@@ -86,6 +86,15 @@ const { Activity, Plot } = require("./plots");
  */
 
 /**
+ * @typedef {Object} UpdatedGameData
+ * @property {Object.<string, Person>} [UpdatedGameData.people] - A key-value pair object of ids and their associated people
+ * @property {Object.<string, Nation>} [UpdatedGameData.nations] - A key-value pair object of ids and their associated nations
+ * @property {Object.<string, GoverningOrganization>} [UpdatedGameData.governingOrganizations] - A key-value pair object of ids and their associated orgs
+ * @property {Object.<string, Zone>} [UpdatedGameData.zones] - A key-value pair object of ids and their associated zones
+ * @property {Date} [UpdatedGameData.gameDate] - The current date in the game
+ */
+
+/**
  * @typedef {Object} PlotData
  * @property {Object.<string, SerializedActivity>} activities
  */
@@ -167,5 +176,9 @@ const { Activity, Plot } = require("./plots");
 
 /**
  * @typedef {Object.<string, Object>} EventResolveArgs
+ */
+
+/**
+ * @typedef {Object.<string, number>} ShufflebagFrequency - A map of possible values and their frequency. The frequency is an integer representing the amount of times the option is added to the bag.
  */
 module.exports = {}

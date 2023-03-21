@@ -2,7 +2,7 @@ const { generateAgentData } = require("./generators/game");
 const { getMaxAgents, getAgents, getControlledZones } = require("./organization");
 const { getZoneCitizens } = require("./zones");
 const { Plot } = require("./plots");
-const { randomInt } = require("./utilities");
+const { randomInt, Shufflebag } = require("./utilities");
 
 /**
  * Set parameters for an Evil Applicant event
@@ -416,6 +416,57 @@ class GameEventQueue {
   }
 }
 
+
+
+const eventShufflebag = Shufflebag({
+  EvilApplicantEvent: 1,
+  WealthModEvent: 1,
+  nothing: 1,
+});
+/**
+ * Add a set of random events to the event queue
+ */
+const prepareRandomEvents = (gameData) => {
+  const events = [];
+  for (let potentialEvents = 0; potentialEvents < 1; potentialEvents++) {
+    const eventType = eventShufflebag.next();
+
+    /**
+     * @type {GameEvent}
+     */
+    let event;
+    switch (eventType) {
+      case "EvilApplicantEvent":
+        try{
+          event = generateEvilApplicantEvent(
+            gameData
+          );
+          
+          events.push(event);
+        }catch(e){
+          console.log(e)
+          break;
+        }
+        break;
+
+      case "WealthModEvent":
+        event = generateWealthMod();
+        events.push(event);
+        break;
+  
+      default:
+        break;
+    }
+    
+  }
+  if (events.length === 0){
+    events.push(generateStandardReportEvent())
+  }
+  return events;
+};
+
+
+
 module.exports = {
   GameEventQueue,
   generateStandardReportEvent,
@@ -423,5 +474,6 @@ module.exports = {
   generateWealthMod,
   generateAttackZonePlotEvent,
   addPlotResolutions,
-  eventConfig
+  eventConfig,
+  prepareRandomEvents
 };

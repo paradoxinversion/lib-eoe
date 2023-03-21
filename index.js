@@ -10,6 +10,9 @@ const zones = require("./src/zones");
 const nameGenerators = require("./src/generators/names");
 const plots = require("./src/plots")
 const buildings = require("./src/buildings");
+const gameSetup = require("./src/gameSetup");
+const dataManagement = require("./src/dataManagement");
+const actions = require("./src/actions");
 module.exports = {
     gameGenerators,
     eventGenerators,
@@ -22,5 +25,8 @@ module.exports = {
     zones,
     nameGenerators,
     plots,
-    buildings
+    buildings,
+    gameSetup,
+    dataManagement,
+    actions
 }
