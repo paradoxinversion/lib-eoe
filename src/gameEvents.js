@@ -548,7 +548,8 @@ const prepareRandomEvents = (gameData) => {
   const year = gd.getFullYear() + 1;
   const monthEnd = new Date((new Date(year, month, 1)) - 1);
   const day = gd.getDate();
-  if (2 === day){
+  
+  if (monthEnd === day){
     events.push(generateMonthlyReportEvent(gameData))
   }
 

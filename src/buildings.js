@@ -72,15 +72,19 @@ const getHousingCapacity = (gameData, organizationId) => {
  */
 const getWealthBonuses = (gameData, organizationId) => {
     const maxInfrastructure = getInfrastructure(gameData, organizationId);
-    let infrastructureLoad = 0;
+    const infrastructureLoad = getInfrastructureLoad(gameData, organizationId);
+    const overloadPercentage = (100 * infrastructureLoad) / maxInfrastructure;
+
     /**
      * @type {import("./typedef").Building[]}
      */
     const buildingsArray = Object.values(gameData.buildings);
     return buildingsArray.reduce((totalWealth, building) => {
-        infrastructureLoad += building.infrastructureCost;
+        const buildingBaseWealthBonus = building.wealthBonus;
+        const overloadReduction = parseInt((overloadPercentage/ 100) * building.wealthBonus);
+
         if (building.organizationId === organizationId && infrastructureLoad < maxInfrastructure){
-            return totalWealth + building.wealthBonus;
+            return totalWealth + (buildingBaseWealthBonus - overloadReduction);
         }
         return totalWealth;
     }, 0);
