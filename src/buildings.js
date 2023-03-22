@@ -1,3 +1,5 @@
+const { getInfrastructure } = require("./organization");
+
 const buildingsSchematics = {
     bank: {
         buildingType: "bank",
@@ -69,10 +71,16 @@ const getHousingCapacity = (gameData, organizationId) => {
  * @param {string} organizationId 
  */
 const getWealthBonuses = (gameData, organizationId) => {
+    const maxInfrastructure = getInfrastructure(gameData, organizationId);
+    let infrastructureLoad = 0;
+    /**
+     * @type {import("./typedef").Building[]}
+     */
     const buildingsArray = Object.values(gameData.buildings);
     return buildingsArray.reduce((totalWealth, building) => {
-        if (building.organizationId === organizationId){
-            totalWealth = totalWealth + building.wealthBonus;
+        infrastructureLoad += building.infrastructureCost;
+        if (building.organizationId === organizationId && infrastructureLoad < maxInfrastructure){
+            return totalWealth + building.wealthBonus;
         }
         return totalWealth;
     }, 0);
@@ -88,18 +96,6 @@ const getOrgLabs = (gameData, organizationId) => {
     const buildingsArray = Object.values(gameData.buildings);
     return buildingsArray.filter(building => building.organizationId === organizationId && building.type === "laboratory")
 }
-
-/**
- * 
- * @param {import("./typedef").Building} building 
- */
-// const addPersonnel = (building, person) => {
-//     /**
-//      * @type {import("./typedef").Building}
-//      */
-//     const updatedBuilding = JSON.parse(JSON.stringify(building));
-//     updatedBuilding.personnel.push(person)
-// }
 
 module.exports = {
     buildingsSchematics,
