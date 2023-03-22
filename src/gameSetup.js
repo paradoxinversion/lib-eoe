@@ -101,7 +101,7 @@ const handleNewGame = () => {
     initAdministration: 10,
   });
 
-  evilOverlord.agent = generateAgentData(evilEmpireOrg.id, 3);
+  evilOverlord.agent = generateAgentData(evilEmpireOrg.id, 3, null, 0);
 
   newGameData.people[evilOverlord.id] = evilOverlord;
 

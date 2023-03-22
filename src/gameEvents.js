@@ -1,8 +1,9 @@
 const { generateAgentData } = require("./generators/game");
-const { getMaxAgents, getAgents, getControlledZones } = require("./organization");
+const { getMaxAgents, getAgents, getControlledZones, calculateAgentSalary, getPayroll } = require("./organization");
 const { getZoneCitizens } = require("./zones");
 const { Plot } = require("./plots");
 const { randomInt, Shufflebag } = require("./utilities");
+const { getUpkeep, getWealthBonuses } = require("./buildings");
 
 /**
  * Set parameters for an Evil Applicant event
@@ -45,6 +46,17 @@ function setAttackZoneParams({plot}){
 }
 
 /**
+ * 
+ * @param {Object} MonthlyReportEventParams 
+ * @param {Object.<string, number>} MonthlyReportEventParams.income
+ * @param {Object.<string, number>} MonthlyReportEventParams.expenses
+ */
+function setMonthlyReportParams ({income, expenses}){
+  this.params.income = income;
+  this.params.expenses = expenses;
+}
+
+/**
  * Resolve a Standard Report Event
  * @returns 
  */
@@ -72,12 +84,18 @@ function resolveEvilApplicant(gameData, resolveArgs){
   switch (resolveArgs.resolutionValue) {
     case 1:
       this.params.department = parseInt(resolveArgs.data.department);
+
+      /**
+       * @type {import("./typedef").Person}
+       */
+      const updatedAgent = JSON.parse(JSON.stringify(gameData.people[this.params.recruit.id]));
+      const salary = calculateAgentSalary(updatedAgent);
       const agentData = generateAgentData(
         this.params.organizationId,
         this.params.department,
-        resolveArgs.data.commander
+        resolveArgs.data.commander,
+        salary
       );
-      const updatedAgent = JSON.parse(JSON.stringify(gameData.people[this.params.recruit.id]));
       updatedAgent.agent = agentData;
       updatedGameData.people[this.params.recruit.id] = updatedAgent;
       break;
@@ -149,6 +167,41 @@ function resolveAttackZone(gameData){
 }
 
 /**
+ * 
+ * @param {import("./typedef").GameData} gameData 
+ */
+function resolveMonthlyReport(gameData){
+  /**
+   * @type {import("./typedef").UpdatedGameData}
+   */
+  const updatedGameData = {
+    governingOrganizations: {}
+  };
+
+  /**
+   * @type {import("./typedef").GoverningOrganization}
+   */
+  const updatedOrg = JSON.parse(JSON.stringify(gameData.governingOrganizations[gameData.player.organizationId]))
+  const expenses = Object.values(this.params.expenses).reduce((total, currentExpense) => {
+    return total + currentExpense;
+  }, 0);
+  const income = Object.values(this.params.income).reduce((total, currentIncome) => {
+    return total + currentIncome;
+  }, 0);
+  const netTotal = income - expenses;
+  updatedOrg.wealth += netTotal;
+  updatedGameData.governingOrganizations[updatedOrg.id] = updatedOrg;
+  this.eventData = {
+    type: "monthly-report",
+    resolution: {
+      updatedGameData
+    }
+  };
+
+  return this.eventData;
+}
+
+/**
  * Sets `event.params` to an empty object. Should be used for 
  * events that take no parameters.
  */
@@ -199,6 +252,14 @@ const eventConfig = {
       getEventText(){
         this.eventText = `The Empire has attacked a Zone!`
       }
+  },
+  monthEndReport: {
+    name: "Monthly Report",
+    setParams: setMonthlyReportParams,
+    resolve: resolveMonthlyReport,
+    getEventText(){
+      this.eventText = "The month has ended."
+    }
   }
 }
 
@@ -250,6 +311,23 @@ class GameEvent {
 const generateStandardReportEvent = () => {
   return new GameEvent(eventConfig.standardReport);
 };
+
+const generateMonthlyReportEvent = (gameData) => {
+  const {organizationId} = gameData.player;
+  const upkeep = getUpkeep(gameData, organizationId);
+  const payroll = getPayroll(gameData, organizationId);
+  const totalExpenses = upkeep + payroll;
+  const buildingWealth = getWealthBonuses(gameData, organizationId);
+  return new GameEvent(eventConfig.monthEndReport, { 
+    expenses: {
+      payroll,
+      upkeep
+    },
+    income: {
+      buildingWealth
+    }
+  })
+}
 
 /**
  * Create and return a new Wealth Mod Game Event
@@ -462,6 +540,18 @@ const prepareRandomEvents = (gameData) => {
   if (events.length === 0){
     events.push(generateStandardReportEvent())
   }
+
+  // If this is the last day of the month, set the EOM event
+  // Get the game date
+  const gd = new Date(gameData.gameDate);
+  const month = gd.getMonth();
+  const year = gd.getFullYear() + 1;
+  const monthEnd = new Date((new Date(year, month, 1)) - 1);
+  const day = gd.getDate();
+  if (2 === day){
+    events.push(generateMonthlyReportEvent(gameData))
+  }
+
   return events;
 };
 
@@ -475,5 +565,6 @@ module.exports = {
   generateAttackZonePlotEvent,
   addPlotResolutions,
   eventConfig,
-  prepareRandomEvents
+  prepareRandomEvents,
+  generateMonthlyReport: generateMonthlyReportEvent
 };

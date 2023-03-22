@@ -139,14 +139,15 @@ const generatePeople = (peopleAmt) => {
  * @param {string} organizationId  - The ID of the organization this agent will be associated with
  * @param {number} department - 0 (troop), 1 (administrator), 2 (scientist), or 3 (governing org leader)
  * @param {string} commanderId
+ * @param {number} salary - the agent's monthly pay
  * @returns {import("../typedef").AgentData}
  */
-const generateAgentData = (organizationId, department, commanderId) => {
+const generateAgentData = (organizationId, department, commanderId, salary) => {
   //TODO: Make sure department is a valid number
   return {
     department,
     organizationId,
-    salary: 1,
+    salary,
     commanderId
   };
 };

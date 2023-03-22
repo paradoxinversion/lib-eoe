@@ -42,6 +42,7 @@ const { Activity, Plot } = require("./plots");
  * @property {string} nationId - The ID of the nation this org governs
  * @property {boolean} evil - Whether or not the org is EVIL.
  * @property {string} name - The name of the org.
+ * @property {number} wealth
  */
 
 /**

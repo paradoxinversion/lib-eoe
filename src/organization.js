@@ -153,6 +153,14 @@ const hireAgent = (agent, organizationId, department, commanderId, salary) => {
     return agent;
 }
 
+/**
+ * 
+ * @param {import("./typedef").Person} agent 
+ */
+const calculateAgentSalary = (agent) => {
+    return agent.administration + agent.combat + agent.intelligence + agent.leadership
+}
+
 module.exports = {
     recruitAgent,
     getAgents,
@@ -163,5 +171,6 @@ module.exports = {
     getAgentSubordinates,
     getControlledZones,
     hireAgent,
-    getAgentsInZone
+    getAgentsInZone,
+    calculateAgentSalary
 }
