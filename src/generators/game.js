@@ -199,7 +199,7 @@ const generateBuilding = ({zoneId, buildingType, organizationId, infrastructureC
     }
 
     if (!upkeepCost) {
-        errors.push("'infrastructureCost' is a required option parameter.");
+        errors.push("'upkeepCost' is a required option parameter.");
     }
     throwErrorFromArray(errors);
     let wealthBonus = 0;

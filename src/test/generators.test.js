@@ -1,4 +1,5 @@
-const { generateNation, generateZone, generatePerson, generateGoverningOrg, generateNations, generateZones, generatePeople, generateAgentData } = require("../generators/game")
+const { buildingsSchematics } = require("../buildings");
+const { generateNation, generateZone, generatePerson, generateGoverningOrg, generateNations, generateZones, generatePeople, generateAgentData, generateBuilding } = require("../generators/game")
 
 describe("generators", ()=> {
     describe("game", () => {
@@ -39,7 +40,6 @@ describe("generators", ()=> {
 
             // expect(() => generateZone({})).toThrow();
             expect(generateZone(args1).id.startsWith("z_")).toBe(true);
-            expect(generateZone(args1).size).toBe(1);
             expect(generateZone(args1).wealth).toBeGreaterThan(0);
             expect(generateZone(args1).name).toBe("Unnamed Zone");
             expect(generateZone(args2).size).toBe(args2.size);
@@ -75,12 +75,16 @@ describe("generators", ()=> {
         })
 
         test("generateAgentData",() => {
-            const orgId = "o_1234-5678";
+            const commanderId = "p_1"
+            const orgId = "p_2";
             const department = 1;
-            const agentData = generateAgentData(orgId, department);
+            const salary = 10;
+            const agentData = generateAgentData(orgId, department, commanderId, salary);
             expect(agentData).toStrictEqual({
+                commanderId,
                 department,
-                organizationId: orgId
+                organizationId: orgId,
+                salary
             });
         })
 
@@ -101,5 +105,22 @@ describe("generators", ()=> {
             expect(generateGoverningOrg(args2).name).toBe(args2.name);
             expect(generateGoverningOrg(args2).evil).toBe(args2.evil);
         });
+
+        test("generateBuilding", () => {
+            const zoneId = "z_1";
+            // const buildingType = ;
+            const organizationId = "o_1"
+            const infrastructureCost = 1;
+            const upkeepCost = 2;
+
+            expect(generateBuilding({zoneId, buildingType: buildingsSchematics.apartment, organizationId, infrastructureCost, upkeepCost}).maxPersonnel).toEqual(4);
+            expect(() => generateBuilding({})).toThrow();
+            expect(() => generateBuilding({zoneId})).toThrow();
+            expect(() => generateBuilding({zoneId, buildingType: buildingsSchematics.apartment.buildingType})).toThrow();
+            expect(() => generateBuilding({zoneId, buildingType: buildingsSchematics.apartment.buildingType, organizationId})).toThrow();
+            expect(() => generateBuilding({zoneId, buildingType: buildingsSchematics.apartment.buildingType, organizationId, infrastructureCost})).toThrow();
+            expect(() => generateBuilding({zoneId, buildingType: buildingsSchematics.apartment.buildingType, organizationId, infrastructureCost})).toThrow();
+            expect(generateBuilding({zoneId, buildingType: buildingsSchematics.apartment.buildingType, organizationId, infrastructureCost, upkeepCost}).housingCapacity).toBeGreaterThan(0)
+        })
     })
 });

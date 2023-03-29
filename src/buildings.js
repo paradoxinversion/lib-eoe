@@ -9,7 +9,8 @@ const buildingsSchematics = {
     apartment: {
         buildingType: "apartment",
         infrastructureCost: 1,
-        upkeepCost: 1
+        upkeepCost: 1,
+        housingCapacity: 10
     },
     laboratory: {
         buildingType: "laboratory",
@@ -52,14 +53,16 @@ const getUpkeep = (gameData, organizationId) => {
 /**
  * Get the housing capacity total of all buildings
  * controlled by the org.
- * @param {import("./typedef").Building[]} buildingsArray 
+ * @param {import("./typedef").GameData} gameData 
  * @param {string} organizationId 
  */
 const getHousingCapacity = (gameData, organizationId) => {
     const buildingsArray = Object.values(gameData.buildings);
+    console.log(gameData, organizationId)
     return buildingsArray.reduce((totalCapacity, building) => {
         if (building.organizationId === organizationId){
             totalCapacity = totalCapacity + building.housingCapacity;
+            
         }
         return totalCapacity;
     }, 0);
