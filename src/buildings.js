@@ -104,11 +104,54 @@ const getOrgLabs = (gameData, organizationId) => {
     return buildingsArray.filter(building => building.organizationId === organizationId && building.type === "laboratory")
 }
 
+/**
+ * 
+ * @param {import("./typedef").Person} person 
+ * @param {import("./typedef").Building} building 
+ */
+const addPersonnel = (person, building) => {
+    const updatedGameData = {
+        people: {},
+        buildings: {}
+    }
+
+    if (building.personnel.includes(person.id)){
+        return;
+    }
+
+    if (building.personnel.length === building.maxPersonnel){
+        return;
+    }
+
+    building.personnel.push(person.id);
+
+    const updatedPerson = JSON.parse(JSON.stringify(person));
+    updatedPerson.isPersonnel = true;
+    updatedGameData.buildings[building.id] = building;
+    updatedGameData.people[person.id] = person;
+    return updatedGameData;
+}
+
+/**
+ * 
+ * @param {import("./typedef").Person} person 
+ * @param {import("./typedef").Building} building 
+ */
+const removePersonnel = (person, building) => {
+    const personnelIndex = building.personnel.findIndex(person.id);
+    if (personnelIndex !== -1){
+        building.personnel.splice(personnelIndex);
+    }
+    return building;
+}
+
 module.exports = {
     buildingsSchematics,
     getInfrastructureLoad,
     getHousingCapacity,
     getUpkeep,
     getWealthBonuses,
-    getOrgLabs
+    getOrgLabs,
+    addPersonnel,
+    removePersonnel
 }

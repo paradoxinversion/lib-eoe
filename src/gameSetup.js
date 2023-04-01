@@ -73,7 +73,6 @@ const handleNewGame = () => {
     size: 1,
   });
   newGameData.nations[evilEmpireNation.id] = evilEmpireNation;
-
   const evilEmpireOrg = generateGoverningOrg({
     nationId: evilEmpireNation.id,
     evil: true,

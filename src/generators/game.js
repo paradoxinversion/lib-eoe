@@ -122,6 +122,7 @@ const generatePerson = ({ nationId, homeZoneId, name = "Unnamed Person", initInt
     health: 10,
     currentHealth: 10,
     agent: null,
+    isPersonnel: false
   };
 };
 

@@ -37,6 +37,7 @@ const advanceDay = (gameData, gameEventQueue, activityManager, plotManager) => {
   const gameDate = new Date(gameData.gameDate);
   gameDate.setDate(gameDate.getDate() + 1);
   updatedGameData.gameDate = gameDate;
+
   return { updatedGameData, gameEventQueue };
 };
 module.exports = advanceDay;
