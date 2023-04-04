@@ -76,7 +76,6 @@ const checkGameOverState = (gameData) => {
  * @param {import("./typedef").GameData} gameData 
  */
 const checkVictoryState = (gameData) => {
-  debugger;
   const playerZones = getControlledZones(gameData, gameData.player.organizationId);
   if (playerZones.length === Object.keys(gameData.zones).length){
    return {
@@ -87,10 +86,31 @@ const checkVictoryState = (gameData) => {
   return null;
 }
 
+/**
+ * Returns a number with a possible margin of error.
+ * 
+ * If confidence is 100, the response will be accurate. 
+ * 
+ * If < 100, the value will be 
+ * @param {number} trueValue - The actual value of the number
+ * @param {number} confidence - The confidence in this value. 100 - confidence = margin of error.
+ */
+const numberWithErrorMargin = (trueValue, confidence) => {
+  if (confidence === 100){
+    return trueValue;
+  }
+
+  const marginOfErrorPercentage = 100 - confidence;
+  const marginOfErrorAmt = (marginOfErrorPercentage / 100) * trueValue
+
+  return trueValue - (marginOfErrorAmt / 2);
+}
+
 module.exports = {
   throwErrorFromArray,
   randomInt,
   Shufflebag,
   checkGameOverState,
-  checkVictoryState
+  checkVictoryState,
+  numberWithErrorMargin
 };

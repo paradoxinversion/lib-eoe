@@ -57,6 +57,38 @@ function setMonthlyReportParams ({income, expenses}){
 }
 
 /**
+ * 
+ * @param {Object} ReconZoneEventParams
+ * @param {Zone} ReconZoneEventParams.zone 
+ * @param {import("./typedef").Person[]} ReconZoneEventParams.participants
+ */
+function setReconZoneParams({zone, participants, plot}){
+  this.params.plot = plot;
+  // this.params.zone = zone;
+  // this.params.participants = participants;
+}
+
+function resolveReconZone(gameData, resolveArgs){
+  const updatedGameData = {
+    zones: {}
+  }
+
+  /**
+   * @type {import("./typedef").Zone}
+   */
+  const updatedZone = JSON.parse(JSON.stringify(this.params.plot.plotParams.zone));
+  updatedZone.intelligenceLevel += this.params.plot.resolution.data.intelligenceModifier;
+  updatedGameData[updatedZone.id] = updatedZone
+  this.eventData = {
+    type: "recon-zone",
+    resolution: {
+      updatedGameData
+    }
+  }
+  return this.eventData;
+}
+
+/**
  * Resolve a Standard Report Event
  * @returns 
  */
@@ -253,6 +285,14 @@ const eventConfig = {
         this.eventText = `The Empire has attacked a Zone!`
       }
   },
+  reconZone: {
+    name: "Recon Zone",
+    setParams: setReconZoneParams,
+    resolve: resolveReconZone,
+    getEventText(){
+      this.eventText = "Update me"
+    }
+  },
   monthEndReport: {
     name: "Monthly Report",
     setParams: setMonthlyReportParams,
@@ -346,6 +386,10 @@ const generateAttackZonePlotEvent = (plot) => {
   });
 };
 
+const generateReconZoneEvent = (plot) => {
+  return new GameEvent(eventConfig.reconZone, {plot})
+}
+
 /**
  * Create and return a new EVIL Applicant Game Event
  * @param {import("./typedef").GameData} gameData
@@ -403,6 +447,9 @@ const addPlotResolutions = (plotResolutions, eventQueue) => {
     switch (plotResolution.plot.plotType) {
       case "attack-zone":
         resolutionEvent = generateAttackZonePlotEvent(plotResolution.plot);
+        break;
+      case "recon-zone":
+        resolutionEvent = generateReconZoneEvent(plotResolution.plot);
         break;
 
       default:
@@ -491,6 +538,7 @@ class GameEventQueue {
    */
   clearEvents() {
     this.events = [];
+    this.eventIndex = 0;
   }
 }
 

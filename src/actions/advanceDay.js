@@ -15,10 +15,10 @@ const advanceDay = (gameData, gameEventQueue, activityManager, plotManager) => {
 
   const activities = activityManager.executeActivities(gameData);
   gameEventQueue.setEvents(events);
-
-  const plots = plotManager.executePlots(gameData);
+  const plotResolutions = plotManager.executePlots(gameData);
+  const plotEvents = addPlotResolutions(plotResolutions, gameEventQueue);
   plotManager.clearPlotQueue();
-  const plotEvents = addPlotResolutions(plots, gameEventQueue);
+  
   gameEventQueue.addEvents(plotEvents);
   
   /**

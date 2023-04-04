@@ -24,13 +24,19 @@ const compoundZoneNameBases = [
   "Silent",
   "Snowy",
   "White",
+  "Sweet",
+  "Morose",
+  "Blue",
+  "Orange"
 ]
 
 const compoundZoneNameEndings = [
   "Falls",
   "Hollow",
   "Village",
-  "Township"
+  "Township",
+  "City",
+  "Town"
 ]
 
 const generateZoneName = () => {

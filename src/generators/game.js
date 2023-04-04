@@ -58,14 +58,15 @@ const generateNations = (nationsAmt, minSize, maxSize) => {
  * @param {number} [generateZoneOptions.size] - The size (amount of citizens...?)
  * @returns {import("../typedef").Zone}
  */
-const generateZone = ({ nationId, name = "Unnamed Zone", size = 5, organizationId }) => {
+const generateZone = ({ nationId, name = "Unnamed Zone", size = 5, organizationId, intelligenceLevel = 25 }) => {
   return {
     id: "z_" + uuidv4(),
     nationId,
     name,
     size,
     wealth: randomInt(1, 5),
-    organizationId
+    organizationId,
+    intelligenceLevel
   };
 };
 
@@ -93,10 +94,11 @@ const generateZones = (zonesAmt) => {
  * @param {string} [generatePersonOptions.initCombat] 
  * @param {string} [generatePersonOptions.initAdministration]
  * @param {string} [generatePersonOptions.initLeadership]
- * @param {string} [generatePersonOptions.initLoyalty]   
+ * @param {string} [generatePersonOptions.initLoyalty]
+ * @param {number} [generatePersonOptions.intelligenceLevel] 
  * @returns {import("../typedef").Person}
  */
-const generatePerson = ({ nationId, homeZoneId, name = "Unnamed Person", initIntelligence, initCombat, initAdministration, initLeadership, initLoyalty }) => {
+const generatePerson = ({ nationId, homeZoneId, name = "Unnamed Person", initIntelligence, initCombat, initAdministration, initLeadership, initLoyalty, intelligenceLevel = 25 }) => {
   const errors = [];
   throwErrorFromArray(errors);
 
@@ -122,7 +124,8 @@ const generatePerson = ({ nationId, homeZoneId, name = "Unnamed Person", initInt
     health: 10,
     currentHealth: 10,
     agent: null,
-    isPersonnel: false
+    isPersonnel: false,
+    intelligenceLevel
   };
 };
 

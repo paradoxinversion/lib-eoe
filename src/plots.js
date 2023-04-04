@@ -18,7 +18,9 @@ const activityConfig = [
           /**
            * @type {import("./typedef").Person}
            */
-          const updatedParticipant = JSON.parse(JSON.stringify(gameData.people[participant]));
+          const updatedParticipant = JSON.parse(
+            JSON.stringify(gameData.people[participant])
+          );
           const stat = randomInt(0, 2);
           switch (stat) {
             case 0:
@@ -68,14 +70,49 @@ const plotAttackZone = (gameData, { zone, participants }) => {
   );
   const result = doCombat(participants, defendingAgents);
   return {
-    data: result
+    data: result,
   };
+};
+
+const plotRecon = (gameData, { zone, participants }) => {
+  const participantIntelligence = Object.values(gameData.people)
+    .filter((participant) => participants.some((p) => p.id === participant.id))
+    .reduce((total, currentParticipant) => {
+      return total + currentParticipant.intelligence;
+    }, 0);
+
+  const zoneDefenderIntelligence = getAgentsInZone(gameData, zone.organizationId, zone.id).reduce((total, currentParticipant) => {
+    return total + currentParticipant.intelligence;
+  }, 0);
+
+
+  /**
+   * Can be positive or negative
+   */
+  let intelMod = 0;
+  let success = false;
+  if (participantIntelligence > zoneDefenderIntelligence){
+    intelMod = randomInt(5, 10);
+    success = true;
+  }
+
+  return {
+    data: {
+      intelligenceModifier: intelMod,
+      success
+    }
+  }
 };
 const plotConfig = {
   "attack-zone": {
     name: "Attack Zone",
     type: "attack-zone",
     fn: plotAttackZone,
+  },
+  "recon-zone": {
+    name: "Recon",
+    type: "recon-zone",
+    fn: plotRecon,
   },
 };
 
@@ -125,19 +162,19 @@ class Activity {
   }
 
   /**
-   * 
-   * @param {import("./typedef").GameData} gameData 
-   * @returns 
+   *
+   * @param {import("./typedef").GameData} gameData
+   * @returns
    */
   executeActivity(gameData) {
     const result = this.fn(gameData, this.agents);
     const updatedGameData = {
-      people: {}
-    }
-    Object.values(result.people).forEach(person => {
+      people: {},
+    };
+    Object.values(result.people).forEach((person) => {
       updatedGameData.people[person.id] = person;
-    })
-    return {result, updatedGameData};
+    });
+    return { result, updatedGameData };
   }
 }
 
@@ -152,7 +189,7 @@ class Plot {
 
   /**
    * Execute a plot, returning the plot's ResolutionValue.
-   * @param {import("./typedef").GameData} gameData 
+   * @param {import("./typedef").GameData} gameData
    * @returns {import("./typedef").PlotResolution}
    */
   executePlot(gameData) {
@@ -202,15 +239,18 @@ class ActivityManager {
    * Return a JSON compatible collection of activities
    * and their participants
    */
-  serializeActivities(){
-    const activities = this.activities.reduce((serializedActivities, activity)=>{
-      const currentActivity = {
-        name: activity.name,
-        agents: activity.agents
-      }
-      serializedActivities[activity.name] = currentActivity;
-      return serializedActivities;
-    }, {});
+  serializeActivities() {
+    const activities = this.activities.reduce(
+      (serializedActivities, activity) => {
+        const currentActivity = {
+          name: activity.name,
+          agents: activity.agents,
+        };
+        serializedActivities[activity.name] = currentActivity;
+        return serializedActivities;
+      },
+      {}
+    );
 
     return activities;
   }
@@ -225,22 +265,22 @@ class PlotManager {
 
   /**
    * Set the game plots (not individual playerp lots)
-   * @param {Plot} plots 
+   * @param {Plot} plots
    */
   setPlots(plots) {
     this.plots = plots;
   }
 
   /**
-   * Remove all plots 
+   * Remove all plots
    */
-  clearPlots(){
+  clearPlots() {
     this.plots = [];
   }
 
   /**
    * Add a plot to the queue
-   * @param {Plot} plot 
+   * @param {Plot} plot
    */
   addPlot(plot) {
     this.plotQueue.push(plot);
@@ -249,14 +289,16 @@ class PlotManager {
   /**
    * Remove all plots from the plot queue
    */
-   clearPlotQueue(){
+  clearPlotQueue() {
     this.plotQueue = [];
+    this.plotResolutions = [];
+    // this.currentPlot = 0;
   }
 
   /**
    * Execute a plot, returning...
-   * @param {Plot} plot 
-   * @param {import("./typedef").GameData} gameData 
+   * @param {Plot} plot
+   * @param {import("./typedef").GameData} gameData
    * @returns {import("./typedef").PlotResolution}
    */
   executePlot(plot, gameData) {
@@ -267,14 +309,14 @@ class PlotManager {
    * Executes all plots in the queue. Adds each resolution
    * to the plot's `plotResolutions` property. Returns
    * the resolutions.
-   * @param {import("./typedef").GameData} gameData 
-   * @returns {import("./typedef").PlotResolution[]} The 
+   * @param {import("./typedef").GameData} gameData
+   * @returns {import("./typedef").PlotResolution[]} The
    */
   executePlots(gameData) {
     this.plotQueue.forEach((plot) => {
       this.plotResolutions.push({
         plot,
-        resolution: this.executePlot(plot, gameData)
+        resolution: this.executePlot(plot, gameData),
       });
     });
     return this.plotResolutions;

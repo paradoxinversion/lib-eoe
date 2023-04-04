@@ -6,7 +6,7 @@
  * @property {number} size - The size (amount of zones) of the nation
  */
 
-const { Activity, Plot } = require("./plots");
+const { Plot } = require("./plots");
 
 /**
  * A Zone
@@ -16,6 +16,7 @@ const { Activity, Plot } = require("./plots");
  * @property {string} nationId - The ID of the nation the zone belongs to
  * @property {number} size - The size (amount of citizens) in the zone
  * @property {number} wealth - the wealth value of the zone
+ * @property {number} intelligenceLevel - The level of knowledge the EOE has on this zone
  */
 
 /**
@@ -32,7 +33,9 @@ const { Activity, Plot } = require("./plots");
  * @property {number} health - the person's max health
  * @property {number} currentHealth - the person's current health
  * @property {AgentData} agent - If present, data about the peron's agent status
- * @property {number} leadership - the max possible agents the agent can manag
+ * @property {number} leadership - the max possible agents the agent can manage
+ * @property {number} intelligenceLevel - The level of knowledge the EOE has on this person
+ * @property {boolean} isPersonnel - Whether or not the person is working in a building 
  */
 
 /**
@@ -63,7 +66,7 @@ const { Activity, Plot } = require("./plots");
  */
 
 /**
- * Data about the agent status of a charactr
+ * Data about the agent status of a character
  * @typedef {Object} CombatResult
  * @property {number} rounds - The total amount of rounds
  * @property {string[]} combatLog - An array of combat log messages
