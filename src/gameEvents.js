@@ -192,7 +192,9 @@ function resolveAttackZone(gameData){
 
   this.eventData = {
     type: "attack-zone",
-    updatedGameData,
+    resolution: {
+      updatedGameData,
+    }
   };
 
   return this.eventData;
