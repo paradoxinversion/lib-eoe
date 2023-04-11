@@ -62,7 +62,7 @@ function setMonthlyReportParams ({income, expenses}){
  * @param {Zone} ReconZoneEventParams.zone 
  * @param {import("./typedef").Person[]} ReconZoneEventParams.participants
  */
-function setReconZoneParams({zone, participants, plot}){
+function setReconZoneParams({plot}){
   this.params.plot = plot;
   // this.params.zone = zone;
   // this.params.participants = participants;
@@ -76,7 +76,7 @@ function resolveReconZone(gameData, resolveArgs){
   /**
    * @type {import("./typedef").Zone}
    */
-  const updatedZone = JSON.parse(JSON.stringify(this.params.plot.plotParams.zone));
+  const updatedZone = JSON.parse(JSON.stringify(gameData.zones[this.params.plot.plotParams.zoneId]));
   updatedZone.intelligenceLevel += this.params.plot.resolution.data.intelligenceModifier;
   updatedGameData[updatedZone.id] = updatedZone
   this.eventData = {

@@ -109,6 +109,13 @@ const { Plot } = require("./plots");
  */
 
 /**
+ * @typedef {Object} PlotConfiguration
+ * @property {string} name
+ * @property {string} type
+ * @property {Function} fn
+ */
+
+/**
  * @typedef {Object} SaveData
  * @property {GameData} gameData
  * @property {PlotData} plotData

@@ -27,6 +27,7 @@ This repo is currently not taking contributions, but may in the future.
 
 - Try to avoid nesting data-- keep things as flat as possible. Approach it as though this data would be used with a database. (ie, prefer structures with fast lookup times wherever possible)
 - Underlying game data is not modified by this library. Functions within should return updated objects and fields that can then be used with complete implementations.
+- Object/Entity references should be made via ids (rather than the objects they represent) wherever possible. This should help keep savedata serializable and lightweight. 
 
 ## Implementations
 [client-eoe](https://github.com/paradoxinversion/client-eoe)

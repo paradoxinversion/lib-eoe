@@ -1,6 +1,16 @@
-const serializeGameData = (gameData, activityManager) => {
-    // const data = JSON.stringify(gameData);
+const { ActivityManager, PlotManager } = require("./plots");
+
+/**
+ * 
+ * @param {import("./typedef").GameData} gameData 
+ * @param {ActivityManager} activityManager 
+ * @param {PlotManager} plotManager 
+ * @returns 
+ */
+const serializeGameData = (gameData, activityManager, plotManager) => {
+    debugger;
     const activitiesData = activityManager.serializeActivities()
+    const plotData = plotManager.serializePlots();
     
     /**
      * @type {import("empire-of-evil/src/typedef").SaveData}
@@ -8,7 +18,8 @@ const serializeGameData = (gameData, activityManager) => {
     const saveData =  {
       gameData,
       plotData: {
-        activities: activitiesData
+        activities: activitiesData,
+        plots: plotData
       }
     }
   

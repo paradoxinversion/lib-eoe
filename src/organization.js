@@ -1,4 +1,5 @@
 const { generateAgentData } = require("./generators/game");
+const { getActivityParticipants } = require("./plots");
 const { throwErrorFromArray } = require("./utilities");
 
 /**
@@ -21,19 +22,84 @@ const recruitAgent = (organizationId, person, department = 0) => {
  *
  * @param {import("./typedef").Person[]} peopleArray
  * @param {string} organizationId
+ * @param {Object}
  * @returns {import("./typedef").Person[]}
  */
-const getAgents = (gameData, organizationId, excludeCorpses = true) => {
-  const errors = [];
-  if (!organizationId) {
-    errors.push("'organizationId' is a required parameter");
+const getAgents = (
+  gameData,
+  organizationId,
+  excludeCorpses = true,
+  excludeUnavailable = false
+) => {
+  return _getAgents(gameData, {
+    organizationId,
+    exclude: {
+      corpses: excludeCorpses,
+      unavailable: excludeUnavailable,
+    },
+  });
+};
+
+/**
+ *
+ * @param {import("./typedef").GameData} gameData
+ * @param {Object} parameters
+ * @param {string} parameters.organizationId - The id of the org to retrieve agents for
+ * @param {Object} [parameters.filter]
+ * @param {string} [parameters.filter.zoneId] - Limit returned agents to the zoneId
+ * @param {number} [parameters.filter.department] - Limit returned agents to the department
+ * @param {Object} [parameters.exclude]
+ * @param {boolean} [parameters.exclude.corpses] - Exclude dead agents from the return array
+ * @param {boolean} [parameters.exclude.unavailable] - Exclude agents that are engaged in plots or activities from the return array
+ * @param {boolean} [parameters.exclude.personnel] - Exclude agents that are marked as building personnel
+ */
+const _getAgents = (gameData, parameters) => {
+  if (!parameters.organizationId) {
+    console.error("parameters.organizationId is required.");
   }
-  throwErrorFromArray(errors);
+
   return Object.values(gameData.people).filter((person) => {
-    if (excludeCorpses && person.currentHealth <= 0) {
+    if (!person.agent) {
       return false;
     }
-    return person.agent && person.agent.organizationId === organizationId;
+
+    if (person.agent.organizationId !== parameters.organizationId) {
+      return false;
+    }
+
+    if (parameters.filter) {
+      if (parameters.filter.department !== undefined) {
+        if (parameters.filter.department !== person.agent.department) {
+          return false;
+        }
+      }
+
+      if (
+        parameters.filter.zoneId &&
+        parameters.filter.zoneId !== person.homeZoneId
+      ) {
+        return false;
+      }
+    }
+
+    if (parameters.exclude) {
+      if (parameters.exclude.corpses && person.currentHealth <= 0) {
+        return false;
+      }
+      if (
+        parameters.exclude.unavailable &&
+        !person.agent.availableForAssignment
+      ) {
+        return false;
+      }
+
+      if (parameters.exclude.personnel){
+        return !!!Object.values(gameData.buildings).find(building => building.personnel.includes(person.id));
+        
+      }
+    }
+
+    return true;
   });
 };
 
@@ -107,18 +173,18 @@ const getScience = (gameData, organizationId) => {
 
   return orgLabs.reduce((tv, lab) => {
     let labIntelBonus = 0;
-    lab.personnel.forEach(personnelId => {
-        labIntelBonus += gameData.people[personnelId].intelligence;
+    lab.personnel.forEach((personnelId) => {
+      labIntelBonus += gameData.people[personnelId].intelligence;
     });
     return tv + labIntelBonus;
-  }, 0)
-//   return getAgents(gameData, organizationId).reduce((science, currentAgent) => {
-//     if (currentAgent.agent.department === 2) {
-//       return science + currentAgent.intelligence;
-//     }
+  }, 0);
+  //   return getAgents(gameData, organizationId).reduce((science, currentAgent) => {
+  //     if (currentAgent.agent.department === 2) {
+  //       return science + currentAgent.intelligence;
+  //     }
 
-//     return science;
-//   }, 0);
+  //     return science;
+  //   }, 0);
 };
 
 /**
@@ -186,32 +252,31 @@ const hireAgent = (agent, organizationId, department, commanderId, salary) => {
 };
 
 const fireAgent = (agent) => {
-    const updatedAgent = JSON.parse(JSON.stringify(agent));
-    updatedAgent.agent = undefined;
-    return {
-        people: {
-            [updatedAgent.id]: updatedAgent
-        }
-    }
-}
+  const updatedAgent = JSON.parse(JSON.stringify(agent));
+  updatedAgent.agent = undefined;
+  return {
+    people: {
+      [updatedAgent.id]: updatedAgent,
+    },
+  };
+};
 
 /**
- * 
- * @param {import("./typedef").Person} agent 
+ *
+ * @param {import("./typedef").Person} agent
  */
 const terminateAgent = (agent) => {
-    const updatedAgent = JSON.parse(JSON.stringify(agent));
-    updatedAgent.agent = undefined;
-    updatedAgent.currentHealth = 0;
+  const updatedAgent = JSON.parse(JSON.stringify(agent));
+  updatedAgent.agent = undefined;
+  updatedAgent.currentHealth = 0;
 
-    // TODO: Should have a positive impact on org's EVIL value
-    return {
-        people: {
-            [updatedAgent.id]: updatedAgent
-        }
-    }
-
-}
+  // TODO: Should have a positive impact on org's EVIL value
+  return {
+    people: {
+      [updatedAgent.id]: updatedAgent,
+    },
+  };
+};
 
 /**
  *
@@ -226,6 +291,7 @@ const calculateAgentSalary = (agent) => {
 module.exports = {
   recruitAgent,
   getAgents,
+  _getAgents,
   getMaxAgents,
   getScience,
   getInfrastructure,
@@ -236,5 +302,5 @@ module.exports = {
   getAgentsInZone,
   calculateAgentSalary,
   fireAgent,
-  terminateAgent
+  terminateAgent,
 };

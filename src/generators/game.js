@@ -125,7 +125,7 @@ const generatePerson = ({ nationId, homeZoneId, name = "Unnamed Person", initInt
     currentHealth: 10,
     agent: null,
     isPersonnel: false,
-    intelligenceLevel
+    intelligenceLevel,
   };
 };
 
@@ -152,7 +152,8 @@ const generateAgentData = (organizationId, department, commanderId, salary) => {
     department,
     organizationId,
     salary,
-    commanderId
+    commanderId,
+    availableForAssignment: true
   };
 };
 

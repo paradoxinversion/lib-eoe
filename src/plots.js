@@ -46,14 +46,31 @@ const activityConfig = [
       return { people: updatedAgents };
     },
   },
-  // {
-  //   name: "Foo",
-  //   fn: () => {
-  //     return {
-  //       bar: "baz",
-  //     };
-  //   },
-  // },
+  {
+    name: "EVIL Education",
+    /**
+     * @param {import("./typedef").GameData} gameData
+     * @param {string[]} participantArray - An array of id's of participating agents
+     */
+    fn: (gameData, participantArray) => {
+      const updatedAgents = participantArray.reduce(
+        (participants, participant) => {
+          /**
+           * @type {import("./typedef").Person}
+           */
+          const updatedParticipant = JSON.parse(
+            JSON.stringify(gameData.people[participant])
+          );
+          const loyaltyIncrease = randomInt(1,4);
+          updatedParticipant.loyalty = updatedParticipant.loyalty + loyaltyIncrease;
+          participants[updatedParticipant.id] = updatedParticipant;
+          return participants;
+        },
+        {}
+      );
+      return { people: updatedAgents };
+    },
+  },
 ];
 /**
  * @param {import("./typedef").GameData} gameData
@@ -62,19 +79,28 @@ const activityConfig = [
  * @param {string[]} plotArgs.participants
  * @returns {import("./typedef").PlotResolution}
  */
-const plotAttackZone = (gameData, { zone, participants }) => {
+const plotAttackZone = (gameData, { zone: {id: zoneId, organizationId: zoneOrgId}, participants }) => {
   const defendingAgents = getAgentsInZone(
     gameData,
-    zone.organizationId,
-    zone.id
+    zoneOrgId,
+    zoneId
   );
-  const result = doCombat(participants, defendingAgents);
+  const attackingAgents = participants.map(agent => gameData.people[agent])
+  const result = doCombat(attackingAgents, defendingAgents);
   return {
     data: result,
   };
 };
 
-const plotRecon = (gameData, { zone, participants }) => {
+/**
+ * 
+ * @param {import("./typedef").GameData} gameData 
+ * @param {Object} plotArgs 
+ * @param {import("./typedef").string} plotArgs.zoneId
+ * @param {string[]} plotArgs.participants
+ */
+const plotRecon = (gameData, { zoneId, participants }) => {
+  const zone = gameData.zones[zoneId];
   const participantIntelligence = Object.values(gameData.people)
     .filter((participant) => participants.some((p) => p.id === participant.id))
     .reduce((total, currentParticipant) => {
@@ -103,12 +129,20 @@ const plotRecon = (gameData, { zone, participants }) => {
     }
   }
 };
+
+
 const plotConfig = {
+  /**
+   * @type {import("./typedef").PlotConfiguration}
+   */
   "attack-zone": {
     name: "Attack Zone",
     type: "attack-zone",
     fn: plotAttackZone,
   },
+  /**
+   * @type {import("./typedef").PlotConfiguration}
+   */
   "recon-zone": {
     name: "Recon",
     type: "recon-zone",
@@ -144,10 +178,17 @@ class Activity {
    * Add an agent to the activity
    * @param {string} agent - The id of the agent participating
    */
-  addAgent(agent) {
+  addAgent(gameData, agent) {
+    let updatedGameData = {
+      people: {}
+    }
     if (!this.agents.includes(agent)) {
       this.agents.push(agent);
+      const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agent]));
+      updatedAgent.agent.availableForAssignment = false;
+      updatedGameData.people[updatedAgent.id] = updatedAgent;
     }
+    return updatedGameData;
   }
 
   /**
@@ -155,10 +196,17 @@ class Activity {
    * @param {string} agent - The id of the agent to remove
    */
   removeAgent(agent) {
+    let updatedGameData = {
+      people: {}
+    }
     const agentIndex = this.agents.findIndex(agent);
     if (agentIndex != -1) {
       this.agents.splice(agentIndex, 1);
+      const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agent]));
+      updatedAgent.agent.availableForAssignment = true;
+      updatedGameData.people[updatedAgent.id] = updatedAgent;
     }
+    return updatedGameData;
   }
 
   /**
@@ -179,9 +227,8 @@ class Activity {
 }
 
 class Plot {
-  constructor(name, agents, plotType, plotParams) {
+  constructor(name, plotType, plotParams) {
     this.name = name;
-    this.agents = agents;
     this.plotParams = plotParams;
     this.plotType = plotType;
     this.resolution = {};
@@ -255,8 +302,12 @@ class ActivityManager {
     return activities;
   }
 }
+
 class PlotManager {
   constructor() {
+    /**
+     * @type {Plot[]}
+     */
     this.plotQueue = [];
     this.currentPlot = 0;
     this.plots = [];
@@ -287,12 +338,19 @@ class PlotManager {
   }
 
   /**
+   * Replaces the current plot queue with the parameter array
+   * @param {Plot[]} plotQueue 
+   */
+  setPlotQueue(plotQueue){
+    this.plotQueue = plotQueue;
+  }
+
+  /**
    * Remove all plots from the plot queue
    */
   clearPlotQueue() {
     this.plotQueue = [];
     this.plotResolutions = [];
-    // this.currentPlot = 0;
   }
 
   /**
@@ -321,6 +379,22 @@ class PlotManager {
     });
     return this.plotResolutions;
   }
+
+  /**
+   * Return a JSON compatible collection of activities
+   * and their participants
+   */
+  serializePlots() {
+    const plots = this.plotQueue.reduce(
+      (serializedPlots, plot) => {
+        serializedPlots.push(plot)
+        return serializedPlots;
+      },
+      []
+    );
+
+    return plots;
+  }
 }
 const populateActivities = (activityManager) => {
   const activities = [];
@@ -347,6 +421,23 @@ const populatePlots = (plotManager) => {
   plotManager.setPlots(plots);
 };
 
+/**
+ * 
+ * @param {ActivityManager} activityManager 
+ */
+const getActivityParticipants = (gameData, activityManager) => {
+  const p =  activityManager.activities.reduce((participants, currentActivity)=>{
+    currentActivity.agents.forEach(agent => {
+      participants.push({
+        participant: gameData.people[agent],
+        activity: currentActivity.name
+      })
+    })
+    return participants;
+  },[]);
+  return p;
+}
+
 module.exports = {
   Activity,
   ActivityManager,
@@ -355,4 +446,5 @@ module.exports = {
   PlotManager,
   populatePlots,
   plotConfig,
+  getActivityParticipants
 };
