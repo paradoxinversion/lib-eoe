@@ -72,7 +72,9 @@ describe("nations", () => {
   });
 
   test("getUpkeep", () => {
-    expect(getUpkeep(gameData, gameData.player.organizationId)).toBeGreaterThan(0);
+    expect(getUpkeep(gameData, gameData.player.organizationId)).toBeGreaterThan(
+      0
+    );
   });
 
   test("getHousingCapacity", () => {

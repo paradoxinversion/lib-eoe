@@ -35,7 +35,7 @@ const { Plot } = require("./plots");
  * @property {AgentData} agent - If present, data about the peron's agent status
  * @property {number} leadership - the max possible agents the agent can manage
  * @property {number} intelligenceLevel - The level of knowledge the EOE has on this person
- * @property {boolean} isPersonnel - Whether or not the person is working in a building 
+ * @property {boolean} isPersonnel - Whether or not the person is working in a building
  */
 
 /**
@@ -52,7 +52,7 @@ const { Plot } = require("./plots");
  * A Governing Organization
  * @typedef {Object} CombatInitiative
  * @property {number} initiative - The number order in which the character should attack
- * @property {boolean} attackingForce - 
+ * @property {boolean} attackingForce -
  * @property {number} characterIndex
  */
 
@@ -71,8 +71,8 @@ const { Plot } = require("./plots");
  * @property {number} rounds - The total amount of rounds
  * @property {string[]} combatLog - An array of combat log messages
  * @property {object} characters
- * @property {Person[]} characters.attackers 
- * @property {Person[]} characters.defendrs 
+ * @property {Person[]} characters.attackers
+ * @property {Person[]} characters.defendrs
  */
 
 /**
@@ -128,10 +128,10 @@ const { Plot } = require("./plots");
  * @property {string} organizationId - the id of the org this Agent works for
  * @property {string} name
  * @property {string} zoneId
- * @property {number} wealthBonus  
- * @property {number} infrastructureCost 
- * @property {number} upkeepCost 
- * @property {number} housingCapacity  
+ * @property {number} wealthBonus
+ * @property {number} infrastructureCost
+ * @property {number} upkeepCost
+ * @property {number} housingCapacity
  * @property {number} type
  * @property {number} maxPersonnel
  * @property {string[]} personnel
@@ -192,4 +192,4 @@ const { Plot } = require("./plots");
 /**
  * @typedef {Object.<string, number>} ShufflebagFrequency - A map of possible values and their frequency. The frequency is an integer representing the amount of times the option is added to the bag.
  */
-module.exports = {}
+module.exports = {};

@@ -1,4 +1,8 @@
-const { GameEventQueue, addPlotResolutions, prepareRandomEvents } = require("../gameEvents");
+const {
+  GameEventQueue,
+  addPlotResolutions,
+  prepareRandomEvents,
+} = require("../gameEvents");
 const { ActivityManager, PlotManager } = require("../plots");
 const GameManager = require("../GameManager");
 
@@ -8,7 +12,12 @@ const GameManager = require("../GameManager");
  * @param {GameManager} gameManager
  */
 const advanceDay = (gameManager) => {
-  const {gameData, eventManager: gameEventQueue, activityManager, plotManager} = gameManager;
+  const {
+    gameData,
+    eventManager: gameEventQueue,
+    activityManager,
+    plotManager,
+  } = gameManager;
   const events = prepareRandomEvents(gameManager);
 
   const activities = activityManager.executeActivities(gameManager);
@@ -16,22 +25,22 @@ const advanceDay = (gameManager) => {
   const plotResolutions = plotManager.executePlots(gameManager);
   const plotEvents = addPlotResolutions(plotResolutions, gameEventQueue);
   plotManager.clearPlotQueue();
-  
+
   gameEventQueue.addEvents(plotEvents);
-  
+
   /**
    * @type {import("../typedef").UpdatedGameData}
    */
   const updatedGameData = JSON.parse(JSON.stringify(gameData));
-  activities.forEach(activity => {
-    if (activity.result.updatedGameData){
+  activities.forEach((activity) => {
+    if (activity.result.updatedGameData) {
       updatedGameData.people = {
         ...updatedGameData.people,
         ...activity.result.updatedGameData.people,
-      }
+      };
     }
   });
-  
+
   const gameDate = new Date(gameData.gameDate);
   gameDate.setDate(gameDate.getDate() + 1);
   updatedGameData.gameDate = gameDate;

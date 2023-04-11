@@ -58,7 +58,13 @@ const generateNations = (nationsAmt, minSize, maxSize) => {
  * @param {number} [generateZoneOptions.size] - The size (amount of citizens...?)
  * @returns {import("../typedef").Zone}
  */
-const generateZone = ({ nationId, name = "Unnamed Zone", size = 5, organizationId, intelligenceLevel = 25 }) => {
+const generateZone = ({
+  nationId,
+  name = "Unnamed Zone",
+  size = 5,
+  organizationId,
+  intelligenceLevel = 25,
+}) => {
   return {
     id: "z_" + uuidv4(),
     nationId,
@@ -66,7 +72,7 @@ const generateZone = ({ nationId, name = "Unnamed Zone", size = 5, organizationI
     size,
     wealth: randomInt(1, 5),
     organizationId,
-    intelligenceLevel
+    intelligenceLevel,
   };
 };
 
@@ -90,15 +96,25 @@ const generateZones = (zonesAmt) => {
  * @param {string} generatePersonOptions.homeZoneId - The ID of the Zone this Person calls home
  * @param {string} [generatePersonOptions.name] - The name of the person.
  * @param {string} [generatePersonOptions.orgId] - the id of the org this person is an agent of
- * @param {string} [generatePersonOptions.initIntelligence] 
- * @param {string} [generatePersonOptions.initCombat] 
+ * @param {string} [generatePersonOptions.initIntelligence]
+ * @param {string} [generatePersonOptions.initCombat]
  * @param {string} [generatePersonOptions.initAdministration]
  * @param {string} [generatePersonOptions.initLeadership]
  * @param {string} [generatePersonOptions.initLoyalty]
- * @param {number} [generatePersonOptions.intelligenceLevel] 
+ * @param {number} [generatePersonOptions.intelligenceLevel]
  * @returns {import("../typedef").Person}
  */
-const generatePerson = ({ nationId, homeZoneId, name = "Unnamed Person", initIntelligence, initCombat, initAdministration, initLeadership, initLoyalty, intelligenceLevel = 25 }) => {
+const generatePerson = ({
+  nationId,
+  homeZoneId,
+  name = "Unnamed Person",
+  initIntelligence,
+  initCombat,
+  initAdministration,
+  initLeadership,
+  initLoyalty,
+  intelligenceLevel = 25,
+}) => {
   const errors = [];
   throwErrorFromArray(errors);
 
@@ -153,7 +169,7 @@ const generateAgentData = (organizationId, department, commanderId, salary) => {
     organizationId,
     salary,
     commanderId,
-    availableForAssignment: true
+    availableForAssignment: true,
   };
 };
 
@@ -185,59 +201,65 @@ const generateGoverningOrg = ({
   };
 };
 
-const generateBuilding = ({zoneId, buildingType, organizationId, infrastructureCost, upkeepCost}) => {
-    const errors = [];
-    if (!zoneId) {
-        errors.push("'zoneId' is a required option parameter.");
-    }
+const generateBuilding = ({
+  zoneId,
+  buildingType,
+  organizationId,
+  infrastructureCost,
+  upkeepCost,
+}) => {
+  const errors = [];
+  if (!zoneId) {
+    errors.push("'zoneId' is a required option parameter.");
+  }
 
-    if (!buildingType) {
-        errors.push("'buildingType' is a required option parameter.");
-    }
+  if (!buildingType) {
+    errors.push("'buildingType' is a required option parameter.");
+  }
 
-    if (!organizationId) {
-        errors.push("'organizationId' is a required option parameter.");
-    }
+  if (!organizationId) {
+    errors.push("'organizationId' is a required option parameter.");
+  }
 
-    if (!infrastructureCost) {
-        errors.push("'infrastructureCost' is a required option parameter.");
-    }
+  if (!infrastructureCost) {
+    errors.push("'infrastructureCost' is a required option parameter.");
+  }
 
-    if (!upkeepCost) {
-        errors.push("'upkeepCost' is a required option parameter.");
-    }
-    throwErrorFromArray(errors);
-    let wealthBonus = 0;
-    let housingCapacity = 0;
-    let maxPersonnel = 4;
-    switch (buildingType) {
-        case "bank":
-            wealthBonus = randomInt(10, 20)
-            break;
+  if (!upkeepCost) {
+    errors.push("'upkeepCost' is a required option parameter.");
+  }
+  throwErrorFromArray(errors);
+  let wealthBonus = 0;
+  let housingCapacity = 0;
+  let maxPersonnel = 4;
+  switch (buildingType) {
+    case "bank":
+      wealthBonus = randomInt(10, 20);
+      break;
 
-        case "apartment":
-            housingCapacity = randomInt(10, 20);
-            break;
+    case "apartment":
+      housingCapacity = randomInt(10, 20);
+      break;
 
-        case "laboratory":
-            maxPersonnel = randomInt(1,5);
-            break;
-        default:
-            break;
-    }
-    return {
-        id: "b_" + uuidv4(),
-        name: buildingType,
-        zoneId,
-        organizationId,
-        wealthBonus,
-        infrastructureCost,
-        housingCapacity,
-        upkeepCost,
-        type: buildingType,
-        maxPersonnel,
-        personnel: []
-    }
+    case "laboratory":
+      maxPersonnel = randomInt(1, 5);
+      break;
+    default:
+      break;
+  }
+  return {
+    id: "b_" + uuidv4(),
+    name: buildingType,
+    zoneId,
+    organizationId,
+    wealthBonus,
+    infrastructureCost,
+    housingCapacity,
+    upkeepCost,
+    type: buildingType,
+    maxPersonnel,
+    personnel: [],
+  };
 };
 
 module.exports = {
@@ -249,5 +271,5 @@ module.exports = {
   generatePeople,
   generateAgentData,
   generateGoverningOrg,
-  generateBuilding
+  generateBuilding,
 };

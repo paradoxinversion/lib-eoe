@@ -180,7 +180,12 @@ const handleNewGame = () => {
       newGameData.buildings[b.id] = b;
     }
   });
-  return new GameManager(newGameData, new GameEventQueue(), new PlotManager(), new ActivityManager());
+  return new GameManager(
+    newGameData,
+    new GameEventQueue(),
+    new PlotManager(),
+    new ActivityManager()
+  );
 };
 
 /**
@@ -189,57 +194,57 @@ const handleNewGame = () => {
  */
 const hireStartingAgents = (gameManager) => {
   const gameData = gameManager.gameData;
-    /**
-     * @type {import("./typedef").UpdatedGameData}
-     */
-    const updatedGameData = JSON.parse(JSON.stringify(gameData));
-    /**
-     * @type {Object.<string, import("./typedef").Person>}
-     */
-    const updatedPeople = {};
+  /**
+   * @type {import("./typedef").UpdatedGameData}
+   */
+  const updatedGameData = JSON.parse(JSON.stringify(gameData));
+  /**
+   * @type {Object.<string, import("./typedef").Person>}
+   */
+  const updatedPeople = {};
 
-    Object.values(gameData.governingOrganizations).forEach((org) => {
-      if (org.id === gameData.player.organizationId) {
-        return null;
-      }
+  Object.values(gameData.governingOrganizations).forEach((org) => {
+    if (org.id === gameData.player.organizationId) {
+      return null;
+    }
 
-      const orgZones = getControlledZones(gameManager, org.id);
-      const leader = generatePerson({
-        homeZoneId: orgZones[0].id,
-        nationId: org.nationId,
-        initIntelligence: 10,
-        initCombat: 10,
-        initLeadership: 200,
-        initLoyalty: 100,
-        initAdministration: 10,
-      });
-  
-      const leaderAgent = generateAgentData(org.id, 3);
-      leader.agent = leaderAgent;
-      updatedPeople[leader.id] = leader;
-      orgZones.forEach((zone) => {
-        const zoneCitizens = getZoneCitizens(gameManager, zone.id);
-        for (let recruitIndex = 0; recruitIndex < 3; recruitIndex++) {
-          const recruitType = recruitDepartmentShufflebag.next().toString();
-          const recruit = zoneCitizens[recruitIndex];
-          updatedPeople[recruit.id] = hireAgent(
-            recruit,
-            org.id,
-            recruitType,
-            leader.id,
-            1
-          );
-        }
-      });
+    const orgZones = getControlledZones(gameManager, org.id);
+    const leader = generatePerson({
+      homeZoneId: orgZones[0].id,
+      nationId: org.nationId,
+      initIntelligence: 10,
+      initCombat: 10,
+      initLeadership: 200,
+      initLoyalty: 100,
+      initAdministration: 10,
     });
-    updatedGameData.people = {
-      ...gameData.people,
-      ...updatedPeople,
-    };
-    return updatedGameData;
+
+    const leaderAgent = generateAgentData(org.id, 3);
+    leader.agent = leaderAgent;
+    updatedPeople[leader.id] = leader;
+    orgZones.forEach((zone) => {
+      const zoneCitizens = getZoneCitizens(gameManager, zone.id);
+      for (let recruitIndex = 0; recruitIndex < 3; recruitIndex++) {
+        const recruitType = recruitDepartmentShufflebag.next().toString();
+        const recruit = zoneCitizens[recruitIndex];
+        updatedPeople[recruit.id] = hireAgent(
+          recruit,
+          org.id,
+          recruitType,
+          leader.id,
+          1
+        );
+      }
+    });
+  });
+  updatedGameData.people = {
+    ...gameData.people,
+    ...updatedPeople,
   };
-  
-  module.exports = {
-    handleNewGame,
-    hireStartingAgents
-  }
+  return updatedGameData;
+};
+
+module.exports = {
+  handleNewGame,
+  hireStartingAgents,
+};

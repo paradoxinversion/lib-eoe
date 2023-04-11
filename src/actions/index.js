@@ -1,5 +1,5 @@
-const advanceDay = require("./advanceDay")
+const advanceDay = require("./advanceDay");
 
 module.exports = {
-    advanceDay
-}
+  advanceDay,
+};

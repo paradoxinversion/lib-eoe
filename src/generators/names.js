@@ -10,8 +10,8 @@ const nationNames = [
   "Lowland",
   "Myrtle",
   "Serenia",
-  "Shadyland"
-]
+  "Shadyland",
+];
 const compoundZoneNameBases = [
   "Black",
   "Diamond",
@@ -27,8 +27,8 @@ const compoundZoneNameBases = [
   "Sweet",
   "Morose",
   "Blue",
-  "Orange"
-]
+  "Orange",
+];
 
 const compoundZoneNameEndings = [
   "Falls",
@@ -36,75 +36,81 @@ const compoundZoneNameEndings = [
   "Village",
   "Township",
   "City",
-  "Town"
-]
+  "Town",
+];
 
 const generateZoneName = () => {
-  return `${compoundZoneNameBases[randomInt(0, compoundZoneNameBases.length -1 )]} ${compoundZoneNameEndings[randomInt(0, compoundZoneNameEndings.length -1 )]}`
-}
+  return `${
+    compoundZoneNameBases[randomInt(0, compoundZoneNameBases.length - 1)]
+  } ${
+    compoundZoneNameEndings[randomInt(0, compoundZoneNameEndings.length - 1)]
+  }`;
+};
 /**
  * Generate a random character name
  * @returns {string}
  */
 const generateName = () => {
- const firstNames = [
-  "Adam",
-  "Alec",
-  "Alex",
-  "Anna",
-  "Bill",
-  "Belle",
-  "Benjamin",
-  "Beth",
-  "Dan",
-  "Danielle",
-  "Denise",
-  "Ed",
-  "Eddy",
-  "Edgar",
-  "Emma",
-  "Jessica",
-  "Jill",
-  "John",
-  "Karen",
-  "Kyle",
-  "Lara",
-  "Laura",
-  "Lauren",
-  "Laurence",
-  "Stewart",
-  "Susan",
-  "Susanne"
- ];
+  const firstNames = [
+    "Adam",
+    "Alec",
+    "Alex",
+    "Anna",
+    "Bill",
+    "Belle",
+    "Benjamin",
+    "Beth",
+    "Dan",
+    "Danielle",
+    "Denise",
+    "Ed",
+    "Eddy",
+    "Edgar",
+    "Emma",
+    "Jessica",
+    "Jill",
+    "John",
+    "Karen",
+    "Kyle",
+    "Lara",
+    "Laura",
+    "Lauren",
+    "Laurence",
+    "Stewart",
+    "Susan",
+    "Susanne",
+  ];
 
- const lastNames = [
-  "Aronson",
-  "Black",
-  "Butler",
-  "Bonner",
-  "Brook",
-  "Brown",
-  "Chan",
-  "Craig",
-  "Darcy",
-  "Delgado",
-  "Franklin",
-  "Gonzales",
-  "Meyer",
-  "Meyers",
-  "Moss",
-  "Silverstone",
-  "Smith",
-  "Schinn",
-  "White",
- ]
+  const lastNames = [
+    "Aronson",
+    "Black",
+    "Butler",
+    "Bonner",
+    "Brook",
+    "Brown",
+    "Chan",
+    "Craig",
+    "Darcy",
+    "Delgado",
+    "Franklin",
+    "Gonzales",
+    "Meyer",
+    "Meyers",
+    "Moss",
+    "Silverstone",
+    "Smith",
+    "Schinn",
+    "White",
+  ];
 
- const name = `${firstNames[randomInt(0,firstNames.length-1)]} ${lastNames[randomInt(0,lastNames.length-1)]}`;
- return name;
-}
+  const name = `${firstNames[randomInt(0, firstNames.length - 1)]} ${
+    lastNames[randomInt(0, lastNames.length - 1)]
+  }`;
+  return name;
+};
 
 module.exports = {
   generateName,
   generateZoneName,
-  nationNames
-}
+  nationNames,
+};

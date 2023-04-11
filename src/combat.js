@@ -1,17 +1,17 @@
 /**
  * Creates a CombatInitiative object.
  * @param {number} initiative - The initiative value
- * @param {boolean} attackingForce - Whether or not the associated character is in the attacking side of this combat encounter 
+ * @param {boolean} attackingForce - Whether or not the associated character is in the attacking side of this combat encounter
  * @param {number} characterIndex - The index of the associate character within their source array.
  * @returns {import("./typedef").CombatInitiative} A CombatInitiative Object
  */
 const createInitiative = (initiative, attackingForce, characterIndex) => {
-    return {
-        initiative,
-        attackingForce,
-        characterIndex
-    }
-}
+  return {
+    initiative,
+    attackingForce,
+    characterIndex,
+  };
+};
 
 /**
  * From two opposing sides, creates an array of InitiativeObjects and sorts
@@ -21,27 +21,36 @@ const createInitiative = (initiative, attackingForce, characterIndex) => {
  * @returns {import("./typedef").CombatInitiative[]} An array of CombatInitiative objects, sorted by their `initiative`
  */
 const generateInitiative = (aggressingForce, defendingForce) => {
-    const attackerInit = aggressingForce
-        .reduce(
-            (prev, person, index) => {
-                if (person.currentHealth > 0){
-                    prev.push(createInitiative(Math.floor(Math.random() * 10 + person.combat), true, index))
-                }
-                return prev;
-                }, 
-            [])
-    const defenderInit = defendingForce
-        .reduce(
-            (prev, person, index) => {
-                if (person.currentHealth > 0){
-                    prev.push(createInitiative(Math.floor(Math.random() * 10 + person.combat), false, index))
-                }
-                return prev;
-                }, 
-            [])
-        .sort();
-    return attackerInit.concat(defenderInit).sort((a, b) => a.initiative - b.initiative);
-}
+  const attackerInit = aggressingForce.reduce((prev, person, index) => {
+    if (person.currentHealth > 0) {
+      prev.push(
+        createInitiative(
+          Math.floor(Math.random() * 10 + person.combat),
+          true,
+          index
+        )
+      );
+    }
+    return prev;
+  }, []);
+  const defenderInit = defendingForce
+    .reduce((prev, person, index) => {
+      if (person.currentHealth > 0) {
+        prev.push(
+          createInitiative(
+            Math.floor(Math.random() * 10 + person.combat),
+            false,
+            index
+          )
+        );
+      }
+      return prev;
+    }, [])
+    .sort();
+  return attackerInit
+    .concat(defenderInit)
+    .sort((a, b) => a.initiative - b.initiative);
+};
 
 /**
  * Returns indexes of people from an array of people that can be targeted for combat.
@@ -52,88 +61,100 @@ const generateInitiative = (aggressingForce, defendingForce) => {
  * @returns {number[]}
  */
 const getPossibleTargets = (targetForce) => {
-    return targetForce.reduce((prev, person, index)=>{
-        if (person.currentHealth > 0){
-            prev.push(index)
-        }
-        return prev;
-    },[])
-}
+  return targetForce.reduce((prev, person, index) => {
+    if (person.currentHealth > 0) {
+      prev.push(index);
+    }
+    return prev;
+  }, []);
+};
 
 /**
  * Executes a combat encounter between two opposing forces. Individual characters
  * from each force will attack turn-by-turn depending on an initative order.
- * 
+ *
  * @param {import("./typedef").Person[]} aggressingForce - The attacking force in the enouncter
  * @param {import("./typedef").Person[]} defendingForce - The defending force in the encounter.
  * @returns {import("./typedef").CombatResult} The result of the combat encounter
  */
 const doCombat = (aggressingForce, defendingForce) => {
-    const combatLog = ["Combat Begins"];
-    const initiativeArray = generateInitiative(aggressingForce, defendingForce);
-    let rounds = 0
-    while(
-        defendingForce.some(defender => defender.currentHealth > 0) &&
-        aggressingForce.some(attacker => attacker.currentHealth > 0) 
-    ){
-        initiativeArray.forEach(combatInitiative => {
-            const possibleTargets = getPossibleTargets(combatInitiative.attackingForce ? defendingForce : aggressingForce);
-            const attacker = combatInitiative.attackingForce 
-                    ? aggressingForce[combatInitiative.characterIndex]
-                    : defendingForce[combatInitiative.characterIndex];
-            if (attacker.currentHealth >= 0){
-                
-                if (possibleTargets.length > 0){
-                    const targetIndex = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
-    
-                    const defender = combatInitiative.attackingForce 
-                        ? defendingForce[targetIndex]
-                        : aggressingForce[targetIndex];
-                        
-                    let damage = Math.floor(Math.random() * 6 + 1) + attacker.combat - defender.combat;
-                    if (damage <= 0){
-                        damage = 1;
-                    }
-        
-                    defender.currentHealth = defender.currentHealth - damage;
-                    combatLog.push(`${attacker.name} deals ${damage} damage to ${defender.name} (${defender.currentHealth})`);
-                    if (defender.currentHealth <= 0){
-                        console.log(defender.name, "has been killed");
-                    }
-                } 
-            }
-        });
-        rounds++;
+  const combatLog = ["Combat Begins"];
+  const initiativeArray = generateInitiative(aggressingForce, defendingForce);
+  let rounds = 0;
+  while (
+    defendingForce.some((defender) => defender.currentHealth > 0) &&
+    aggressingForce.some((attacker) => attacker.currentHealth > 0)
+  ) {
+    initiativeArray.forEach((combatInitiative) => {
+      const possibleTargets = getPossibleTargets(
+        combatInitiative.attackingForce ? defendingForce : aggressingForce
+      );
+      const attacker = combatInitiative.attackingForce
+        ? aggressingForce[combatInitiative.characterIndex]
+        : defendingForce[combatInitiative.characterIndex];
+      if (attacker.currentHealth >= 0) {
+        if (possibleTargets.length > 0) {
+          const targetIndex =
+            possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
+
+          const defender = combatInitiative.attackingForce
+            ? defendingForce[targetIndex]
+            : aggressingForce[targetIndex];
+
+          let damage =
+            Math.floor(Math.random() * 6 + 1) +
+            attacker.combat -
+            defender.combat;
+          if (damage <= 0) {
+            damage = 1;
+          }
+
+          defender.currentHealth = defender.currentHealth - damage;
+          combatLog.push(
+            `${attacker.name} deals ${damage} damage to ${defender.name} (${defender.currentHealth})`
+          );
+          if (defender.currentHealth <= 0) {
+            console.log(defender.name, "has been killed");
+          }
+        }
+      }
+    });
+    rounds++;
+  }
+  const livingAttackers = aggressingForce.reduce((total, currentAgent) => {
+    if (currentAgent.currentHealth > 0) {
+      return total + 1;
     }
-    const livingAttackers = aggressingForce.reduce((total, currentAgent) => {
-        if (currentAgent.currentHealth > 0){
-            return total + 1;
-        }
-        return total;
-    }, 0);
-    console.log(aggressingForce)
-    const livingDefenders = defendingForce.reduce((total, currentAgent) => {
-        if (currentAgent.currentHealth > 0){
-            return total+ 1;
-        }
-        return total;
-    }, 0);
-    console.log("LA:", livingAttackers, "LD:", livingDefenders)
-    const victoryResult = livingAttackers === 0 && livingDefenders > 0 ? 0 : livingAttackers > 0 && livingDefenders === 0 ? 1 : 2
-    return {
-        combatLog,
-        rounds,
-        victoryResult,
-        characters: {
-            attackers: aggressingForce,
-            defenders: defendingForce
-        }
+    return total;
+  }, 0);
+  console.log(aggressingForce);
+  const livingDefenders = defendingForce.reduce((total, currentAgent) => {
+    if (currentAgent.currentHealth > 0) {
+      return total + 1;
     }
-}
+    return total;
+  }, 0);
+  console.log("LA:", livingAttackers, "LD:", livingDefenders);
+  const victoryResult =
+    livingAttackers === 0 && livingDefenders > 0
+      ? 0
+      : livingAttackers > 0 && livingDefenders === 0
+      ? 1
+      : 2;
+  return {
+    combatLog,
+    rounds,
+    victoryResult,
+    characters: {
+      attackers: aggressingForce,
+      defenders: defendingForce,
+    },
+  };
+};
 
 module.exports = {
-    createInitiative,
-    generateInitiative,
-    getPossibleTargets,
-    doCombat
-}
+  createInitiative,
+  generateInitiative,
+  getPossibleTargets,
+  doCombat,
+};

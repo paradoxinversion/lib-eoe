@@ -31,8 +31,8 @@ describe("nations", () => {
   describe("getNationCitizens", () => {
     const gameData = handleNewGame();
     test("it works", () => {
-        const citizens = getNationCitizens(gameData, gameData.player.empireId);
-        expect(citizens.length).toBeGreaterThan(0);
-    })
-  })
+      const citizens = getNationCitizens(gameData, gameData.player.empireId);
+      expect(citizens.length).toBeGreaterThan(0);
+    });
+  });
 });
