@@ -16,6 +16,9 @@ const { nationNames, generateZoneName } = require("./generators/names");
 const { Shufflebag, randomInt } = require("./utilities");
 const settings = require("./config");
 const { buildingsSchematics } = require("./buildings");
+const GameManager = require("./GameManager");
+const { GameEventQueue } = require("./gameEvents");
+const { PlotManager, ActivityManager } = require("./plots");
 /**
  * The main Shufflebag for building types
  */
@@ -177,16 +180,15 @@ const handleNewGame = () => {
       newGameData.buildings[b.id] = b;
     }
   });
-
-  return newGameData;
+  return new GameManager(newGameData, new GameEventQueue(), new PlotManager(), new ActivityManager());
 };
 
 /**
  *
- * @param {import("./typedef").GameData} gameData
+ * @param {GameManager} gameManager
  */
-const hireStartingAgents = (gameData) => {
-
+const hireStartingAgents = (gameManager) => {
+  const gameData = gameManager.gameData;
     /**
      * @type {import("./typedef").UpdatedGameData}
      */
@@ -201,7 +203,7 @@ const hireStartingAgents = (gameData) => {
         return null;
       }
 
-      const orgZones = getControlledZones(gameData, org.id);
+      const orgZones = getControlledZones(gameManager, org.id);
       const leader = generatePerson({
         homeZoneId: orgZones[0].id,
         nationId: org.nationId,
@@ -216,7 +218,7 @@ const hireStartingAgents = (gameData) => {
       leader.agent = leaderAgent;
       updatedPeople[leader.id] = leader;
       orgZones.forEach((zone) => {
-        const zoneCitizens = getZoneCitizens(gameData, zone.id);
+        const zoneCitizens = getZoneCitizens(gameManager, zone.id);
         for (let recruitIndex = 0; recruitIndex < 3; recruitIndex++) {
           const recruitType = recruitDepartmentShufflebag.next().toString();
           const recruit = zoneCitizens[recruitIndex];

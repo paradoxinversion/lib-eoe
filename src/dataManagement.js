@@ -2,13 +2,13 @@ const { ActivityManager, PlotManager } = require("./plots");
 
 /**
  * 
- * @param {import("./typedef").GameData} gameData 
+ * @param {GameManager} gameManager
  * @param {ActivityManager} activityManager 
  * @param {PlotManager} plotManager 
  * @returns 
  */
-const serializeGameData = (gameData, activityManager, plotManager) => {
-    debugger;
+const serializeGameData = (gameManager) => {
+    const {activityManager, plotManager, gameData} = gameManager;
     const activitiesData = activityManager.serializeActivities()
     const plotData = plotManager.serializePlots();
     

@@ -1,3 +1,4 @@
+const GameManager = require("./GameManager");
 const { doCombat } = require("./combat");
 const { getAgentsInZone } = require("./organization");
 const { randomInt } = require("./utilities");
@@ -7,10 +8,11 @@ const activityConfig = [
     name: "Training",
     type: "training",
     /**
-     * @param {import("./typedef").GameData} gameData
+     * @param {GameManager} gameManager
      * @param {string[]} participantArray - An array of id's of participating agents
      */
-    fn: (gameData, participantArray) => {
+    fn: (gameManager, participantArray) => {
+      const { gameData } = gameManager;
       // increase a random stat of each participant
       // return an obj that contains an array of the updated agents
       const updatedAgents = participantArray.reduce(
@@ -49,10 +51,11 @@ const activityConfig = [
   {
     name: "EVIL Education",
     /**
-     * @param {import("./typedef").GameData} gameData
+     * @param {GameManager} gameManager
      * @param {string[]} participantArray - An array of id's of participating agents
      */
-    fn: (gameData, participantArray) => {
+    fn: (gameManager, participantArray) => {
+      const { gameData } = gameManager;
       const updatedAgents = participantArray.reduce(
         (participants, participant) => {
           /**
@@ -61,8 +64,9 @@ const activityConfig = [
           const updatedParticipant = JSON.parse(
             JSON.stringify(gameData.people[participant])
           );
-          const loyaltyIncrease = randomInt(1,4);
-          updatedParticipant.loyalty = updatedParticipant.loyalty + loyaltyIncrease;
+          const loyaltyIncrease = randomInt(1, 4);
+          updatedParticipant.loyalty =
+            updatedParticipant.loyalty + loyaltyIncrease;
           participants[updatedParticipant.id] = updatedParticipant;
           return participants;
         },
@@ -73,19 +77,19 @@ const activityConfig = [
   },
 ];
 /**
- * @param {import("./typedef").GameData} gameData
+ * @param {GameManager} gameManager
  * @param {Object} plotArgs
  * @param {import("./typedef").Zone} plotArgs.zone
  * @param {string[]} plotArgs.participants
  * @returns {import("./typedef").PlotResolution}
  */
-const plotAttackZone = (gameData, { zone: {id: zoneId, organizationId: zoneOrgId}, participants }) => {
-  const defendingAgents = getAgentsInZone(
-    gameData,
-    zoneOrgId,
-    zoneId
-  );
-  const attackingAgents = participants.map(agent => gameData.people[agent])
+const plotAttackZone = (
+  gameManager,
+  { zone: { id: zoneId, organizationId: zoneOrgId }, participants }
+) => {
+  const { gameData } = gameManager;
+  const defendingAgents = getAgentsInZone(gameData, zoneOrgId, zoneId);
+  const attackingAgents = participants.map((agent) => gameData.people[agent]);
   const result = doCombat(attackingAgents, defendingAgents);
   return {
     data: result,
@@ -93,13 +97,14 @@ const plotAttackZone = (gameData, { zone: {id: zoneId, organizationId: zoneOrgId
 };
 
 /**
- * 
- * @param {import("./typedef").GameData} gameData 
- * @param {Object} plotArgs 
+ *
+ * @param {GameManager} gameManager
+ * @param {Object} plotArgs
  * @param {import("./typedef").string} plotArgs.zoneId
  * @param {string[]} plotArgs.participants
  */
-const plotRecon = (gameData, { zoneId, participants }) => {
+const plotRecon = (gameManager, { zoneId, participants }) => {
+  const { gameData } = gameManager;
   const zone = gameData.zones[zoneId];
   const participantIntelligence = Object.values(gameData.people)
     .filter((participant) => participants.some((p) => p.id === participant.id))
@@ -107,17 +112,20 @@ const plotRecon = (gameData, { zoneId, participants }) => {
       return total + currentParticipant.intelligence;
     }, 0);
 
-  const zoneDefenderIntelligence = getAgentsInZone(gameData, zone.organizationId, zone.id).reduce((total, currentParticipant) => {
+  const zoneDefenderIntelligence = getAgentsInZone(
+    gameManager,
+    zone.organizationId,
+    zone.id
+  ).reduce((total, currentParticipant) => {
     return total + currentParticipant.intelligence;
   }, 0);
-
 
   /**
    * Can be positive or negative
    */
   let intelMod = 0;
   let success = false;
-  if (participantIntelligence > zoneDefenderIntelligence){
+  if (participantIntelligence > zoneDefenderIntelligence) {
     intelMod = randomInt(5, 10);
     success = true;
   }
@@ -125,11 +133,10 @@ const plotRecon = (gameData, { zoneId, participants }) => {
   return {
     data: {
       intelligenceModifier: intelMod,
-      success
-    }
-  }
+      success,
+    },
+  };
 };
-
 
 const plotConfig = {
   /**
@@ -178,10 +185,11 @@ class Activity {
    * Add an agent to the activity
    * @param {string} agent - The id of the agent participating
    */
-  addAgent(gameData, agent) {
+  addAgent(gameManager, agent) {
+    const { gameData } = gameManager;
     let updatedGameData = {
-      people: {}
-    }
+      people: {},
+    };
     if (!this.agents.includes(agent)) {
       this.agents.push(agent);
       const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agent]));
@@ -195,10 +203,11 @@ class Activity {
    * Remove an agent from the activity
    * @param {string} agent - The id of the agent to remove
    */
-  removeAgent(agent) {
+  removeAgent(gameManager, agent) {
+    const { gameData } = gameManager;
     let updatedGameData = {
-      people: {}
-    }
+      people: {},
+    };
     const agentIndex = this.agents.findIndex(agent);
     if (agentIndex != -1) {
       this.agents.splice(agentIndex, 1);
@@ -211,11 +220,11 @@ class Activity {
 
   /**
    *
-   * @param {import("./typedef").GameData} gameData
+   * @param {GameManager} gameManager
    * @returns
    */
-  executeActivity(gameData) {
-    const result = this.fn(gameData, this.agents);
+  executeActivity(gameManager) {
+    const result = this.fn(gameManager, this.agents);
     const updatedGameData = {
       people: {},
     };
@@ -236,14 +245,14 @@ class Plot {
 
   /**
    * Execute a plot, returning the plot's ResolutionValue.
-   * @param {import("./typedef").GameData} gameData
+   * @param {gameManager} gameManager
    * @returns {import("./typedef").PlotResolution}
    */
-  executePlot(gameData) {
+  executePlot(gameManager) {
     /**
      * @type {import("./typedef").PlotResolution}
      */
-    const result = plotConfig[this.plotType].fn(gameData, this.plotParams);
+    const result = plotConfig[this.plotType].fn(gameManager, this.plotParams);
     this.resolution = result;
     return result;
   }
@@ -266,10 +275,10 @@ class ActivityManager {
     this.activities = activities;
   }
 
-  executeActivities(gameData) {
+  executeActivities(gameManager) {
     const activitiesResults = this.activities.reduce(
       (activityResults, activity) => {
-        const result = activity.executeActivity(gameData);
+        const result = activity.executeActivity(gameManager);
         const output = {
           activity: activity.name,
           result,
@@ -339,9 +348,9 @@ class PlotManager {
 
   /**
    * Replaces the current plot queue with the parameter array
-   * @param {Plot[]} plotQueue 
+   * @param {Plot[]} plotQueue
    */
-  setPlotQueue(plotQueue){
+  setPlotQueue(plotQueue) {
     this.plotQueue = plotQueue;
   }
 
@@ -356,21 +365,22 @@ class PlotManager {
   /**
    * Execute a plot, returning...
    * @param {Plot} plot
-   * @param {import("./typedef").GameData} gameData
+   * @param {GameManager} gameManager
    * @returns {import("./typedef").PlotResolution}
    */
-  executePlot(plot, gameData) {
-    return plot.executePlot(gameData);
+  executePlot(plot, gameManager) {
+    return plot.executePlot(gameManager);
   }
 
   /**
    * Executes all plots in the queue. Adds each resolution
    * to the plot's `plotResolutions` property. Returns
    * the resolutions.
-   * @param {import("./typedef").GameData} gameData
+   * @param {GameManager} gameManager
    * @returns {import("./typedef").PlotResolution[]} The
    */
-  executePlots(gameData) {
+  executePlots(gameManager) {
+    const { gameData } = gameManager;
     this.plotQueue.forEach((plot) => {
       this.plotResolutions.push({
         plot,
@@ -385,18 +395,16 @@ class PlotManager {
    * and their participants
    */
   serializePlots() {
-    const plots = this.plotQueue.reduce(
-      (serializedPlots, plot) => {
-        serializedPlots.push(plot)
-        return serializedPlots;
-      },
-      []
-    );
+    const plots = this.plotQueue.reduce((serializedPlots, plot) => {
+      serializedPlots.push(plot);
+      return serializedPlots;
+    }, []);
 
     return plots;
   }
 }
-const populateActivities = (activityManager) => {
+const populateActivities = (gameManager) => {
+  const { activityManager } = gameManager;
   const activities = [];
   for (
     let activityParamIndex = 0;
@@ -411,7 +419,8 @@ const populateActivities = (activityManager) => {
   activityManager.setActivities(activities);
 };
 
-const populatePlots = (plotManager) => {
+const populatePlots = (gameManager) => {
+  const { plotManager } = gameManager;
   const plots = [];
   const plotConfigArray = Object.values(plotConfig);
   for (let plotIndex = 0; plotIndex < plotConfigArray.length; plotIndex++) {
@@ -422,21 +431,25 @@ const populatePlots = (plotManager) => {
 };
 
 /**
- * 
- * @param {ActivityManager} activityManager 
+ *
+ * @param {GameManager} gameManager
  */
-const getActivityParticipants = (gameData, activityManager) => {
-  const p =  activityManager.activities.reduce((participants, currentActivity)=>{
-    currentActivity.agents.forEach(agent => {
-      participants.push({
-        participant: gameData.people[agent],
-        activity: currentActivity.name
-      })
-    })
-    return participants;
-  },[]);
+const getActivityParticipants = (gameManager) => {
+  const { activityManager, gameData } = gameManager;
+  const p = activityManager.activities.reduce(
+    (participants, currentActivity) => {
+      currentActivity.agents.forEach((agent) => {
+        participants.push({
+          participant: gameData.people[agent],
+          activity: currentActivity.name,
+        });
+      });
+      return participants;
+    },
+    []
+  );
   return p;
-}
+};
 
 module.exports = {
   Activity,
@@ -446,5 +459,5 @@ module.exports = {
   PlotManager,
   populatePlots,
   plotConfig,
-  getActivityParticipants
+  getActivityParticipants,
 };

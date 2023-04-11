@@ -1,10 +1,13 @@
+const GameManager = require("./GameManager");
+
 /**
  * 
- * @param {import("./typedef").GameData} gameData 
+ * @param {GameManager} gameManager 
  * @param {string} nationId 
  * @returns {import("./typedef").Zone[]}
  */
-const getZones = (gameData, nationId) => {
+const getZones = (gameManager, nationId) => {
+    const {gameData} = gameManager;
     const zoneArray = Object.values(gameData.zones);
     if (nationId){
         return zoneArray.filter((zone) => zone.nationId === nationId);
@@ -14,10 +17,11 @@ const getZones = (gameData, nationId) => {
 
 /**
  * 
- * @param {import("./typedef").GameData} gameData 
+ * @param {GameManager} gameManager 
  * @param {import("./typedef").Zone} zone 
  */
-const getZoneWealth = (gameData, zone) => {
+const getZoneWealth = (gameManager, zone) => {
+    const {gameData} = gameManager;
     const peopleArray = Object.values(gameData.people);
     peopleArray
         .filter(person => person.homeZoneId === zone.id)
@@ -28,10 +32,11 @@ const getZoneWealth = (gameData, zone) => {
 
 /**
  * 
- * @param {import("./typedef").Person[]} peopleArray 
+ * @param {GameManager} gameManager 
  * @param {import("./typedef").Zone[]} zones 
  */
-const getZonesWealth = (gameData, zones) => {
+const getZonesWealth = (gameManager, zones) => {
+    const {gameData} = gameManager;
     const peopleArray = Object.values(gameData.people);
     return zones.reduce((total, zone) =>{
         return total += peopleArray
@@ -50,10 +55,11 @@ const getZonesInfrastructureCost = (zones) => {
 
 /**
  * 
- * @param {import("./typedef").GameData} gameData 
+ * @param {GameManager} gameManager 
  * @param {*} zoneId 
  */
-const getZoneCitizens = (gameData, zoneId, excludeAgents, excludeDead) => {
+const getZoneCitizens = (gameManager, zoneId, excludeAgents, excludeDead) => {
+    const {gameData} = gameManager;
     const peopleArray = Object.values(gameData.people);
     const citizens =  peopleArray.filter(person => {
 
@@ -69,12 +75,6 @@ const getZoneCitizens = (gameData, zoneId, excludeAgents, excludeDead) => {
     });
     return citizens;
 }
-
-const getZoneNationAgents = (gameData, zoneId) => {
-    const peopleArray = Object.values(gameData.people);
-    return peopleArray.filter(person => person.homeZoneId === zoneId && person.agent);
-}
-
 module.exports = {
     getZones,
     getZoneWealth,

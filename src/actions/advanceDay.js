@@ -1,21 +1,19 @@
-const { addPlotResolutions, prepareRandomEvents } = require("empire-of-evil/src/gameEvents");
-const { GameEventQueue } = require("../gameEvents");
+const { GameEventQueue, addPlotResolutions, prepareRandomEvents } = require("../gameEvents");
 const { ActivityManager, PlotManager } = require("../plots");
+const GameManager = require("../GameManager");
 
 /**
  * Determines what events happen at end of turn and returns
  * updated gamedata with those events.
- * @param {import("../typedef").GameData} gameData
- * @param {GameEventQueue} gameEventQueue
- * @param {ActivityManager} activityManager
- * @param {PlotManager} plotManager
+ * @param {GameManager} gameManager
  */
-const advanceDay = (gameData, gameEventQueue, activityManager, plotManager) => {
-  const events = prepareRandomEvents(gameData);
+const advanceDay = (gameManager) => {
+  const {gameData, eventManager: gameEventQueue, activityManager, plotManager} = gameManager;
+  const events = prepareRandomEvents(gameManager);
 
-  const activities = activityManager.executeActivities(gameData);
+  const activities = activityManager.executeActivities(gameManager);
   gameEventQueue.setEvents(events);
-  const plotResolutions = plotManager.executePlots(gameData);
+  const plotResolutions = plotManager.executePlots(gameManager);
   const plotEvents = addPlotResolutions(plotResolutions, gameEventQueue);
   plotManager.clearPlotQueue();
   

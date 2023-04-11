@@ -1,5 +1,6 @@
 // const { getControlledZones } = require("./organization");
 
+const GameManager = require("./GameManager");
 const { getControlledZones } = require("./organization");
 
 /**
@@ -58,53 +59,58 @@ const Shufflebag = (frequencyMap) => {
 };
 
 /**
- * 
- * @param {import("./typedef").GameData} gameData 
+ *
+ * @param {GameManager} gameManager
  */
-const checkGameOverState = (gameData) => {
-  if (gameData.people[gameData.player.overlordId]?.currentHealth <= 0){
+const checkGameOverState = (gameManager) => {
+  const { gameData } = gameManager;
+  if (gameData.people[gameData.player.overlordId]?.currentHealth <= 0) {
     return {
-      gameOverCause: "overlord-death"
-    }
+      gameOverCause: "overlord-death",
+    };
   }
 
   return null;
-}
+};
 
 /**
- * 
- * @param {import("./typedef").GameData} gameData 
+ *
+ * @param {GameManager} gameManager
  */
-const checkVictoryState = (gameData) => {
-  const playerZones = getControlledZones(gameData, gameData.player.organizationId);
-  if (playerZones.length === Object.keys(gameData.zones).length){
-   return {
-    victoryCause: "world-domination"
-   }
+const checkVictoryState = (gameManager) => {
+  const { gameData } = gameManager;
+  const playerZones = getControlledZones(
+    gameManager,
+    gameData.player.organizationId
+  );
+  if (playerZones.length === Object.keys(gameData.zones).length) {
+    return {
+      victoryCause: "world-domination",
+    };
   }
 
   return null;
-}
+};
 
 /**
  * Returns a number with a possible margin of error.
- * 
- * If confidence is 100, the response will be accurate. 
- * 
- * If < 100, the value will be 
+ *
+ * If confidence is 100, the response will be accurate.
+ *
+ * If < 100, the value will be
  * @param {number} trueValue - The actual value of the number
  * @param {number} confidence - The confidence in this value. 100 - confidence = margin of error.
  */
 const numberWithErrorMargin = (trueValue, confidence) => {
-  if (confidence === 100){
+  if (confidence === 100) {
     return trueValue;
   }
 
   const marginOfErrorPercentage = 100 - confidence;
-  const marginOfErrorAmt = (marginOfErrorPercentage / 100) * trueValue
+  const marginOfErrorAmt = (marginOfErrorPercentage / 100) * trueValue;
 
-  return trueValue - (marginOfErrorAmt / 2);
-}
+  return trueValue - marginOfErrorAmt / 2;
+};
 
 module.exports = {
   throwErrorFromArray,
@@ -112,5 +118,5 @@ module.exports = {
   Shufflebag,
   checkGameOverState,
   checkVictoryState,
-  numberWithErrorMargin
+  numberWithErrorMargin,
 };

@@ -1,3 +1,4 @@
+const GameManager = require("./GameManager");
 const { generateAgentData } = require("./generators/game");
 const { getActivityParticipants } = require("./plots");
 const { throwErrorFromArray } = require("./utilities");
@@ -20,18 +21,18 @@ const recruitAgent = (organizationId, person, department = 0) => {
 
 /**
  *
- * @param {import("./typedef").Person[]} peopleArray
+ * @param {GameManager} gameManager
  * @param {string} organizationId
  * @param {Object}
  * @returns {import("./typedef").Person[]}
  */
 const getAgents = (
-  gameData,
+  gameManager,
   organizationId,
   excludeCorpses = true,
   excludeUnavailable = false
 ) => {
-  return _getAgents(gameData, {
+  return _getAgents(gameManager, {
     organizationId,
     exclude: {
       corpses: excludeCorpses,
@@ -42,7 +43,7 @@ const getAgents = (
 
 /**
  *
- * @param {import("./typedef").GameData} gameData
+ * @param {GameManager} gameManager
  * @param {Object} parameters
  * @param {string} parameters.organizationId - The id of the org to retrieve agents for
  * @param {Object} [parameters.filter]
@@ -53,7 +54,8 @@ const getAgents = (
  * @param {boolean} [parameters.exclude.unavailable] - Exclude agents that are engaged in plots or activities from the return array
  * @param {boolean} [parameters.exclude.personnel] - Exclude agents that are marked as building personnel
  */
-const _getAgents = (gameData, parameters) => {
+const _getAgents = (gameManager, parameters) => {
+  const {gameData} = gameManager;
   if (!parameters.organizationId) {
     console.error("parameters.organizationId is required.");
   }
@@ -105,12 +107,13 @@ const _getAgents = (gameData, parameters) => {
 
 /**
  * Return the agents in a zone.
- * @param {import("./typedef").GameData} gameData
+ * @param {GameManager} gameManager
  * @param {string} organizationId
  * @param {string} zoneId
  * @returns
  */
-const getAgentsInZone = (gameData, organizationId, zoneId) => {
+const getAgentsInZone = (gameManager, organizationId, zoneId) => {
+  const {gameData} = gameManager;
   const peopleArray = Object.values(gameData.people);
   const errors = [];
   if (!organizationId) {
@@ -130,10 +133,11 @@ const getAgentsInZone = (gameData, organizationId, zoneId) => {
 
 /**
  * Return the max number of agents an organization can support.
- * @param {import("./typedef").Person[]} peopleArray - An array of all people
+ * @param {GameManager} gameManager - An array of all people
  * @param {string} organizationId
  */
-const getMaxAgents = (gameData, organizationId) => {
+const getMaxAgents = (gameManager, organizationId) => {
+  const {gameData} = gameManager;
   const peopleArray = Object.values(gameData.people);
   return peopleArray.reduce((maxAgentValue, currentAgent) => {
     if (
@@ -149,10 +153,11 @@ const getMaxAgents = (gameData, organizationId) => {
 
 /**
  *
- * @param {import("./typedef").GameData} gameData
+ * @param {GameManager} gameManager
  * @param {import("./typedef").Person} agent
  */
-const getAgentSubordinates = (gameData, agent) => {
+const getAgentSubordinates = (gameManager, agent) => {
+  const {gameData} = gameManager;
   const peopleArray = Object.values(gameData.people);
   return peopleArray.filter(
     (person) => person.agent && person.agent.commanderId === agent.id
@@ -161,10 +166,11 @@ const getAgentSubordinates = (gameData, agent) => {
 
 /**
  * Return the science value of an org.
- * @param {import("./typedef").GameData} gameData - An array of all people
+ * @param {GameManager} gameManager - An array of all people
  * @param {string} organizationId
  */
-const getScience = (gameData, organizationId) => {
+const getScience = (gameManager, organizationId) => {
+  const {gameData} = gameManager;
   const orgLabs = Object.values(gameData.buildings).filter(
     (building) =>
       building.type === "laboratory" &&
@@ -178,22 +184,15 @@ const getScience = (gameData, organizationId) => {
     });
     return tv + labIntelBonus;
   }, 0);
-  //   return getAgents(gameData, organizationId).reduce((science, currentAgent) => {
-  //     if (currentAgent.agent.department === 2) {
-  //       return science + currentAgent.intelligence;
-  //     }
-
-  //     return science;
-  //   }, 0);
 };
 
 /**
  * Return the infra value of an org.
- * @param {import("./typedef").Person[]} peopleArray - An array of all people
+ * @param {GameManager} gameManager - An array of all people
  * @param {string} organizationId
  */
-const getInfrastructure = (gameData, organizationId) => {
-  return getAgents(gameData, organizationId).reduce(
+const getInfrastructure = (gameManager, organizationId) => {
+  return getAgents(gameManager, organizationId).reduce(
     (infrastructure, currentAgent) => {
       if (
         currentAgent.agent.department === 1 ||
@@ -208,18 +207,19 @@ const getInfrastructure = (gameData, organizationId) => {
   );
 };
 
-const getPayroll = (gameData, organizationId) => {
-  return getAgents(gameData, organizationId).reduce((payroll, currentAgent) => {
+const getPayroll = (gameManager, organizationId) => {
+  return getAgents(gameManager, organizationId).reduce((payroll, currentAgent) => {
     return payroll + currentAgent.agent.salary;
   }, 0);
 };
 
 /**
  *
- * @param {import("./typedef").GameData} gameData
+ * @param {GameManager} gameManager
  * @param {string} organizationId
  */
-const getControlledZones = (gameData, organizationId) => {
+const getControlledZones = (gameManager, organizationId) => {
+  const {gameData} = gameManager;
   /**
    * @type {import("./typedef").Zone[]}
    */
