@@ -54,9 +54,10 @@ const nationNameShuffleBag = Shufflebag(
 /**
  * Sets up a new EOE game, spawning Nations, Orgs,
  * Zones, and People, including the EVIL Empire.
+ * @param {GameManager} gameManager
  * @returns {import("./typedef").GameData} An object containing game data
  */
-const handleNewGame = () => {
+const handleNewGame = (gameManager) => {
   /**
    * @type {import("./typedef").GameData}
    */
@@ -180,12 +181,8 @@ const handleNewGame = () => {
       newGameData.buildings[b.id] = b;
     }
   });
-  return new GameManager(
-    newGameData,
-    new GameEventQueue(),
-    new PlotManager(),
-    new ActivityManager()
-  );
+  gameManager.updateGameData(newGameData);
+
 };
 
 /**
@@ -241,10 +238,20 @@ const hireStartingAgents = (gameManager) => {
     ...gameData.people,
     ...updatedPeople,
   };
+  
+  gameManager.updateGameData(updatedGameData)
   return updatedGameData;
 };
+
+const createGameManager = () =>
+  new GameManager(
+    new GameEventQueue(),
+    new PlotManager(),
+    new ActivityManager()
+  );
 
 module.exports = {
   handleNewGame,
   hireStartingAgents,
+  createGameManager
 };

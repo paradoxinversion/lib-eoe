@@ -88,7 +88,7 @@ const plotAttackZone = (
   { zone: { id: zoneId, organizationId: zoneOrgId }, participants }
 ) => {
   const { gameData } = gameManager;
-  const defendingAgents = getAgentsInZone(gameData, zoneOrgId, zoneId);
+  const defendingAgents = getAgentsInZone(gameManager, zoneOrgId, zoneId);
   const attackingAgents = participants.map((agent) => gameData.people[agent]);
   const result = doCombat(attackingAgents, defendingAgents);
   return {
@@ -193,7 +193,6 @@ class Activity {
     if (!this.agents.includes(agent)) {
       this.agents.push(agent);
       const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agent]));
-      updatedAgent.agent.availableForAssignment = false;
       updatedGameData.people[updatedAgent.id] = updatedAgent;
     }
     return updatedGameData;
@@ -212,7 +211,6 @@ class Activity {
     if (agentIndex != -1) {
       this.agents.splice(agentIndex, 1);
       const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agent]));
-      updatedAgent.agent.availableForAssignment = true;
       updatedGameData.people[updatedAgent.id] = updatedAgent;
     }
     return updatedGameData;
@@ -380,11 +378,10 @@ class PlotManager {
    * @returns {import("./typedef").PlotResolution[]} The
    */
   executePlots(gameManager) {
-    const { gameData } = gameManager;
     this.plotQueue.forEach((plot) => {
       this.plotResolutions.push({
         plot,
-        resolution: this.executePlot(plot, gameData),
+        resolution: this.executePlot(plot, gameManager),
       });
     });
     return this.plotResolutions;
@@ -403,6 +400,11 @@ class PlotManager {
     return plots;
   }
 }
+
+/**
+ * 
+ * @param {GameManager} gameManager 
+ */
 const populateActivities = (gameManager) => {
   const { activityManager } = gameManager;
   const activities = [];

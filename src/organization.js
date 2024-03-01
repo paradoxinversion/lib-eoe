@@ -88,12 +88,11 @@ const _getAgents = (gameManager, parameters) => {
       if (parameters.exclude.corpses && person.currentHealth <= 0) {
         return false;
       }
-      if (
-        parameters.exclude.unavailable &&
-        !person.agent.availableForAssignment
-      ) {
-        return false;
-      }
+      // if (
+      //   parameters.exclude.unavailable
+      // ) {
+      //   return false;
+      // }
 
       if (parameters.exclude.personnel) {
         return !!!Object.values(gameData.buildings).find((building) =>

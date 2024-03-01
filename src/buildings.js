@@ -44,7 +44,7 @@ const getInfrastructureLoad = (gameManager, organizationId) => {
  * @param {string} organizationId
  */
 const getUpkeep = (gameManager, organizationId) => {
-  const gameManager = gameManager.gameData;
+  const {gameData} = gameManager;
 
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalUpkeep, building) => {
@@ -64,8 +64,9 @@ const getHousingCapacity = (gameManager, organizationId) => {
   const gameData = gameManager.gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalCapacity, building) => {
+    console.log(building)
     if (building.organizationId === organizationId) {
-      totalCapacity = totalCapacity + building.housingCapacity;
+      totalCapacity = totalCapacity + building.housingCapacity || 0;
     }
     return totalCapacity;
   }, 0);

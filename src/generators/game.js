@@ -114,7 +114,7 @@ const generatePerson = ({
   initLeadership,
   initLoyalty,
   intelligenceLevel = 25,
-}) => {
+} = {}) => {
   const errors = [];
   throwErrorFromArray(errors);
 
@@ -169,7 +169,6 @@ const generateAgentData = (organizationId, department, commanderId, salary) => {
     organizationId,
     salary,
     commanderId,
-    availableForAssignment: true,
   };
 };
 
@@ -198,6 +197,8 @@ const generateGoverningOrg = ({
     evil,
     name,
     wealth: 100,
+    science: 0,
+    infrastructure: 0,
   };
 };
 

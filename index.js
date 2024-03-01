@@ -13,6 +13,7 @@ const buildings = require("./src/buildings");
 const gameSetup = require("./src/gameSetup");
 const dataManagement = require("./src/dataManagement");
 const actions = require("./src/actions");
+const GameManager = require("./src/GameManager")
 module.exports = {
   gameGenerators,
   eventGenerators,
@@ -29,4 +30,5 @@ module.exports = {
   gameSetup,
   dataManagement,
   actions,
+  GameManager
 };

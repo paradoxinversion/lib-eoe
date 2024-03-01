@@ -102,6 +102,7 @@ function resolveReconZone(gameManager, resolveArgs) {
       updatedGameData,
     },
   };
+  // gameManager.updateGameData()
   return this.eventData;
 }
 
@@ -162,7 +163,6 @@ function resolveEvilApplicant(gameManager, resolveArgs) {
       updatedGameData,
     },
   };
-
   return this.eventData;
 }
 
@@ -438,6 +438,7 @@ const generateReconZoneEvent = (plot) => {
  * @param {GameManager} gameManager
  */
 const generateEvilApplicantEvent = (gameManager) => {
+  const { gameData } = gameManager;
   const playerZonesArray = getControlledZones(
     gameManager,
     gameData.player.organizationId
@@ -530,7 +531,7 @@ class GameEventQueue {
    */
   resolveCurrentEvent(gameManager, resolveArgs) {
     const { gamedata } = gameManager;
-    return this.events[this.eventIndex].resolveEvent(gamedata, resolveArgs);
+    return this.events[this.eventIndex].resolveEvent(gameManager, resolveArgs);
   }
 
   /**
