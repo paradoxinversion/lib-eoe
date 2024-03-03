@@ -207,7 +207,7 @@ class Activity {
     let updatedGameData = {
       people: {},
     };
-    const agentIndex = this.agents.findIndex(agent);
+    const agentIndex = this.agents.findIndex(agent => agent.id === agent);
     if (agentIndex != -1) {
       this.agents.splice(agentIndex, 1);
       const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agent]));
