@@ -107,7 +107,7 @@ const plotRecon = (gameManager, { zoneId, participants }) => {
   const { gameData } = gameManager;
   const zone = gameData.zones[zoneId];
   const participantIntelligence = Object.values(gameData.people)
-    .filter((participant) => participants.some((p) => p.id === participant.id))
+    .filter((participant) => participants.some((p) => p === participant.id))
     .reduce((total, currentParticipant) => {
       return total + currentParticipant.intelligence;
     }, 0);
@@ -125,9 +125,13 @@ const plotRecon = (gameManager, { zoneId, participants }) => {
    */
   let intelMod = 0;
   let success = false;
-  if (participantIntelligence > zoneDefenderIntelligence) {
+  if (participantIntelligence > zoneDefenderIntelligence / 2) {
     intelMod = randomInt(5, 10);
     success = true;
+  }
+
+  if (intelMod > 100){
+    intelMod = 100;
   }
 
   return {
