@@ -95,7 +95,7 @@ function resolveReconZone(gameManager, resolveArgs) {
   );
   updatedZone.intelligenceLevel +=
     this.params.plot.resolution.data.intelligenceModifier;
-  updatedGameData[updatedZone.id] = updatedZone;
+  updatedGameData.zones[updatedZone.id] = updatedZone;
   this.eventData = {
     type: "recon-zone",
     resolution: {
