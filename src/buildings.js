@@ -159,6 +159,33 @@ const removePersonnel = (person, building) => {
   }
   return building;
 };
+/**
+ * 
+ * @param {GameManager} gameManager 
+ * @param {*} param1 
+ */
+const getBuildings = (gameManager, {
+  zoneId = null,
+  organizationId = null,
+  type = null
+} = {}) => {
+  const b = Object.values(gameManager.gameData.buildings)
+    .filter(building => {
+      if (zoneId && building.zoneId !== zoneId){
+        return false;
+      }
+
+      if (organizationId && building.organizationId !== organizationId){
+        return false;
+      }
+
+      if (type && building.type !== type){
+        return false;
+      }
+
+      return true;
+    })
+}
 
 module.exports = {
   buildingsSchematics,
@@ -169,4 +196,5 @@ module.exports = {
   getOrgLabs,
   addPersonnel,
   removePersonnel,
+  getBuildings,
 };
