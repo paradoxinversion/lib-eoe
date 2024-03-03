@@ -191,7 +191,7 @@ class Activity {
       people: {},
     };
     if (!this.agents.includes(agent)) {
-      this.agents.push(agent);
+      this.agents = [...this.agents, agent];
       const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agent]));
       updatedGameData.people[updatedAgent.id] = updatedAgent;
     }
@@ -200,17 +200,17 @@ class Activity {
 
   /**
    * Remove an agent from the activity
-   * @param {string} agent - The id of the agent to remove
+   * @param {string} agentId - The id of the agent to remove
    */
-  removeAgent(gameManager, agent) {
+  removeAgent(gameManager, agentId) {
     const { gameData } = gameManager;
     let updatedGameData = {
       people: {},
     };
-    const agentIndex = this.agents.findIndex(agent => agent.id === agent);
+    const agentIndex = this.agents.findIndex(agent => agent === agentId);
     if (agentIndex != -1) {
       this.agents.splice(agentIndex, 1);
-      const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agent]));
+      const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agentId]));
       updatedGameData.people[updatedAgent.id] = updatedAgent;
     }
     return updatedGameData;
