@@ -78,29 +78,47 @@ const getPossibleTargets = (targetForce) => {
  * @returns {import("./typedef").CombatResult} The result of the combat encounter
  */
 const doCombat = (aggressingForce, defendingForce) => {
+  // Seed the combat log
   const combatLog = ["Combat Begins"];
+
+  // The initiative array sorts characters into init order
   const initiativeArray = generateInitiative(aggressingForce, defendingForce);
+
+  // Keeping track of the rounds allows us to cut off the battle if for some reason
+  // it's stuck in a stalemate (or bug)
   let rounds = 0;
+
+  // Loop the main battle logic until one side is entirely dead.
   while (
     defendingForce.some((defender) => defender.currentHealth > 0) &&
     aggressingForce.some((attacker) => attacker.currentHealth > 0)
   ) {
+    // Start going down the list of combat initiatives
     initiativeArray.forEach((combatInitiative) => {
-      const possibleTargets = getPossibleTargets(
-        combatInitiative.attackingForce ? defendingForce : aggressingForce
-      );
-      const attacker = combatInitiative.attackingForce
+      const isAggressingForce = combatInitiative.attackingForce;
+      // Determine who this attacker is
+      const attacker = isAggressingForce
         ? aggressingForce[combatInitiative.characterIndex]
         : defendingForce[combatInitiative.characterIndex];
+
       if (attacker.currentHealth >= 0) {
+        // If the attacker is alive, get a list of living/targetable enemies
+        const possibleTargets = getPossibleTargets(
+          isAggressingForce ? defendingForce : aggressingForce
+        );
+
         if (possibleTargets.length > 0) {
+          // If we have valid targets, choose one
+          // It is the index of the character to be attacked
           const targetIndex =
             possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
 
-          const defender = combatInitiative.attackingForce
+          // Determine who the defender is
+          const defender = isAggressingForce
             ? defendingForce[targetIndex]
             : aggressingForce[targetIndex];
 
+          // Determine the damage of the attack
           let damage =
             Math.floor(Math.random() * 6 + 1) +
             attacker.combat -
@@ -108,8 +126,15 @@ const doCombat = (aggressingForce, defendingForce) => {
           if (damage <= 0) {
             damage = 1;
           }
+          
+          // Reduce the defender's health
+          // defender.currentHealth = defender.currentHealth - damage;
+          if (isAggressingForce){
+            defendingForce[targetIndex] = {...defender, currentHealth: defender.currentHealth - damage};
 
-          defender.currentHealth = defender.currentHealth - damage;
+          }else {
+            aggressingForce[targetIndex] = {...defender, currentHealth: defender.currentHealth - damage};
+          }
           combatLog.push(
             `${attacker.name} deals ${damage} damage to ${defender.name} (${defender.currentHealth})`
           );
