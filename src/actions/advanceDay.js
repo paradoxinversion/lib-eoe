@@ -1,11 +1,7 @@
-const {
-  GameEventQueue,
-  addPlotResolutions,
-  prepareRandomEvents,
-} = require("../gameEvents");
-const { ActivityManager, PlotManager } = require("../plots");
-const GameManager = require("../GameManager");
 
+import { GameEventQueue, addPlotResolutions, prepareRandomEvents } from "../gameEvents.ts";
+
+import { GameManager } from "../GameManager.ts";
 /**
  * Determines what events happen at end of turn and returns
  * updated gamedata with those events.

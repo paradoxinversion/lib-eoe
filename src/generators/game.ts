@@ -1,15 +1,46 @@
+import { AgentData, Building, GoverningOrganization, Nation, Person, Zone } from "../types/interfaces/entities";
+
 const { throwErrorFromArray, randomInt } = require("../utilities");
 const { v4: uuidv4 } = require("uuid");
 const { generateName } = require("../generators/names");
 
+interface GenerateNationOpts {
+  /** The name of the nation. */
+  name: string;
+  /** The size (amount of zones) of the nation */
+  size: number;
+}
+
+interface GenerateZoneOpts {
+  /** The ID of the nation the zone belongs to */
+  nationId?: string;
+  /** The name of the zone. */
+  name?: string;
+  /** The size (amount of citizens...?) */
+  size?: number;
+  organizationId?: string;
+  intelligenceLevel?: number;
+}
+
+interface GeneratePersonOpts{
+  nationId?: string;
+  homeZoneId?: string;
+  name?: string;
+  initIntelligence?: number;
+  initCombat?: number;
+  initAdministration?: number;
+  initLeadership?: number;
+  intelligenceLevel?: number;
+  initLoyalty?: number;
+}
+
 /**
- *
- * @param {object} generateNationOptions
- * @param {string} [generateNationOptions.name] - The name of the nation.
- * @param {number} [generateNationOptions.size] - The size (amount of zones) of the nation
- * @returns {import("../typedef").Nation}
+ * Generate a new nation
  */
-const generateNation = ({ name = "Unnamed Nation", size = 1 }) => {
+const generateNation = ({
+  name = "Unnamed Nation",
+  size = 1,
+}: GenerateNationOpts): Nation => {
   return {
     id: "n_" + uuidv4(),
     name: name,
@@ -19,12 +50,15 @@ const generateNation = ({ name = "Unnamed Nation", size = 1 }) => {
 
 /**
  * Generate a number of nations.
- * @param {number} nationsAmt - The amount of nations to generate
- * @param {number} minSize - The minimum amount of zones in the nation
- * @param {number} maxSize - The maximum amount of zones in the nation
- * @returns {Object} An object who's keys are nation id's and values are nation objects
  */
-const generateNations = (nationsAmt, minSize, maxSize) => {
+const generateNations = (
+  /** The amount of nations to generate */
+  nationsAmt: number,
+  /** The minimum amount of zones in the nation */
+  minSize: number,
+  /** An object who's keys are nation id's and values are nation objects */
+  maxSize: number
+): { [x: string]: Nation } => {
   const errors = [];
   if (nationsAmt === undefined) {
     errors.push("'nationsAmt' is a required parameter.");
@@ -52,19 +86,14 @@ const generateNations = (nationsAmt, minSize, maxSize) => {
 
 /**
  * Generate a zone
- * @param {object} generateZoneOptions
- * @param {string} [generateZoneOptions.nationId] - The ID of the nation the zone belongs to
- * @param {string} [generateZoneOptions.name] - The name of the zone.
- * @param {number} [generateZoneOptions.size] - The size (amount of citizens...?)
- * @returns {import("../typedef").Zone}
  */
 const generateZone = ({
-  nationId,
+  nationId = "UNSET",
   name = "Unnamed Zone",
   size = 5,
-  organizationId,
+  organizationId = "UNSET",
   intelligenceLevel = 25,
-}) => {
+}: GenerateZoneOpts): Zone => {
   return {
     id: "z_" + uuidv4(),
     nationId,
@@ -78,9 +107,11 @@ const generateZone = ({
 
 /**
  * Generate a number of zones
- * @param {import("../typedef").Nation} nation
  */
-const generateZones = (zonesAmt) => {
+const generateZones = (
+  /** The amount of zones to create */
+  zonesAmt
+): { [x: string]: Zone } => {
   const zones = {};
   for (let zoneIndex = 0; zoneIndex < zonesAmt; zoneIndex++) {
     const newZone = generateZone({});
@@ -89,23 +120,8 @@ const generateZones = (zonesAmt) => {
   return zones;
 };
 
-/**
- *
- * @param {object} generatePersonOptions
- * @param {string} generatePersonOptions.nationId - The ID of the nation the Person belongs to
- * @param {string} generatePersonOptions.homeZoneId - The ID of the Zone this Person calls home
- * @param {string} [generatePersonOptions.name] - The name of the person.
- * @param {string} [generatePersonOptions.orgId] - the id of the org this person is an agent of
- * @param {string} [generatePersonOptions.initIntelligence]
- * @param {string} [generatePersonOptions.initCombat]
- * @param {string} [generatePersonOptions.initAdministration]
- * @param {string} [generatePersonOptions.initLeadership]
- * @param {string} [generatePersonOptions.initLoyalty]
- * @param {number} [generatePersonOptions.intelligenceLevel]
- * @returns {import("../typedef").Person}
- */
 const generatePerson = ({
-  nationId,
+  nationId = "UNSET",
   homeZoneId,
   name = "Unnamed Person",
   initIntelligence,
@@ -114,7 +130,7 @@ const generatePerson = ({
   initLeadership,
   initLoyalty,
   intelligenceLevel = 25,
-} = {}) => {
+}: GeneratePersonOpts): Person => {
   const errors = [];
   throwErrorFromArray(errors);
 
@@ -145,7 +161,10 @@ const generatePerson = ({
   };
 };
 
-const generatePeople = (peopleAmt) => {
+/**
+ * Generate an amount of people
+ */
+const generatePeople = (peopleAmt): {[x: string]: Person} => {
   const people = {};
   for (let personIndex = 0; personIndex < peopleAmt; personIndex++) {
     const person = generatePerson({});
@@ -156,14 +175,17 @@ const generatePeople = (peopleAmt) => {
 
 /**
  * Generate agent data that can be attached to a person
- * @param {string} organizationId  - The ID of the organization this agent will be associated with
- * @param {number} department - 0 (troop), 1 (administrator), 2 (scientist), or 3 (governing org leader)
- * @param {string} commanderId
- * @param {number} salary - the agent's monthly pay
- * @returns {import("../typedef").AgentData}
  */
-const generateAgentData = (organizationId, department, commanderId, salary) => {
-  //TODO: Make sure department is a valid number
+const generateAgentData = (
+  /** The ID of the organization this agent will be associated with */
+  organizationId: string, 
+  /** 0 (troop), 1 (administrator), 2 (scientist), or 3 (governing org leader) */
+  department: number, 
+  /** The id of the Agent that is directly superior to this one */
+  commanderId: string, 
+  /** the agent's monthly pay */
+  salary: number
+  ): AgentData => {
   return {
     department,
     organizationId,
@@ -172,20 +194,21 @@ const generateAgentData = (organizationId, department, commanderId, salary) => {
   };
 };
 
+interface GenerateGoverningOrgOpts{
+  /** The ID of the nation the Org belongs to */
+  nationId: string;
+  evil?: boolean;
+  name?: string;
+}
+
 /**
- *
- * @param {object} generateOrgOptions
- * @param {string} generateOrgOptions.id - The Org's indentifier, prefixed with `z_`
- * @param {string} generateOrgOptions.nationId - The ID of the nation the Org belongs to
- * @param {boolean} [generateOrgOptions.evil] - The ID of the Zone this Org calls home
- * @param {string} [generateOrgOptions.name] - The name of the person.
- * @returns {import("../typedef").Person}
+ * Gnerate a Governning Organization
  */
 const generateGoverningOrg = ({
   nationId,
   evil = false,
   name = "Unnamed Organization",
-}) => {
+}: GenerateGoverningOrgOpts): GoverningOrganization => {
   const errors = [];
   if (!nationId) {
     errors.push("'nationId' is a required option parameter.");
@@ -201,14 +224,20 @@ const generateGoverningOrg = ({
     infrastructure: 0,
   };
 };
-
+interface GenerateBuildingOpts{
+  zoneId: string;
+  buildingType: string;
+  organizationId: string;
+  infrastructureCost: number;
+  upkeepCost: number;
+}
 const generateBuilding = ({
   zoneId,
   buildingType,
   organizationId,
   infrastructureCost,
   upkeepCost,
-}) => {
+}): Building => {
   const errors = [];
   if (!zoneId) {
     errors.push("'zoneId' is a required option parameter.");
@@ -263,7 +292,7 @@ const generateBuilding = ({
   };
 };
 
-module.exports = {
+export {
   generateNation,
   generateNations,
   generateZone,

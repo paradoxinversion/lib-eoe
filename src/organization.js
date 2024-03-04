@@ -1,6 +1,5 @@
-const GameManager = require("./GameManager");
-const { generateAgentData } = require("./generators/game");
-const { getActivityParticipants } = require("./plots");
+import { GameManager } from "./GameManager.ts";
+import { generateAgentData } from "./generators/game.ts";
 const { throwErrorFromArray } = require("./utilities");
 
 /**

@@ -1,6 +1,6 @@
 const { gameSetup } = require("../../..")
 const GameManager = require("../../GameManager")
-const { GameEventQueue } = require("../../gameEvents")
+import { GameEventQueue } from "../../gameEvents.ts"
 const { hireStartingAgents } = require("../../gameSetup")
 const { handleNewGame } = require("../../gameSetup")
 const { PlotManager, ActivityManager } = require("../../plots")

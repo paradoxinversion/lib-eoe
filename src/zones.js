@@ -1,4 +1,4 @@
-const GameManager = require("./GameManager");
+import { GameManager } from "./GameManager.ts";
 
 /**
  *

@@ -1,7 +1,8 @@
+import { GameManager } from "./GameManager.ts";
 const { getControlledZones, hireAgent } = require("./organization");
 const { getZoneCitizens } = require("./zones");
 
-const {
+import {
   generateAgentData,
   generateGoverningOrg,
   generateNation,
@@ -10,15 +11,14 @@ const {
   generateZone,
   generateBuilding,
   generateZones,
-} = require("./generators/game");
+} from './generators/game.ts'
 
 const { nationNames, generateZoneName } = require("./generators/names");
 const { Shufflebag, randomInt } = require("./utilities");
 const settings = require("./config");
 const { buildingsSchematics } = require("./buildings");
-const GameManager = require("./GameManager");
-const { GameEventQueue } = require("./gameEvents");
-const { PlotManager, ActivityManager } = require("./plots");
+import { GameEventQueue } from "./gameEvents.ts";
+import { PlotManager, ActivityManager } from "./plots.ts";
 /**
  * The main Shufflebag for building types
  */

@@ -1,6 +1,7 @@
 // const { getControlledZones } = require("./organization");
 
-const GameManager = require("./GameManager");
+// const GameManager = require("./GameManager");
+import { GameManager } from "./GameManager.ts";
 const { getControlledZones } = require("./organization");
 
 /**

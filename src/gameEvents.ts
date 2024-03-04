@@ -1,4 +1,5 @@
-const { generateAgentData } = require("./generators/game");
+import { GameData, GameManager } from "./GameManager";
+import { generateAgentData } from "./generators/game";
 const {
   getMaxAgents,
   getAgents,
@@ -7,19 +8,21 @@ const {
   getPayroll,
 } = require("./organization");
 const { getZoneCitizens } = require("./zones");
-const { Plot } = require("./plots");
+import { Plot } from "./plots";
+import { GoverningOrganization, Person, Zone } from "./types/interfaces/entities";
 const { randomInt, Shufflebag } = require("./utilities");
 const { getUpkeep, getWealthBonuses } = require("./buildings");
-const GameManager = require("./GameManager");
+
+interface EvilApplicantParams{
+  recruit: Person;
+  department: number;
+  organizationId: string;
+}
 
 /**
  * Set parameters for an Evil Applicant event
- * @param {Object} EvilApplicantParams
- * @param {import("./typedef").Person} EvilApplicantParams.recruit - A Person from the EOE who is not an agent
- * @param {string} EvilApplicantParams.organizationId - The EOE organizationId
- * @param {number} EvilApplicantParams.department - The default department for the Agent
  */
-function setEvilApplicantParams({ recruit, organizationId, department }) {
+function setEvilApplicantParams({ recruit, organizationId, department }: EvilApplicantParams) {
   this.params.organizationId = organizationId;
   this.params.department = department;
   this.params.recruit = recruit;
@@ -32,65 +35,66 @@ function setWealthModParams() {
   this.params.modAmount = randomInt(-10, 10);
 }
 
+interface CombatEventParams{
+  aggressingForce: Person[];
+  defendingForce: Person[];
+}
 /**
  * Set parameters for a combat event
- * @param {Object} CombatEventParams
- * @param {import("./typedef").Person[]} CombatEventParams.aggressingForce
- * @param {import("./typedef").Person[]} CombatEventParams.defendingForce
  */
-function setCombatParams({ aggressingForce, defendingForce }) {
+function setCombatParams({ aggressingForce, defendingForce }: CombatEventParams) {
   this.params.aggressingForce = aggressingForce;
   this.params.defendingForce = defendingForce;
 }
 
+interface AttackZoneParams{
+  plot: Plot
+}
 /**
  * Set parameters for an Attack Zone Plot Event
  * @param {Object} AttackZonePlotEventParams
  * @param {Plot} AttackZonePlotEventParams.plot
  */
-function setAttackZoneParams({ plot }) {
+function setAttackZoneParams({ plot }: AttackZoneParams) {
   this.params.plot = plot;
+}
+
+interface MonthlyReportEventParams{
+  income: number;
+  expenses: number;
 }
 
 /**
  *
- * @param {Object} MonthlyReportEventParams
- * @param {Object.<string, number>} MonthlyReportEventParams.income
- * @param {Object.<string, number>} MonthlyReportEventParams.expenses
  */
-function setMonthlyReportParams({ income, expenses }) {
+function setMonthlyReportParams({ income, expenses }: MonthlyReportEventParams) {
   this.params.income = income;
   this.params.expenses = expenses;
 }
 
+interface ReconZoneEventParams{
+  plot: Plot
+}
+
 /**
  *
- * @param {Object} ReconZoneEventParams
- * @param {Zone} ReconZoneEventParams.zone
- * @param {import("./typedef").Person[]} ReconZoneEventParams.participants
  */
-function setReconZoneParams({ plot }) {
+function setReconZoneParams({ plot }: ReconZoneEventParams) {
   this.params.plot = plot;
   // this.params.zone = zone;
   // this.params.participants = participants;
 }
 
 /**
- *
- * @param {GameManager} gameManager
- * @param {*} resolveArgs
- * @returns
+ * 
  */
-function resolveReconZone(gameManager, resolveArgs) {
+function resolveReconZone(gameManager: GameManager, resolveArgs) {
   const gameData = gameManager.gameData;
   const updatedGameData = {
     zones: {},
   };
 
-  /**
-   * @type {import("./typedef").Zone}
-   */
-  const updatedZone = JSON.parse(
+  const updatedZone: Zone = JSON.parse(
     JSON.stringify(gameData.zones[this.params.plot.plotParams.zoneId])
   );
   updatedZone.intelligenceLevel +=
@@ -108,7 +112,6 @@ function resolveReconZone(gameManager, resolveArgs) {
 
 /**
  * Resolve a Standard Report Event
- * @returns
  */
 function resolveStandardReport() {
   this.eventData = {
@@ -121,12 +124,21 @@ function resolveStandardReport() {
   return this.eventData;
 }
 
+interface EvilApplicantResolveArgs{
+  resolutionValue: number,
+  data: {
+    department: string,
+    commander: string
+  }
+}
+
 /**
  * Resolve an Evil Applicant Event
- * @param {GameManager} gameManager
- * @param {*} resolveArgs
  */
-function resolveEvilApplicant(gameManager, resolveArgs) {
+function resolveEvilApplicant(
+  gameManager: GameManager, 
+  resolveArgs: EvilApplicantResolveArgs
+) {
   const { gameData } = gameManager;
   const updatedGameData = {
     people: {},
@@ -136,10 +148,7 @@ function resolveEvilApplicant(gameManager, resolveArgs) {
     case 1:
       this.params.department = parseInt(resolveArgs.data.department);
 
-      /**
-       * @type {import("./typedef").Person}
-       */
-      const updatedAgent = JSON.parse(
+      const updatedAgent: Person = JSON.parse(
         JSON.stringify(gameData.people[this.params.recruit.id])
       );
       const salary = calculateAgentSalary(updatedAgent);
@@ -168,10 +177,8 @@ function resolveEvilApplicant(gameManager, resolveArgs) {
 
 /**
  * Resolve a Wealth Modification event
- * @param {GameManager} gameManager
- * @returns
  */
-function resolveWealthMod(gameManager) {
+function resolveWealthMod(gameManager: GameManager) {
   const { gameData } = gameManager;
   const updatedGameData = { governingOrganizations: {} };
   const updatedOrg = JSON.parse(
@@ -195,10 +202,8 @@ function resolveWealthMod(gameManager) {
 
 /**
  * Resolve an attack zone event.
- * @param {GameManager} gameManager
- * @returns
  */
-function resolveAttackZone(gameManager) {
+function resolveAttackZone(gameManager: GameManager) {
   const { gameData } = gameManager;
   const updatedGameData = {
     people: {},
@@ -231,21 +236,18 @@ function resolveAttackZone(gameManager) {
 
 /**
  *
- * @param {GameManager} gameManager
  */
-function resolveMonthlyReport(gameManager) {
+function resolveMonthlyReport(gameManager: GameManager) {
   const { gameData } = gameManager;
-  /**
-   * @type {import("./typedef").UpdatedGameData}
-   */
-  const updatedGameData = {
+
+  const updatedGameData: Partial<GameData> = {
     governingOrganizations: {},
   };
 
   /**
    * @type {import("./typedef").GoverningOrganization}
    */
-  const updatedOrg = JSON.parse(
+  const updatedOrg: GoverningOrganization = JSON.parse(
     JSON.stringify(
       gameData.governingOrganizations[gameData.player.organizationId]
     )
@@ -283,11 +285,17 @@ function setEmptyParams() {
   this.params = {};
 }
 
+interface EventConfig{
+  name: string,
+  setParams: Function,
+  resolve?: Function,
+  getEventText: Function,
+}
+
 /**
  * Event configuration to be used with GameEvents
- * @type {import("./typedef").EventConfig}
  */
-const eventConfig = {
+const eventConfig: {[x: string]: EventConfig} = {
   recruit: {
     name: "EVIL Applicant",
     setParams: setEvilApplicantParams,
@@ -345,16 +353,28 @@ const eventConfig = {
   },
 };
 
+interface EventData {
+  resolution: {
+    updatedGameData?: Partial<GameData>
+  }
+}
+
 /**
  * A GameEvent.
  */
 class GameEvent {
+  getEventText: Function;
+  setParams: Function;
+  resolveEvent: Function;
+  eventData: EventData;
+  eventName:string;
+  params: Object;
   /**
    * Create a game event using configuration.
    * @param {import("./typedef").EventConfigOptions} config
    * @param {Object} eventSetupData - An object of arbitrary data pertinent to event setup
    */
-  constructor(config, eventSetupData = {}) {
+  constructor(config: EventConfig, eventSetupData = {}) {
     /**
      * Gets the event text based on params
      * @type {Function}
@@ -372,7 +392,9 @@ class GameEvent {
     /**
      * @type {import("./typedef").EventData}
      */
-    this.eventData = {};
+    this.eventData = {
+      resolution: {}
+    };
     /**
      * @type {Object.<string, Object>}
      */
@@ -394,7 +416,7 @@ const generateStandardReportEvent = () => {
   return new GameEvent(eventConfig.standardReport);
 };
 
-const generateMonthlyReportEvent = (gameManager) => {
+const generateMonthlyReportEvent = (gameManager: GameManager) => {
   const { gameData } = gameManager;
   const { organizationId } = gameData.player;
   const upkeep = getUpkeep(gameManager, organizationId);
@@ -421,23 +443,21 @@ const generateWealthMod = () => {
 
 /**
  * Create and return a new Attack Zone Plot Event
- * @param {Plot} plot
  */
-const generateAttackZonePlotEvent = (plot) => {
+const generateAttackZonePlotEvent = (plot: Plot) => {
   return new GameEvent(eventConfig.attackZone, {
     plot,
   });
 };
 
-const generateReconZoneEvent = (plot) => {
+const generateReconZoneEvent = (plot: Plot) => {
   return new GameEvent(eventConfig.reconZone, { plot });
 };
 
 /**
  * Create and return a new EVIL Applicant Game Event
- * @param {GameManager} gameManager
  */
-const generateEvilApplicantEvent = (gameManager) => {
+const generateEvilApplicantEvent = (gameManager: GameManager) => {
   const { gameData } = gameManager;
   const playerZonesArray = getControlledZones(
     gameManager,
@@ -450,10 +470,7 @@ const generateEvilApplicantEvent = (gameManager) => {
     return null;
   }
 
-  /**
-   * @type {import("./typedef").Person[]}
-   */
-  const potentialRecruits = [];
+  const potentialRecruits: Person[] = [];
   playerZonesArray.map((zone) => {
     getZoneCitizens(gameManager, zone.id, true).forEach((person) => {
       potentialRecruits.push(person);
@@ -512,11 +529,13 @@ const addPlotResolutions = (plotResolutions, eventQueue) => {
  * Manages game events
  */
 class GameEventQueue {
+  events: GameEvent[];
+  eventIndex: number;
   /**
    * Initialize the GameEventQueue
    * @param {GameEvent[]} events
    */
-  constructor(events) {
+  constructor(events: GameEvent[]) {
     /**
      * @type {GameEvent[]}
      */
@@ -526,11 +545,10 @@ class GameEventQueue {
 
   /**
    * Resolve the current game event with player input (resolveArgs)
-   * @param {GameManager} gameManager
    * @param {import("./typedef").EventResolveArgs} resolveArgs
    */
-  resolveCurrentEvent(gameManager, resolveArgs) {
-    const { gamedata } = gameManager;
+  resolveCurrentEvent(gameManager: GameManager, resolveArgs) {
+    const { gameData } = gameManager;
     return this.events[this.eventIndex].resolveEvent(gameManager, resolveArgs);
   }
 
@@ -546,17 +564,15 @@ class GameEventQueue {
    * should not be used to add events to a queue with
    * existing events, as it will replace the contents
    * of the array.
-   * @param {GameEvent[]} events
    */
-  setEvents(events) {
+  setEvents(events: GameEvent[]) {
     this.events = events;
   }
 
   /**
    * Push a new event to the queue.
-   * @param {GameEvent} event
    */
-  addEvent(event) {
+  addEvent(event: GameEvent) {
     this.events.push(event);
   }
 
@@ -565,9 +581,8 @@ class GameEventQueue {
    * This should be used instead of `setEvents`
    * when multiple events should be appended to the
    * queue at once when the array is not empty.
-   * @param {GameEvent[]} events
    */
-  addEvents(events) {
+  addEvents(events: GameEvent[]) {
     this.events.concat(events);
   }
 
@@ -596,9 +611,9 @@ const eventShufflebag = Shufflebag({
 /**
  * Add a set of random events to the event queue
  */
-const prepareRandomEvents = (gameManager) => {
+const prepareRandomEvents = (gameManager: GameManager) => {
   const { gameData } = gameManager;
-  const events = [];
+  const events: GameEvent[] = [];
   for (let potentialEvents = 0; potentialEvents < 1; potentialEvents++) {
     const eventType = eventShufflebag.next();
 
@@ -646,7 +661,7 @@ const prepareRandomEvents = (gameManager) => {
   return events;
 };
 
-module.exports = {
+export = {
   GameEventQueue,
   generateStandardReportEvent,
   generateEvilApplicantEvent,

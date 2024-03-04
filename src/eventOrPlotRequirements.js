@@ -1,6 +1,6 @@
 const { getCitizens } = require("./citizens");
 const { getAgents } = require("./organization");
-const { Plot } = require("./plots");
+import { Plot } from "./plots.ts";
 const { getZoneCitizens } = require("./zones");
 
 /**

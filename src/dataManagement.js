@@ -1,4 +1,4 @@
-const { ActivityManager, PlotManager } = require("./plots");
+import { ActivityManager, PlotManager } from "./plots.ts";
 
 /**
  *

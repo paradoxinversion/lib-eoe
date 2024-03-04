@@ -1,26 +1,34 @@
-const GameManager = require("./GameManager");
+import { GameManager } from "./GameManager";
+import { Person } from "./types/interfaces/entities";
 const { doCombat } = require("./combat");
 const { getAgentsInZone } = require("./organization");
 const { randomInt } = require("./utilities");
 
-const activityConfig = [
+interface ActivityConfig{
+  /** The name of the activity (to be shown to the user) */
+  name: string;
+  /** The activity's type */
+  type: string;
+  /** The function to handle the execution of the activity */
+  fn: Function;
+}
+
+interface UpdatedAgentMap{
+  [x: string]: Person
+}
+
+const activityConfig: ActivityConfig[] = [
   {
     name: "Training",
     type: "training",
-    /**
-     * @param {GameManager} gameManager
-     * @param {string[]} participantArray - An array of id's of participating agents
-     */
-    fn: (gameManager, participantArray) => {
+    fn: (gameManager: GameManager, participantArray: string[]) => {
       const { gameData } = gameManager;
       // increase a random stat of each participant
       // return an obj that contains an array of the updated agents
-      const updatedAgents = participantArray.reduce(
+      const updatedAgents: UpdatedAgentMap = participantArray.reduce(
         (participants, participant) => {
-          /**
-           * @type {import("./typedef").Person}
-           */
-          const updatedParticipant = JSON.parse(
+          
+          const updatedParticipant: Person = JSON.parse(
             JSON.stringify(gameData.people[participant])
           );
           const stat = randomInt(0, 2);
@@ -45,23 +53,18 @@ const activityConfig = [
         },
         {}
       );
+      
       return { people: updatedAgents };
     },
   },
   {
     name: "EVIL Education",
-    /**
-     * @param {GameManager} gameManager
-     * @param {string[]} participantArray - An array of id's of participating agents
-     */
-    fn: (gameManager, participantArray) => {
+    type: 'evil-educaton',
+    fn: (gameManager: GameManager, participantArray: string[]) => {
       const { gameData } = gameManager;
-      const updatedAgents = participantArray.reduce(
+      const updatedAgents: UpdatedAgentMap = participantArray.reduce(
         (participants, participant) => {
-          /**
-           * @type {import("./typedef").Person}
-           */
-          const updatedParticipant = JSON.parse(
+          const updatedParticipant: Person = JSON.parse(
             JSON.stringify(gameData.people[participant])
           );
           const loyaltyIncrease = randomInt(1, 4);
@@ -76,16 +79,26 @@ const activityConfig = [
     },
   },
 ];
+
+interface PlotAttackZoneOpts{ 
+  zone: {
+    id: string, 
+    organizationId: string 
+  }, 
+  participants: string[]
+}
 /**
- * @param {GameManager} gameManager
- * @param {Object} plotArgs
- * @param {import("./typedef").Zone} plotArgs.zone
- * @param {string[]} plotArgs.participants
- * @returns {import("./typedef").PlotResolution}
+ * Attack a zone
  */
 const plotAttackZone = (
-  gameManager,
-  { zone: { id: zoneId, organizationId: zoneOrgId }, participants }
+  gameManager: GameManager,
+  { 
+    zone: {
+      id: zoneId, 
+      organizationId: zoneOrgId 
+    }, 
+    participants 
+  }: PlotAttackZoneOpts
 ) => {
   const { gameData } = gameManager;
   const defendingAgents = getAgentsInZone(gameManager, zoneOrgId, zoneId);
@@ -96,14 +109,13 @@ const plotAttackZone = (
   };
 };
 
-/**
- *
- * @param {GameManager} gameManager
- * @param {Object} plotArgs
- * @param {import("./typedef").string} plotArgs.zoneId
- * @param {string[]} plotArgs.participants
- */
-const plotRecon = (gameManager, { zoneId, participants }) => {
+interface PlotReconParams{
+  zoneId: string;
+  participants: string[]
+}
+
+const plotRecon = (
+  gameManager: GameManager, { zoneId, participants }:PlotReconParams) => {
   const { gameData } = gameManager;
   const zone = gameData.zones[zoneId];
   const participantIntelligence = Object.values(gameData.people)
@@ -142,7 +154,8 @@ const plotRecon = (gameManager, { zoneId, participants }) => {
   };
 };
 
-const plotConfig = {
+
+const plotConfig: {[x: string]: ActivityConfig} = {
   /**
    * @type {import("./typedef").PlotConfiguration}
    */
@@ -162,41 +175,35 @@ const plotConfig = {
 };
 
 class Activity {
-  constructor(name, fn) {
-    /**
-     * @type {string[]}
-     */
-    this.name = name;
+  name: string;
+  /** Array of IDs belonging to participating agents */
+  agents: string[];
+  /** Execution function for this activity */
+  fn: Function;
 
-    /**
-     * @type {string[]}
-     */
+  constructor(name: string, executionFn) {
+    this.name = name;
     this.agents = [];
-    /**
-     * @type {Function}
-     */
-    this.fn = fn;
+    this.fn = executionFn;
   }
 
   /**
    * Sets agents for this task. Overwrites the current list.
-   * @param {string[]} agents
    */
-  setAgents(agents) {
+  setAgents(agents: string[]) {
     this.agents = agents;
   }
   /**
    * Add an agent to the activity
-   * @param {string} agent - The id of the agent participating
    */
-  addAgent(gameManager, agent) {
+  addAgent(gameManager: GameManager, agent: string) {
     const { gameData } = gameManager;
     let updatedGameData = {
       people: {},
     };
     if (!this.agents.includes(agent)) {
       this.agents = [...this.agents, agent];
-      const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agent]));
+      const updatedAgent: Person = JSON.parse(JSON.stringify(gameData.people[agent]));
       updatedGameData.people[updatedAgent.id] = updatedAgent;
     }
     return updatedGameData;
@@ -204,9 +211,8 @@ class Activity {
 
   /**
    * Remove an agent from the activity
-   * @param {string} agentId - The id of the agent to remove
    */
-  removeAgent(gameManager, agentId) {
+  removeAgent(gameManager: GameManager, agentId: string) {
     const { gameData } = gameManager;
     let updatedGameData = {
       people: {},
@@ -214,46 +220,52 @@ class Activity {
     const agentIndex = this.agents.findIndex(agent => agent === agentId);
     if (agentIndex != -1) {
       this.agents.splice(agentIndex, 1);
-      const updatedAgent = JSON.parse(JSON.stringify(gameData.people[agentId]));
+      const updatedAgent: Person = JSON.parse(JSON.stringify(gameData.people[agentId]));
       updatedGameData.people[updatedAgent.id] = updatedAgent;
     }
     return updatedGameData;
   }
 
   /**
-   *
-   * @param {GameManager} gameManager
-   * @returns
+   * Execute this activity
    */
-  executeActivity(gameManager) {
+  executeActivity(gameManager: GameManager) {
     const result = this.fn(gameManager, this.agents);
     const updatedGameData = {
       people: {},
     };
-    Object.values(result.people).forEach((person) => {
+    Object.values(result.people).forEach((person: Person) => {
       updatedGameData.people[person.id] = person;
     });
     return { result, updatedGameData };
   }
 }
 
+interface PlotResolution{
+  plot: Plot,
+  resolution: any
+}
+
 class Plot {
-  constructor(name, plotType, plotParams) {
+  name: string;
+  plotParams: {};
+  plotType: string;
+  resolution: {
+    plot?: Plot
+  }
+  constructor(name: string, plotType: string, plotParams) {
     this.name = name;
     this.plotParams = plotParams;
     this.plotType = plotType;
-    this.resolution = {};
+    this.resolution = {
+      
+    };
   }
 
   /**
    * Execute a plot, returning the plot's ResolutionValue.
-   * @param {gameManager} gameManager
-   * @returns {import("./typedef").PlotResolution}
    */
-  executePlot(gameManager) {
-    /**
-     * @type {import("./typedef").PlotResolution}
-     */
+  executePlot(gameManager: GameManager) {
     const result = plotConfig[this.plotType].fn(gameManager, this.plotParams);
     this.resolution = result;
     return result;
@@ -261,23 +273,20 @@ class Plot {
 }
 
 class ActivityManager {
+  activities: Activity[];
   constructor() {
     // TODO: Make this a map?
-    /**
-     * @type {Activity[]}
-     */
     this.activities = [];
   }
 
   /**
    *
-   * @param {Activity[]} activities
    */
-  setActivities(activities) {
+  setActivities(activities: Activity[]) {
     this.activities = activities;
   }
 
-  executeActivities(gameManager) {
+  executeActivities(gameManager: GameManager) {
     const activitiesResults = this.activities.reduce(
       (activityResults, activity) => {
         const result = activity.executeActivity(gameManager);
@@ -315,6 +324,10 @@ class ActivityManager {
 }
 
 class PlotManager {
+  plotQueue: Plot[];
+  currentPlot: number;
+  plots: Plot[];
+  plotResolutions: PlotResolution[]
   constructor() {
     /**
      * @type {Plot[]}
@@ -327,9 +340,8 @@ class PlotManager {
 
   /**
    * Set the game plots (not individual playerp lots)
-   * @param {Plot} plots
    */
-  setPlots(plots) {
+  setPlots(plots: Plot[]) {
     this.plots = plots;
   }
 
@@ -344,7 +356,7 @@ class PlotManager {
    * Add a plot to the queue
    * @param {Plot} plot
    */
-  addPlot(plot) {
+  addPlot(plot: Plot) {
     this.plotQueue.push(plot);
   }
 
@@ -352,7 +364,7 @@ class PlotManager {
    * Replaces the current plot queue with the parameter array
    * @param {Plot[]} plotQueue
    */
-  setPlotQueue(plotQueue) {
+  setPlotQueue(plotQueue: Plot[]) {
     this.plotQueue = plotQueue;
   }
 
@@ -366,11 +378,10 @@ class PlotManager {
 
   /**
    * Execute a plot, returning...
-   * @param {Plot} plot
-   * @param {GameManager} gameManager
+\
    * @returns {import("./typedef").PlotResolution}
    */
-  executePlot(plot, gameManager) {
+  executePlot(plot: Plot, gameManager: GameManager): PlotResolution {
     return plot.executePlot(gameManager);
   }
 
@@ -378,10 +389,8 @@ class PlotManager {
    * Executes all plots in the queue. Adds each resolution
    * to the plot's `plotResolutions` property. Returns
    * the resolutions.
-   * @param {GameManager} gameManager
-   * @returns {import("./typedef").PlotResolution[]} The
    */
-  executePlots(gameManager) {
+  executePlots(gameManager: GameManager): PlotResolution[] {
     this.plotQueue.forEach((plot) => {
       this.plotResolutions.push({
         plot,
@@ -407,9 +416,8 @@ class PlotManager {
 
 /**
  * 
- * @param {GameManager} gameManager 
  */
-const populateActivities = (gameManager) => {
+const populateActivities = (gameManager: GameManager) => {
   const { activityManager } = gameManager;
   const activities = [];
   for (
@@ -425,7 +433,7 @@ const populateActivities = (gameManager) => {
   activityManager.setActivities(activities);
 };
 
-const populatePlots = (gameManager) => {
+const populatePlots = (gameManager: GameManager) => {
   const { plotManager } = gameManager;
   const plots = [];
   const plotConfigArray = Object.values(plotConfig);
@@ -436,11 +444,7 @@ const populatePlots = (gameManager) => {
   plotManager.setPlots(plots);
 };
 
-/**
- *
- * @param {GameManager} gameManager
- */
-const getActivityParticipants = (gameManager) => {
+const getActivityParticipants = (gameManager: GameManager) => {
   const { activityManager, gameData } = gameManager;
   const p = activityManager.activities.reduce(
     (participants, currentActivity) => {
@@ -457,7 +461,7 @@ const getActivityParticipants = (gameManager) => {
   return p;
 };
 
-module.exports = {
+export {
   Activity,
   ActivityManager,
   populateActivities,
