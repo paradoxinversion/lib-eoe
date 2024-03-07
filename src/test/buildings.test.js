@@ -1,8 +1,4 @@
-const {
-  getInfrastructureLoad,
-  getUpkeep,
-  getHousingCapacity,
-} = require("../buildings");
+import { getInfrastructureLoad, getUpkeep, getHousingCapacity } from "../buildings";
 const { createTestGameManager } = require("./helpers/gameData");
 
 describe("buildings", () => {

@@ -1,13 +1,10 @@
-import { ActivityManager, PlotManager } from "./plots.ts";
+import { GameManager } from "./GameManager";
 
 /**
  *
- * @param {GameManager} gameManager
- * @param {ActivityManager} activityManager
- * @param {PlotManager} plotManager
  * @returns
  */
-const serializeGameData = (gameManager) => {
+const serializeGameData = (gameManager: GameManager) => {
   const { activityManager, plotManager, gameData } = gameManager;
   const activitiesData = activityManager.serializeActivities();
   const plotData = plotManager.serializePlots();
@@ -27,6 +24,6 @@ const serializeGameData = (gameManager) => {
   return data;
 };
 
-module.exports = {
+export {
   serializeGameData,
 };

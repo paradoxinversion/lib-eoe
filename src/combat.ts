@@ -1,3 +1,11 @@
+import { Person } from "./types/interfaces/entities";
+
+interface CombatInitiative{
+  initiative: number;
+  attackingForce: boolean;
+  characterIndex: number;
+}
+
 /**
  * Creates a CombatInitiative object.
  * @param {number} initiative - The initiative value
@@ -5,7 +13,7 @@
  * @param {number} characterIndex - The index of the associate character within their source array.
  * @returns {import("./typedef").CombatInitiative} A CombatInitiative Object
  */
-const createInitiative = (initiative, attackingForce, characterIndex) => {
+const createInitiative = (initiative: number, attackingForce: boolean, characterIndex:number): CombatInitiative => {
   return {
     initiative,
     attackingForce,
@@ -20,8 +28,8 @@ const createInitiative = (initiative, attackingForce, characterIndex) => {
  * @param {import("./typedef").Person[]} defendingForce - An array of people on the attacking side of the combat encounter
  * @returns {import("./typedef").CombatInitiative[]} An array of CombatInitiative objects, sorted by their `initiative`
  */
-const generateInitiative = (aggressingForce, defendingForce) => {
-  const attackerInit = aggressingForce.reduce((prev, person, index) => {
+const generateInitiative = (aggressingForce: Person[], defendingForce: Person[]) => {
+  const attackerInit = aggressingForce.reduce((prev: CombatInitiative[], person, index) => {
     if (person.currentHealth > 0) {
       prev.push(
         createInitiative(
@@ -60,14 +68,24 @@ const generateInitiative = (aggressingForce, defendingForce) => {
  * @param {import("./typedef").Person[]} targetForce - An array of people who are allowable targets. Allies should be excluded.
  * @returns {number[]}
  */
-const getPossibleTargets = (targetForce) => {
-  return targetForce.reduce((prev, person, index) => {
+const getPossibleTargets = (targetForce: Person[]) => {
+  return targetForce.reduce((prev: number[], person, index) => {
     if (person.currentHealth > 0) {
       prev.push(index);
     }
     return prev;
   }, []);
 };
+
+interface CombatResult{
+  rounds: number;
+  combatLog: string[];
+  victoryResult: 0|1|2;
+  characters: {
+    attackers: Person[];
+    defenders: Person[]
+  }
+}
 
 /**
  * Executes a combat encounter between two opposing forces. Individual characters
@@ -77,7 +95,7 @@ const getPossibleTargets = (targetForce) => {
  * @param {import("./typedef").Person[]} defendingForce - The defending force in the encounter.
  * @returns {import("./typedef").CombatResult} The result of the combat encounter
  */
-const doCombat = (aggressingForce, defendingForce) => {
+const doCombat = (aggressingForce: Person[], defendingForce: Person[]): CombatResult => {
   // Seed the combat log
   const combatLog = ["Combat Begins"];
 
@@ -177,7 +195,7 @@ const doCombat = (aggressingForce, defendingForce) => {
   };
 };
 
-module.exports = {
+export {
   createInitiative,
   generateInitiative,
   getPossibleTargets,

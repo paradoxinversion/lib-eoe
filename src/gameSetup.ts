@@ -1,6 +1,6 @@
-import { GameManager } from "./GameManager.ts";
-const { getControlledZones, hireAgent } = require("./organization");
-const { getZoneCitizens } = require("./zones");
+import { GameData, GameManager } from "./GameManager";
+import { getControlledZones, hireAgent } from "./organization";
+import { getZoneCitizens } from "./zones";
 
 import {
   generateAgentData,
@@ -11,14 +11,14 @@ import {
   generateZone,
   generateBuilding,
   generateZones,
-} from './generators/game.ts'
+} from './generators/game'
 
-const { nationNames, generateZoneName } = require("./generators/names");
-const { Shufflebag, randomInt } = require("./utilities");
-const settings = require("./config");
-const { buildingsSchematics } = require("./buildings");
-import { GameEventQueue } from "./gameEvents.ts";
-import { PlotManager, ActivityManager } from "./plots.ts";
+import { nationNames,generateZoneName } from "./generators/names";
+import {Shufflebag, randomInt} from "./utilities";
+import settings from "./config";
+import { buildingsSchematics } from "./buildings";
+import { GameEventQueue } from "./gameEvents";
+import { PlotManager, ActivityManager } from "./plots";
 /**
  * The main Shufflebag for building types
  */
@@ -57,16 +57,17 @@ const nationNameShuffleBag = Shufflebag(
  * @param {GameManager} gameManager
  * @returns {import("./typedef").GameData} An object containing game data
  */
-const handleNewGame = (gameManager) => {
-  /**
-   * @type {import("./typedef").GameData}
-   */
-  const newGameData = {
+const handleNewGame = (gameManager: GameManager) => {
+  const newGameData: GameData = {
     nations: {},
     governingOrganizations: {},
     zones: {},
     people: {},
-    player: {},
+    player: {
+      empireId: '',
+      overlordId: '',
+      organizationId: ''
+    },
     buildings: {},
     gameDate: new Date("2000-1-1"),
   };
@@ -104,7 +105,7 @@ const handleNewGame = (gameManager) => {
     initAdministration: 10,
   });
 
-  evilOverlord.agent = generateAgentData(evilEmpireOrg.id, 3, null, 0);
+  evilOverlord.agent = generateAgentData(evilEmpireOrg.id, 3, 0, );
 
   newGameData.people[evilOverlord.id] = evilOverlord;
 
@@ -189,12 +190,12 @@ const handleNewGame = (gameManager) => {
  *
  * @param {GameManager} gameManager
  */
-const hireStartingAgents = (gameManager) => {
+const hireStartingAgents = (gameManager: GameManager) => {
   const gameData = gameManager.gameData;
   /**
    * @type {import("./typedef").UpdatedGameData}
    */
-  const updatedGameData = JSON.parse(JSON.stringify(gameData));
+  const updatedGameData = {...gameData};
   /**
    * @type {Object.<string, import("./typedef").Person>}
    */
@@ -216,7 +217,7 @@ const hireStartingAgents = (gameManager) => {
       initAdministration: 10,
     });
 
-    const leaderAgent = generateAgentData(org.id, 3);
+    const leaderAgent = generateAgentData(org.id, 1, 10);
     leader.agent = leaderAgent;
     updatedPeople[leader.id] = leader;
     orgZones.forEach((zone) => {
@@ -227,7 +228,7 @@ const hireStartingAgents = (gameManager) => {
         updatedPeople[recruit.id] = hireAgent(
           recruit,
           org.id,
-          recruitType,
+          1,
           leader.id,
           1
         );
@@ -250,7 +251,7 @@ const createGameManager = () =>
     new ActivityManager()
   );
 
-module.exports = {
+export {
   handleNewGame,
   hireStartingAgents,
   createGameManager

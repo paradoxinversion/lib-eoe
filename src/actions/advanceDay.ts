@@ -1,13 +1,12 @@
 
-import { GameEventQueue, addPlotResolutions, prepareRandomEvents } from "../gameEvents.ts";
+import { GameEventQueue, addPlotResolutions, prepareRandomEvents } from "../gameEvents";
 
-import { GameManager } from "../GameManager.ts";
+import { GameManager } from "../GameManager";
 /**
  * Determines what events happen at end of turn and returns
  * updated gamedata with those events.
- * @param {GameManager} gameManager
  */
-const advanceDay = (gameManager) => {
+export const advanceDay = (gameManager: GameManager) => {
   const {
     gameData,
     eventManager: gameEventQueue,
@@ -43,4 +42,3 @@ const advanceDay = (gameManager) => {
   gameManager.updateGameData(updatedGameData);
   return { updatedGameData, gameEventQueue };
 };
-module.exports = advanceDay;

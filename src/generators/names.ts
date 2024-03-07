@@ -1,4 +1,4 @@
-const { randomInt } = require("../utilities");
+import { randomInt } from "../utilities";
 const nationNames = [
   "Arcadia",
   "Dystopia",
@@ -109,7 +109,7 @@ const generateName = () => {
   return name;
 };
 
-module.exports = {
+export {
   generateName,
   generateZoneName,
   nationNames,

@@ -1,8 +1,8 @@
 import { AgentData, Building, GoverningOrganization, Nation, Person, Zone } from "../types/interfaces/entities";
 
-const { throwErrorFromArray, randomInt } = require("../utilities");
+import { throwErrorFromArray, randomInt } from "../utilities";
+import { generateName } from "../generators/names";
 const { v4: uuidv4 } = require("uuid");
-const { generateName } = require("../generators/names");
 
 interface GenerateNationOpts {
   /** The name of the nation. */
@@ -45,6 +45,7 @@ const generateNation = ({
     id: "n_" + uuidv4(),
     name: name,
     size: size,
+    organizationId: ''
   };
 };
 
@@ -182,9 +183,9 @@ const generateAgentData = (
   /** 0 (troop), 1 (administrator), 2 (scientist), or 3 (governing org leader) */
   department: number, 
   /** The id of the Agent that is directly superior to this one */
-  commanderId: string, 
   /** the agent's monthly pay */
-  salary: number
+  salary: number,
+  commanderId?: string, 
   ): AgentData => {
   return {
     department,
@@ -222,6 +223,7 @@ const generateGoverningOrg = ({
     wealth: 100,
     science: 0,
     infrastructure: 0,
+    totalEvil: 0
   };
 };
 interface GenerateBuildingOpts{

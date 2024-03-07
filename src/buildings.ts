@@ -1,7 +1,15 @@
-import { GameManager } from "./GameManager.ts";
-const { getInfrastructure } = require("./organization");
+import { GameManager } from "./GameManager";
+import { Building, Person } from "./types/interfaces/entities";
+import { getInfrastructure } from "./organization";
 
-const buildingsSchematics = {
+interface BuildingSchematic{
+  buildingType: string;
+  infrastructureCost: number;
+  upkeepCost: number;
+  housingCapacity?: number;
+}
+
+const buildingsSchematics: {[x: string]: BuildingSchematic} = {
   bank: {
     buildingType: "bank",
     infrastructureCost: 2,
@@ -23,10 +31,8 @@ const buildingsSchematics = {
 /**
  * Get the infrastructure load of all buildings
  * controlled by the org.
- * @param {GameManager} gameManager
- * @param {string} organizationId
  */
-const getInfrastructureLoad = (gameManager, organizationId) => {
+const getInfrastructureLoad = (gameManager: GameManager, organizationId: string) => {
   const gameData = gameManager.gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalLoad, building) => {
@@ -40,10 +46,8 @@ const getInfrastructureLoad = (gameManager, organizationId) => {
 /**
  * Get the infrastructure load of all buildings
  * controlled by the org.
- * @param {GameManager} gameManager
- * @param {string} organizationId
  */
-const getUpkeep = (gameManager, organizationId) => {
+const getUpkeep = (gameManager: GameManager, organizationId: string) => {
   const {gameData} = gameManager;
 
   const buildingsArray = Object.values(gameData.buildings);
@@ -57,10 +61,8 @@ const getUpkeep = (gameManager, organizationId) => {
 /**
  * Get the housing capacity total of all buildings
  * controlled by the org.
- * @param {GameManager} gameManager
- * @param {string} organizationId
  */
-const getHousingCapacity = (gameManager, organizationId) => {
+const getHousingCapacity = (gameManager: GameManager, organizationId: string) => {
   const gameData = gameManager.gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalCapacity, building) => {
@@ -77,7 +79,7 @@ const getHousingCapacity = (gameManager, organizationId) => {
  * @param {GameManager} gameManager
  * @param {string} organizationId
  */
-const getWealthBonuses = (gameManager, organizationId) => {
+const getWealthBonuses = (gameManager: GameManager, organizationId: string) => {
   const gameData = gameManager.gameData;
   const maxInfrastructure = getInfrastructure(gameManager, organizationId);
   const infrastructureLoad = getInfrastructureLoad(gameManager, organizationId);
@@ -106,10 +108,8 @@ const getWealthBonuses = (gameManager, organizationId) => {
 /**
  * Get the wealth total of all buildings
  * controlled by the org.
- * @param {GameManager} gameManager
- * @param {string} organizationId
  */
-const getOrgLabs = (gameManager, organizationId) => {
+const getOrgLabs = (gameManager: GameManager, organizationId: string) => {
   const gameData = gameManager.gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.filter(
@@ -121,10 +121,8 @@ const getOrgLabs = (gameManager, organizationId) => {
 
 /**
  *
- * @param {import("./typedef").Person} person
- * @param {import("./typedef").Building} building
  */
-const addPersonnel = (person, building) => {
+const addPersonnel = (person: Person, building: Building) => {
   const updatedGameData = {
     people: {},
     buildings: {},
@@ -149,27 +147,29 @@ const addPersonnel = (person, building) => {
 
 /**
  *
- * @param {import("./typedef").Person} person
- * @param {import("./typedef").Building} building
  */
-const removePersonnel = (person, building) => {
-  const personnelIndex = building.personnel.findIndex(person.id);
+const removePersonnel = (person: Person, building: Building) => {
+  const personnelIndex = building.personnel.findIndex((personnel) => personnel === person.id);
   if (personnelIndex !== -1) {
     building.personnel.splice(personnelIndex);
   }
   return building;
 };
+
+interface GetBuildingsParams{
+  zoneId?: string;
+  organizationId?: string;
+  type?: string;
+}
 /**
  * 
- * @param {GameManager} gameManager 
- * @param {*} param1 
  */
-const getBuildings = (gameManager, {
+const getBuildings = (gameManager: GameManager, {
   zoneId = null,
   organizationId = null,
   type = null
-} = {}) => {
-  const b = Object.values(gameManager.gameData.buildings)
+}: GetBuildingsParams = {}) => {
+  return Object.values(gameManager.gameData.buildings)
     .filter(building => {
       if (zoneId && building.zoneId !== zoneId){
         return false;
@@ -187,7 +187,7 @@ const getBuildings = (gameManager, {
     })
 }
 
-module.exports = {
+export {
   buildingsSchematics,
   getInfrastructureLoad,
   getHousingCapacity,

@@ -4,4 +4,4 @@ const settings = {
   NATIONS_AMT,
 };
 
-module.exports = settings;
+export default settings;

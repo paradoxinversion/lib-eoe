@@ -24,7 +24,12 @@ export interface GameData{
   buildings: {
     [x: string]: Building
   },
-  gameDate: string
+  gameDate: Date,
+  player: {
+    empireId: string;
+    overlordId: string;
+    organizationId: string;
+  }
 }
 
 export class GameManager {
@@ -32,6 +37,7 @@ export class GameManager {
   plotManager: PlotManager;
   activityManager: ActivityManager;
   gameData: GameData
+  
   constructor(eventManager, plotManager, activityManager) {
     this.gameData = {
       people: {},

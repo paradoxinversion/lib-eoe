@@ -6,6 +6,7 @@ export interface Nation {
     name: string;
     /** The size (amount of zones) of the nation */
     size: number;
+    organizationId: string;
 }
 
 export interface Zone {
@@ -79,6 +80,7 @@ export interface GoverningOrganization {
     wealth: number;
     science: number;
     infrastructure: number;
+    totalEvil: number;
 }
 
 export interface Building {

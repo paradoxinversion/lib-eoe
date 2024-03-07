@@ -1,18 +1,18 @@
 import { GameData, GameManager } from "./GameManager";
 import { generateAgentData } from "./generators/game";
-const {
+import {
   getMaxAgents,
   getAgents,
   getControlledZones,
   calculateAgentSalary,
   getPayroll,
-} = require("./organization");
-const { getZoneCitizens } = require("./zones");
+  getEvilEmpire
+}  from "./organization"
+import { getZoneCitizens, transferZoneControl } from "./zones";
 import { Plot } from "./plots";
 import { GoverningOrganization, Person, Zone } from "./types/interfaces/entities";
-const { randomInt, Shufflebag } = require("./utilities");
-const { getUpkeep, getWealthBonuses } = require("./buildings");
-
+import { randomInt, Shufflebag } from "./utilities";
+import { getUpkeep, getWealthBonuses } from "./buildings";
 interface EvilApplicantParams{
   recruit: Person;
   department: number;
@@ -92,14 +92,17 @@ function resolveReconZone(gameManager: GameManager, resolveArgs) {
   const gameData = gameManager.gameData;
   const updatedGameData = {
     zones: {},
+    governingOrganizations: {}
   };
-
   const updatedZone: Zone = JSON.parse(
     JSON.stringify(gameData.zones[this.params.plot.plotParams.zoneId])
   );
   updatedZone.intelligenceLevel +=
     this.params.plot.resolution.data.intelligenceModifier;
   updatedGameData.zones[updatedZone.id] = updatedZone;
+  const preupdateEmpire = getEvilEmpire(gameManager);
+  const evilEmpire:  GoverningOrganization = { ...preupdateEmpire, totalEvil: preupdateEmpire.totalEvil + 10 }
+  updatedGameData.governingOrganizations[evilEmpire.id] = evilEmpire;
   this.eventData = {
     type: "recon-zone",
     resolution: {
@@ -209,6 +212,7 @@ function resolveAttackZone(gameManager: GameManager) {
     people: {},
     zones: {},
   };
+  let f: any = {}
   this.params.plot.resolution.data.characters.attackers.forEach((agent) => {
     updatedGameData.people[agent.id] = agent;
   });
@@ -216,18 +220,32 @@ function resolveAttackZone(gameManager: GameManager) {
     updatedGameData.people[agent.id] = agent;
   });
   if (this.params.plot.resolution.data.victoryResult === 1) {
-    const updatedZone = JSON.parse(
-      JSON.stringify(this.params.plot.plotParams.zone)
-    );
-    updatedZone.organizationId = gameData.player.organizationId;
-    updatedZone.nationId = gameData.player.empireId;
-    updatedGameData.zones[updatedZone.id] = updatedZone;
-  }
+    // const updatedZone = JSON.parse(
+    //   JSON.stringify(this.params.plot.plotParams.zone)
+    // );
+    // updatedZone.organizationId = gameData.player.organizationId;
+    // updatedZone.nationId = gameData.player.empireId;
+    // --
 
+    const updatedZone = {
+      ...gameManager.gameData.zones[this.params.plot.plotParams.zone.id],
+      organizationId: gameData.player.empireId,
+      nationId: gameData.player.empireId
+    }
+    updatedGameData.zones[updatedZone.id] = updatedZone;
+    f = transferZoneControl(gameManager, {
+      zoneId: this.params.plot.plotParams.zone.id,
+      nationId: gameData.player.empireId,
+      organizationId: gameData.player.empireId,
+    })
+  }
+  const preupdateEmpire = getEvilEmpire(gameManager);
+  const evilEmpire:  GoverningOrganization = { ...preupdateEmpire, totalEvil: preupdateEmpire.totalEvil + 10 }
+  f.governingOrganizations[evilEmpire.id] = evilEmpire;
   this.eventData = {
     type: "attack-zone",
     resolution: {
-      updatedGameData,
+      updatedGameData: f,
     },
   };
 
@@ -535,7 +553,7 @@ class GameEventQueue {
    * Initialize the GameEventQueue
    * @param {GameEvent[]} events
    */
-  constructor(events: GameEvent[]) {
+  constructor(events?: GameEvent[]) {
     /**
      * @type {GameEvent[]}
      */
@@ -661,7 +679,7 @@ const prepareRandomEvents = (gameManager: GameManager) => {
   return events;
 };
 
-export = {
+export {
   GameEventQueue,
   generateStandardReportEvent,
   generateEvilApplicantEvent,
@@ -670,5 +688,5 @@ export = {
   addPlotResolutions,
   eventConfig,
   prepareRandomEvents,
-  generateMonthlyReport: generateMonthlyReportEvent,
+  generateMonthlyReportEvent,
 };

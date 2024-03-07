@@ -1,3 +1,5 @@
+import { Person } from "./types/interfaces/entities";
+
 /**
  * Returns a list of people who are citizens of a supplied nation
  * (ie, their `nationId` matches the parameter `nationId`.)
@@ -6,7 +8,7 @@
  * @param {boolean} [excludeAgents] - Whether or not to exclude agents from the return array
  * @returns {import("./typedef").Person[]} An array of people who belong to the nation with the given nation id
  */
-const getCitizens = (peopleArray, nationId, excludeAgents) => {
+const getCitizens = (peopleArray: Person[], nationId: string, excludeAgents: boolean) => {
   if (nationId) {
     return peopleArray.filter((person) => {
       if (excludeAgents && person.agent) {
@@ -18,6 +20,6 @@ const getCitizens = (peopleArray, nationId, excludeAgents) => {
   return peopleArray;
 };
 
-module.exports = {
+export {
   getCitizens,
 };

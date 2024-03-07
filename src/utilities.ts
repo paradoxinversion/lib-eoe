@@ -1,15 +1,11 @@
-// const { getControlledZones } = require("./organization");
-
-// const GameManager = require("./GameManager");
-import { GameManager } from "./GameManager.ts";
-const { getControlledZones } = require("./organization");
-
+import { GameManager } from "./GameManager";
+import { getControlledZones } from "./organization";
 /**
  * Takes an array of strings and throws an error with those
  * strings joined (space seperated) as its message.
  * @param {string[]} errorMessageArray
  */
-const throwErrorFromArray = (errorMessageArray = []) => {
+const throwErrorFromArray = (errorMessageArray: string[] = []) => {
   if (errorMessageArray.length > 0) {
     throw new Error(errorMessageArray.join(" "));
   }
@@ -24,17 +20,21 @@ const randomInt = (min = 0, max = 100) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+interface ShufflebagFrequency{
+  [x: string]: number;
+}
+
 /**
  * Better random values that `randomInt`
- * @param {import("./typedef").ShufflebagFrequency} frequencyMap - a key/value map of options and their frequencies
  */
-const Shufflebag = (frequencyMap) => {
+const Shufflebag = (
+  /** a key/value map of options and their frequencies */
+  frequencyMap: ShufflebagFrequency) => {
   /**
    * Set the Shufflebag's values
-   * @param {import("./typedef").ShufflebagFrequency} frequencyMap
    */
-  const getValueSet = (frequencyMap) => {
-    let valueSet = [];
+  const getValueSet = (frequencyMap: ShufflebagFrequency) => {
+    let valueSet: string[] = [];
     for (let entry in frequencyMap) {
       for (let y = 0; y < frequencyMap[entry]; y++) {
         valueSet.push(entry);
@@ -61,9 +61,8 @@ const Shufflebag = (frequencyMap) => {
 
 /**
  *
- * @param {GameManager} gameManager
  */
-const checkGameOverState = (gameManager) => {
+const checkGameOverState = (gameManager: GameManager) => {
   const { gameData } = gameManager;
   if (gameData.people[gameData.player.overlordId]?.currentHealth <= 0) {
     return {
@@ -78,7 +77,7 @@ const checkGameOverState = (gameManager) => {
  *
  * @param {GameManager} gameManager
  */
-const checkVictoryState = (gameManager) => {
+const checkVictoryState = (gameManager: GameManager) => {
   const { gameData } = gameManager;
   const playerZones = getControlledZones(
     gameManager,
@@ -102,7 +101,7 @@ const checkVictoryState = (gameManager) => {
  * @param {number} trueValue - The actual value of the number
  * @param {number} confidence - The confidence in this value. 100 - confidence = margin of error.
  */
-const numberWithErrorMargin = (trueValue, confidence) => {
+const numberWithErrorMargin = (trueValue: number, confidence: number) => {
   if (confidence === 100) {
     return trueValue;
   }
@@ -113,7 +112,7 @@ const numberWithErrorMargin = (trueValue, confidence) => {
   return trueValue - marginOfErrorAmt / 2;
 };
 
-module.exports = {
+export {
   throwErrorFromArray,
   randomInt,
   Shufflebag,

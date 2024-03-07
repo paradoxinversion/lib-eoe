@@ -1,8 +1,8 @@
 import { GameManager } from "./GameManager";
 import { Person } from "./types/interfaces/entities";
-const { doCombat } = require("./combat");
-const { getAgentsInZone } = require("./organization");
-const { randomInt } = require("./utilities");
+import { doCombat } from "./combat";
+import { getAgentsInZone } from "./organization";
+import { randomInt } from "./utilities";
 
 interface ActivityConfig{
   /** The name of the activity (to be shown to the user) */
@@ -106,6 +106,7 @@ const plotAttackZone = (
   const result = doCombat(attackingAgents, defendingAgents);
   return {
     data: result,
+    evil: 10,
   };
 };
 
@@ -146,10 +147,12 @@ const plotRecon = (
     intelMod = 100;
   }
 
+  const evil = 5;
   return {
     data: {
       intelligenceModifier: intelMod,
       success,
+      evil: 5
     },
   };
 };
