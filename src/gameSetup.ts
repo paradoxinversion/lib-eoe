@@ -20,6 +20,7 @@ import { buildingsSchematics } from "./buildings";
 import { GameEventQueue } from "./gameEvents";
 import { PlotManager, ActivityManager } from "./plots";
 import { Person } from "./types/interfaces/entities";
+import { getPeople } from "./actions/people";
 /**
  * The main Shufflebag for building types
  */
@@ -102,7 +103,7 @@ const handleNewGame = (gameManager: GameManager) => {
     name: "EVIL Overlord",
     initIntelligence: 10,
     initCombat: 10,
-    initLeadership: 10,
+    initLeadership: 20,
     initLoyalty: 100,
     initAdministration: 10,
   });
@@ -200,10 +201,19 @@ const hireStartingAgents = (gameManager: GameManager) => {
   const updatedGameData = {...gameData};
 
   const updatedPeople: {[x: string]: Person} = {};
-
+  const playerData = gameManager.gameData.player;
   Object.values(gameData.governingOrganizations).forEach((org) => {
-    if (org.id === gameData.player.organizationId) {
-      return null;
+    if (org.id === playerData.organizationId) {
+      const empireZone = getControlledZones(gameManager, playerData.organizationId)[0];
+      const citizens = getPeople(gameManager, { zoneId: empireZone.id });
+      // Start at 1, 0 is the Overlord
+      for (let recruitIndex = 1; recruitIndex < 9; recruitIndex++){
+        const recruit = hireAgent(citizens[recruitIndex], playerData.organizationId, 1, playerData.overlordId, 1);
+        if (recruit !== null){
+          updatedPeople[recruit.id] = recruit;
+        }
+      }
+      return;
     }
 
     const orgZones = getControlledZones(gameManager, org.id);
