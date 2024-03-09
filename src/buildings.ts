@@ -1,4 +1,4 @@
-import { GameManager } from "./GameManager";
+import { GameData, GameManager } from "./GameManager";
 import { Building, Person } from "./types/interfaces/entities";
 import { getInfrastructure } from "./organization";
 
@@ -138,12 +138,10 @@ const addPersonnel = (person: Person, building: Building) => {
   if (building.personnel.length === building.maxPersonnel) {
     return;
   }
-  // building.personnel.push(person.id);
   const updatedBuilding = {...building}
   updatedBuilding.personnel = [...updatedBuilding.personnel, person.id]
   
-
-  const updatedPerson = JSON.parse(JSON.stringify(person));
+  const updatedPerson = {...person};
   updatedPerson.isPersonnel = true;
   updatedGameData.buildings[building.id] = updatedBuilding;
   updatedGameData.people[person.id] = updatedPerson;
@@ -154,11 +152,18 @@ const addPersonnel = (person: Person, building: Building) => {
  *
  */
 const removePersonnel = (person: Person, building: Building) => {
+  const updatedPerson: Person = {...person, isPersonnel: false};
   const personnelIndex = building.personnel.findIndex((personnel) => personnel === person.id);
-  if (personnelIndex !== -1) {
-    building.personnel.splice(personnelIndex);
+  const updatedGameData: Partial<GameData> = {
+    people: {[updatedPerson.id]: updatedPerson },
+    buildings: {}
   }
-  return building;
+  if (personnelIndex !== -1) {
+    // building.personnel.splice(personnelIndex, 1);
+    updatedGameData.buildings![building.id] = {...building, personnel: building.personnel.splice(personnelIndex, 1)};
+  }
+
+  return updatedGameData;
 };
 
 interface GetBuildingsParams{
