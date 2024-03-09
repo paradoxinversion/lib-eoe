@@ -74,7 +74,7 @@ const generateNations = (
     errors.push("'minSize' must be less than 'maxSize'.");
   }
   throwErrorFromArray(errors);
-  const nations = {};
+  const nations: {[x: string]: Nation} = {};
   for (let nationIndex = 0; nationIndex < nationsAmt; nationIndex++) {
     const newNation = generateNation({
       size: randomInt(1, maxSize),
@@ -111,9 +111,9 @@ const generateZone = ({
  */
 const generateZones = (
   /** The amount of zones to create */
-  zonesAmt
+  zonesAmt: number
 ): { [x: string]: Zone } => {
-  const zones = {};
+  const zones: {[x: string]: Zone } = {};
   for (let zoneIndex = 0; zoneIndex < zonesAmt; zoneIndex++) {
     const newZone = generateZone({});
     zones[newZone.id] = newZone;
@@ -123,7 +123,7 @@ const generateZones = (
 
 const generatePerson = ({
   nationId = "UNSET",
-  homeZoneId,
+  homeZoneId = '',
   name = "Unnamed Person",
   initIntelligence,
   initCombat,
@@ -132,7 +132,7 @@ const generatePerson = ({
   initLoyalty,
   intelligenceLevel = 25,
 }: GeneratePersonOpts): Person => {
-  const errors = [];
+  const errors: string[] = [];
   throwErrorFromArray(errors);
 
   const loyalty = initLoyalty || randomInt(1, 100);
@@ -159,14 +159,24 @@ const generatePerson = ({
     agent: null,
     isPersonnel: false,
     intelligenceLevel,
+    basicAttributes: {
+      combat,
+      intelligence,
+      leadership,
+      administration
+    },
+    intelAttributes: {
+      intelligenceLevel,
+      loyalty
+    }
   };
 };
 
 /**
  * Generate an amount of people
  */
-const generatePeople = (peopleAmt): {[x: string]: Person} => {
-  const people = {};
+const generatePeople = (peopleAmt: number): {[x: string]: Person} => {
+  const people: {[x: string]: Person } = {};
   for (let personIndex = 0; personIndex < peopleAmt; personIndex++) {
     const person = generatePerson({});
     people[person.id] = person;
@@ -191,7 +201,7 @@ const generateAgentData = (
     department,
     organizationId,
     salary,
-    commanderId,
+    commanderId: commanderId || '',
   };
 };
 
@@ -239,7 +249,7 @@ const generateBuilding = ({
   organizationId,
   infrastructureCost,
   upkeepCost,
-}): Building => {
+}: GenerateBuildingOpts): Building => {
   const errors = [];
   if (!zoneId) {
     errors.push("'zoneId' is a required option parameter.");
@@ -291,6 +301,16 @@ const generateBuilding = ({
     type: buildingType,
     maxPersonnel,
     personnel: [],
+    basicAttributes: {
+      upkeepCost,
+      infrastructureCost,
+
+    },
+    resourceAttributes: {
+      wealthBonus,
+      housingCapacity,
+      scienceBonus: 1,
+    }
   };
 };
 

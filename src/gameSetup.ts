@@ -19,6 +19,7 @@ import settings from "./config";
 import { buildingsSchematics } from "./buildings";
 import { GameEventQueue } from "./gameEvents";
 import { PlotManager, ActivityManager } from "./plots";
+import { Person } from "./types/interfaces/entities";
 /**
  * The main Shufflebag for building types
  */
@@ -92,6 +93,7 @@ const handleNewGame = (gameManager: GameManager) => {
     size: 10,
     organizationId: evilEmpireOrg.id,
   });
+  evilZone.intelligenceLevel = 100;
   newGameData.zones[evilZone.id] = evilZone;
 
   const evilOverlord = generatePerson({
@@ -196,10 +198,8 @@ const hireStartingAgents = (gameManager: GameManager) => {
    * @type {import("./typedef").UpdatedGameData}
    */
   const updatedGameData = {...gameData};
-  /**
-   * @type {Object.<string, import("./typedef").Person>}
-   */
-  const updatedPeople = {};
+
+  const updatedPeople: {[x: string]: Person} = {};
 
   Object.values(gameData.governingOrganizations).forEach((org) => {
     if (org.id === gameData.player.organizationId) {
@@ -225,13 +225,16 @@ const hireStartingAgents = (gameManager: GameManager) => {
       for (let recruitIndex = 0; recruitIndex < 3; recruitIndex++) {
         const recruitType = recruitDepartmentShufflebag.next().toString();
         const recruit = zoneCitizens[recruitIndex];
-        updatedPeople[recruit.id] = hireAgent(
+        const agentUpdate = hireAgent(
           recruit,
           org.id,
           1,
           leader.id,
           1
         );
+        if (agentUpdate !== null){
+          updatedPeople[recruit.id] = agentUpdate
+        }
       }
     });
   });

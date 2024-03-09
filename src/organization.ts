@@ -189,7 +189,7 @@ const getScience = (gameManager: GameManager, organizationId: string) => {
   const { gameData } = gameManager;
   const orgLabs = Object.values(gameData.buildings).filter(
     (building) =>
-      building.type === 0 && building.organizationId === organizationId
+      building.type === 'laboratory' && building.organizationId === organizationId
   );
 
   return orgLabs.reduce((tv, lab) => {
@@ -213,8 +213,8 @@ const getInfrastructure = (
   return getAgents(gameManager, organizationId).reduce(
     (infrastructure, currentAgent) => {
       if (
-        currentAgent.agent.department === 1 ||
-        currentAgent.agent.department === 3
+        currentAgent?.agent?.department === 1 ||
+        currentAgent?.agent?.department === 3
       ) {
         return infrastructure + currentAgent.administration;
       }
@@ -228,7 +228,7 @@ const getInfrastructure = (
 const getPayroll = (gameManager: GameManager, organizationId: string) => {
   return getAgents(gameManager, organizationId).reduce(
     (payroll, currentAgent) => {
-      return payroll + currentAgent.agent.salary;
+      return payroll + (currentAgent?.agent?.salary || 0 );
     },
     0
   );
@@ -283,7 +283,7 @@ const hireAgent = (
 
 const fireAgent = (agent: Person) => {
   const updatedAgent = {...agent};
-  updatedAgent.agent = undefined;
+  updatedAgent.agent = null;
   return {
     people: {
       [updatedAgent.id]: updatedAgent,
@@ -297,7 +297,7 @@ const fireAgent = (agent: Person) => {
  */
 const terminateAgent = (agent: Person) => {
   const updatedAgent = {...agent};
-  updatedAgent.agent = undefined;
+  updatedAgent.agent = null;
   updatedAgent.currentHealth = 0;
 
   // TODO: Should have a positive impact on org's EVIL value

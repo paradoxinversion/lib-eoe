@@ -6,14 +6,18 @@ import {
   getControlledZones,
   calculateAgentSalary,
   getPayroll,
-  getEvilEmpire
-}  from "./organization"
+  getEvilEmpire,
+} from "./organization";
 import { getZoneCitizens, transferZoneControl } from "./zones";
-import { Plot } from "./plots";
-import { GoverningOrganization, Person, Zone } from "./types/interfaces/entities";
+import { Plot, PlotResolution } from "./plots";
+import {
+  GoverningOrganization,
+  Person,
+  Zone,
+} from "./types/interfaces/entities";
 import { randomInt, Shufflebag } from "./utilities";
 import { getUpkeep, getWealthBonuses } from "./buildings";
-interface EvilApplicantParams{
+interface EvilApplicantParams {
   recruit: Person;
   department: number;
   organizationId: string;
@@ -22,7 +26,10 @@ interface EvilApplicantParams{
 /**
  * Set parameters for an Evil Applicant event
  */
-function setEvilApplicantParams({ recruit, organizationId, department }: EvilApplicantParams) {
+function setEvilApplicantParams(
+  this: GameEvent,
+  { recruit, organizationId, department }: EvilApplicantParams
+) {
   this.params.organizationId = organizationId;
   this.params.department = department;
   this.params.recruit = recruit;
@@ -31,35 +38,38 @@ function setEvilApplicantParams({ recruit, organizationId, department }: EvilApp
 /**
  * Set parameters for a Wealth Mod event
  */
-function setWealthModParams() {
+function setWealthModParams(this: GameEvent) {
   this.params.modAmount = randomInt(-10, 10);
 }
 
-interface CombatEventParams{
+interface CombatEventParams {
   aggressingForce: Person[];
   defendingForce: Person[];
 }
 /**
  * Set parameters for a combat event
  */
-function setCombatParams({ aggressingForce, defendingForce }: CombatEventParams) {
+function setCombatParams(
+  this: GameEvent,
+  { aggressingForce, defendingForce }: CombatEventParams
+) {
   this.params.aggressingForce = aggressingForce;
   this.params.defendingForce = defendingForce;
 }
 
-interface AttackZoneParams{
-  plot: Plot
+interface AttackZoneParams {
+  plot: Plot;
 }
 /**
  * Set parameters for an Attack Zone Plot Event
  * @param {Object} AttackZonePlotEventParams
  * @param {Plot} AttackZonePlotEventParams.plot
  */
-function setAttackZoneParams({ plot }: AttackZoneParams) {
+function setAttackZoneParams(this: GameEvent, { plot }: AttackZoneParams) {
   this.params.plot = plot;
 }
 
-interface MonthlyReportEventParams{
+interface MonthlyReportEventParams {
   income: number;
   expenses: number;
 }
@@ -67,41 +77,55 @@ interface MonthlyReportEventParams{
 /**
  *
  */
-function setMonthlyReportParams({ income, expenses }: MonthlyReportEventParams) {
+function setMonthlyReportParams(
+  this: GameEvent,
+  { income, expenses }: MonthlyReportEventParams
+) {
   this.params.income = income;
   this.params.expenses = expenses;
 }
 
-interface ReconZoneEventParams{
-  plot: Plot
+interface ReconZoneEventParams {
+  plot: Plot;
 }
 
 /**
  *
  */
-function setReconZoneParams({ plot }: ReconZoneEventParams) {
+function setReconZoneParams(this: GameEvent, { plot }: ReconZoneEventParams) {
   this.params.plot = plot;
   // this.params.zone = zone;
   // this.params.participants = participants;
 }
 
 /**
- * 
+ *
  */
-function resolveReconZone(gameManager: GameManager, resolveArgs) {
+function resolveReconZone(
+  this: GameEvent,
+  gameManager: GameManager,
+  //@ts-ignore
+  resolveArgs
+) {
   const gameData = gameManager.gameData;
-  const updatedGameData = {
+  const updatedGameData: {
+    zones: { [x: string]: Zone };
+    governingOrganizations: { [x: string]: GoverningOrganization };
+  } = {
     zones: {},
-    governingOrganizations: {}
+    governingOrganizations: {},
   };
   const updatedZone: Zone = JSON.parse(
-    JSON.stringify(gameData.zones[this.params.plot.plotParams.zoneId])
+    JSON.stringify(gameData.zones[this.params.plot?.plotParams.zoneId!])
   );
   updatedZone.intelligenceLevel +=
-    this.params.plot.resolution.data.intelligenceModifier;
+    this.params.plot?.resolution.data.intelligenceModifier;
   updatedGameData.zones[updatedZone.id] = updatedZone;
   const preupdateEmpire = getEvilEmpire(gameManager);
-  const evilEmpire:  GoverningOrganization = { ...preupdateEmpire, totalEvil: preupdateEmpire.totalEvil + 10 }
+  const evilEmpire: GoverningOrganization = {
+    ...preupdateEmpire,
+    totalEvil: preupdateEmpire.totalEvil + 10,
+  };
   updatedGameData.governingOrganizations[evilEmpire.id] = evilEmpire;
   this.eventData = {
     type: "recon-zone",
@@ -116,7 +140,7 @@ function resolveReconZone(gameManager: GameManager, resolveArgs) {
 /**
  * Resolve a Standard Report Event
  */
-function resolveStandardReport() {
+function resolveStandardReport(this: GameEvent) {
   this.eventData = {
     type: "standard-report",
     resolution: {
@@ -127,23 +151,24 @@ function resolveStandardReport() {
   return this.eventData;
 }
 
-interface EvilApplicantResolveArgs{
-  resolutionValue: number,
+interface EvilApplicantResolveArgs {
+  resolutionValue: number;
   data: {
-    department: string,
-    commander: string
-  }
+    department: string;
+    commander: string;
+  };
 }
 
 /**
  * Resolve an Evil Applicant Event
  */
 function resolveEvilApplicant(
-  gameManager: GameManager, 
+  this: GameEvent,
+  gameManager: GameManager,
   resolveArgs: EvilApplicantResolveArgs
 ) {
   const { gameData } = gameManager;
-  const updatedGameData = {
+  const updatedGameData: { people: { [x: string]: Person } } = {
     people: {},
   };
 
@@ -152,17 +177,17 @@ function resolveEvilApplicant(
       this.params.department = parseInt(resolveArgs.data.department);
 
       const updatedAgent: Person = JSON.parse(
-        JSON.stringify(gameData.people[this.params.recruit.id])
+        JSON.stringify(gameData.people[this.params.recruit?.id!])
       );
       const salary = calculateAgentSalary(updatedAgent);
       const agentData = generateAgentData(
-        this.params.organizationId,
+        this.params.organizationId!,
         this.params.department,
-        resolveArgs.data.commander,
-        salary
+        salary,
+        resolveArgs.data.commander
       );
       updatedAgent.agent = agentData;
-      updatedGameData.people[this.params.recruit.id] = updatedAgent;
+      updatedGameData.people[this.params.recruit?.id!] = updatedAgent;
       break;
 
     default:
@@ -181,9 +206,9 @@ function resolveEvilApplicant(
 /**
  * Resolve a Wealth Modification event
  */
-function resolveWealthMod(gameManager: GameManager) {
+function resolveWealthMod(this: GameEvent, gameManager: GameManager) {
   const { gameData } = gameManager;
-  const updatedGameData = { governingOrganizations: {} };
+  const updatedGameData: {governingOrganizations: {[x: string]: GoverningOrganization}} = { governingOrganizations: {} };
   const updatedOrg = JSON.parse(
     JSON.stringify(
       gameData.governingOrganizations[gameData.player.organizationId]
@@ -206,20 +231,20 @@ function resolveWealthMod(gameManager: GameManager) {
 /**
  * Resolve an attack zone event.
  */
-function resolveAttackZone(gameManager: GameManager) {
+function resolveAttackZone(this: GameEvent, gameManager: GameManager) {
   const { gameData } = gameManager;
-  const updatedGameData = {
+  const updatedGameData: {people: {[x: string]: Person}, zones: {[x: string]: Zone}} = {
     people: {},
     zones: {},
   };
-  let f: any = {}
-  this.params.plot.resolution.data.characters.attackers.forEach((agent) => {
+  let f: any = {};
+  this.params.plot?.resolution.data.characters.attackers.forEach((agent: Person) => {
     updatedGameData.people[agent.id] = agent;
   });
-  this.params.plot.resolution.data.characters.defenders.forEach((agent) => {
+  this.params.plot?.resolution.data.characters.defenders.forEach((agent: Person) => {
     updatedGameData.people[agent.id] = agent;
   });
-  if (this.params.plot.resolution.data.victoryResult === 1) {
+  if (this.params.plot?.resolution.data.victoryResult === 1) {
     // const updatedZone = JSON.parse(
     //   JSON.stringify(this.params.plot.plotParams.zone)
     // );
@@ -228,19 +253,22 @@ function resolveAttackZone(gameManager: GameManager) {
     // --
 
     const updatedZone = {
-      ...gameManager.gameData.zones[this.params.plot.plotParams.zone.id],
+      ...gameManager.gameData.zones[this.params?.plot?.plotParams?.zone?.id!],
       organizationId: gameData.player.empireId,
-      nationId: gameData.player.empireId
-    }
+      nationId: gameData.player.empireId,
+    };
     updatedGameData.zones[updatedZone.id] = updatedZone;
     f = transferZoneControl(gameManager, {
-      zoneId: this.params.plot.plotParams.zone.id,
+      zoneId: this.params.plot.plotParams?.zone?.id!,
       nationId: gameData.player.empireId,
       organizationId: gameData.player.empireId,
-    })
+    });
   }
   const preupdateEmpire = getEvilEmpire(gameManager);
-  const evilEmpire:  GoverningOrganization = { ...preupdateEmpire, totalEvil: preupdateEmpire.totalEvil + 10 }
+  const evilEmpire: GoverningOrganization = {
+    ...preupdateEmpire,
+    totalEvil: preupdateEmpire.totalEvil + 10,
+  };
   f.governingOrganizations[evilEmpire.id] = evilEmpire;
   this.eventData = {
     type: "attack-zone",
@@ -255,10 +283,10 @@ function resolveAttackZone(gameManager: GameManager) {
 /**
  *
  */
-function resolveMonthlyReport(gameManager: GameManager) {
+function resolveMonthlyReport(this: GameEvent, gameManager: GameManager) {
   const { gameData } = gameManager;
 
-  const updatedGameData: Partial<GameData> = {
+  const updatedGameData: {governingOrganizations: {[x: string]: GoverningOrganization}} = {
     governingOrganizations: {},
   };
 
@@ -270,13 +298,13 @@ function resolveMonthlyReport(gameManager: GameManager) {
       gameData.governingOrganizations[gameData.player.organizationId]
     )
   );
-  const expenses = Object.values(this.params.expenses).reduce(
+  const expenses = Object.values(this.params.expenses!).reduce(
     (total, currentExpense) => {
       return total + currentExpense;
     },
     0
   );
-  const income = Object.values(this.params.income).reduce(
+  const income = Object.values(this.params.income!).reduce(
     (total, currentIncome) => {
       return total + currentIncome;
     },
@@ -299,49 +327,50 @@ function resolveMonthlyReport(gameManager: GameManager) {
  * Sets `event.params` to an empty object. Should be used for
  * events that take no parameters.
  */
-function setEmptyParams() {
+function setEmptyParams(this: GameEvent) {
   this.params = {};
 }
 
-interface EventConfig{
-  name: string,
-  setParams: Function,
-  resolve?: Function,
-  getEventText: Function,
+interface EventConfig {
+  name: string;
+  setParams: Function;
+  resolve: Function;
+  getEventText: Function;
 }
 
 /**
  * Event configuration to be used with GameEvents
  */
-const eventConfig: {[x: string]: EventConfig} = {
+const eventConfig: { [x: string]: EventConfig } = {
   recruit: {
     name: "EVIL Applicant",
     setParams: setEvilApplicantParams,
     resolve: resolveEvilApplicant,
-    getEventText() {
-      this.eventText = `A citizen, ${this.params.recruit.name}, has applied to become an EVIL Agent.`;
+    getEventText(this: GameEvent) {
+      this.eventText = `A citizen, ${this.params.recruit?.name}, has applied to become an EVIL Agent.`;
     },
   },
   standardReport: {
     name: "Standard Report",
     setParams: setEmptyParams,
     resolve: resolveStandardReport,
-    getEventText() {
+    getEventText(this: GameEvent) {
       this.eventText = `There is nothing special to report.`;
     },
   },
   combat: {
     name: "Combat",
     setParams: setCombatParams,
-    getEventText() {
+    getEventText(this: GameEvent) {
       this.eventText = `Combat has occured!`;
     },
+    resolve: ()=>{}
   },
   wealthMod: {
     name: "Wealth Change",
     setParams: setWealthModParams,
     resolve: resolveWealthMod,
-    getEventText() {
+    getEventText(this: GameEvent) {
       this.eventText = `The Empire's wealth has fluctuated by ${this.params.modAmount}`;
     },
   },
@@ -349,7 +378,7 @@ const eventConfig: {[x: string]: EventConfig} = {
     name: "Attack Zone",
     setParams: setAttackZoneParams,
     resolve: resolveAttackZone,
-    getEventText() {
+    getEventText(this: GameEvent) {
       this.eventText = `The Empire has attacked a Zone!`;
     },
   },
@@ -357,7 +386,7 @@ const eventConfig: {[x: string]: EventConfig} = {
     name: "Recon Zone",
     setParams: setReconZoneParams,
     resolve: resolveReconZone,
-    getEventText() {
+    getEventText(this: GameEvent) {
       this.eventText = "Update me";
     },
   },
@@ -365,16 +394,17 @@ const eventConfig: {[x: string]: EventConfig} = {
     name: "Monthly Report",
     setParams: setMonthlyReportParams,
     resolve: resolveMonthlyReport,
-    getEventText() {
+    getEventText(this: GameEvent) {
       this.eventText = "The month has ended.";
     },
   },
 };
 
 interface EventData {
+  type: string;
   resolution: {
-    updatedGameData?: Partial<GameData>
-  }
+    updatedGameData?: Partial<GameData>;
+  };
 }
 
 /**
@@ -382,11 +412,24 @@ interface EventData {
  */
 class GameEvent {
   getEventText: Function;
+  eventText?: string;
   setParams: Function;
   resolveEvent: Function;
   eventData: EventData;
-  eventName:string;
-  params: Object;
+  eventName: string;
+  params: {
+    plot?: Plot;
+    organizationId?: string;
+    department?: number;
+    recruit?: Person;
+    modAmount?: number;
+
+    aggressingForce?: Person[];
+    defendingForce?: Person[];
+
+    income?: number;
+    expenses?: number;
+  };
   /**
    * Create a game event using configuration.
    * @param {import("./typedef").EventConfigOptions} config
@@ -411,7 +454,8 @@ class GameEvent {
      * @type {import("./typedef").EventData}
      */
     this.eventData = {
-      resolution: {}
+      type: '',
+      resolution: {},
     };
     /**
      * @type {Object.<string, Object>}
@@ -514,16 +558,10 @@ const generateEvilApplicantEvent = (gameManager: GameManager) => {
  * @param {import("./typedef").PlotResolution[]} plotResolutions
  * @param {GameEventQueue} eventQueue
  */
-const addPlotResolutions = (plotResolutions, eventQueue) => {
-  /**
-   * @type {GameEvent[]}
-   */
-  const plotResolutionEvents = [];
+const addPlotResolutions = (plotResolutions: PlotResolution[], eventQueue: GameEventQueue) => {
+  const plotResolutionEvents: GameEvent[] = [];
   plotResolutions.forEach((plotResolution) => {
-    /**
-     * @type {GameEvent}
-     */
-    let resolutionEvent;
+    let resolutionEvent: GameEvent|null = null;
     switch (plotResolution.plot.plotType) {
       case "attack-zone":
         resolutionEvent = generateAttackZonePlotEvent(plotResolution.plot);
@@ -563,8 +601,8 @@ class GameEventQueue {
 
   /**
    * Resolve the current game event with player input (resolveArgs)
-   * @param {import("./typedef").EventResolveArgs} resolveArgs
    */
+  //@ts-ignore
   resolveCurrentEvent(gameManager: GameManager, resolveArgs) {
     const { gameData } = gameManager;
     return this.events[this.eventIndex].resolveEvent(gameManager, resolveArgs);
@@ -644,7 +682,7 @@ const prepareRandomEvents = (gameManager: GameManager) => {
         try {
           event = generateEvilApplicantEvent(gameManager);
 
-          events.push(event);
+          events.push(event!);
         } catch (e) {
           console.log(e);
           break;
@@ -669,10 +707,11 @@ const prepareRandomEvents = (gameManager: GameManager) => {
   const gd = new Date(gameData.gameDate);
   const month = gd.getMonth();
   const year = gd.getFullYear() + 1;
+  //@ts-ignore
   const monthEnd = new Date(new Date(year, month, 1) - 1);
   const day = gd.getDate();
 
-  if (monthEnd === day) {
+  if (monthEnd.getDate() === day) {
     events.push(generateMonthlyReportEvent(gameManager));
   }
 

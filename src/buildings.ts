@@ -91,7 +91,7 @@ const getWealthBonuses = (gameManager: GameManager, organizationId: string) => {
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalWealth, building) => {
     const buildingBaseWealthBonus = building.wealthBonus;
-    const overloadReduction = parseInt(
+    const overloadReduction = (
       (overloadPercentage / 100) * building.wealthBonus
     );
 
@@ -123,7 +123,10 @@ const getOrgLabs = (gameManager: GameManager, organizationId: string) => {
  *
  */
 const addPersonnel = (person: Person, building: Building) => {
-  const updatedGameData = {
+  const updatedGameData: {
+    people: {[x: string]: Person},
+    buildings: {[x:string]: Building}
+  } = {
     people: {},
     buildings: {},
   };
@@ -135,13 +138,15 @@ const addPersonnel = (person: Person, building: Building) => {
   if (building.personnel.length === building.maxPersonnel) {
     return;
   }
-
-  building.personnel.push(person.id);
+  // building.personnel.push(person.id);
+  const updatedBuilding = {...building}
+  updatedBuilding.personnel = [...updatedBuilding.personnel, person.id]
+  
 
   const updatedPerson = JSON.parse(JSON.stringify(person));
   updatedPerson.isPersonnel = true;
-  updatedGameData.buildings[building.id] = building;
-  updatedGameData.people[person.id] = person;
+  updatedGameData.buildings[building.id] = updatedBuilding;
+  updatedGameData.people[person.id] = updatedPerson;
   return updatedGameData;
 };
 
@@ -157,9 +162,9 @@ const removePersonnel = (person: Person, building: Building) => {
 };
 
 interface GetBuildingsParams{
-  zoneId?: string;
-  organizationId?: string;
-  type?: string;
+  zoneId?: string|null;
+  organizationId?: string|null;
+  type?: string|null;
 }
 /**
  * 

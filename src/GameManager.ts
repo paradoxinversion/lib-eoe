@@ -2,6 +2,7 @@
 
 import { Building, GoverningOrganization, Nation, Person, Zone } from "./types/interfaces/entities";
 import { PlotManager, ActivityManager } from "./plots";
+import { GameEventQueue } from "./gameEvents";
 
 export interface GameData{
   /** A key-value pair object of ids and their associated people */
@@ -37,15 +38,20 @@ export class GameManager {
   plotManager: PlotManager;
   activityManager: ActivityManager;
   gameData: GameData
-  
-  constructor(eventManager, plotManager, activityManager) {
+  eventManager:  GameEventQueue;
+  constructor(eventManager: GameEventQueue, plotManager: PlotManager, activityManager: ActivityManager) {
     this.gameData = {
       people: {},
       nations: {},
       governingOrganizations: {},
       zones: {},
       buildings: {},
-      gameDate: ''
+      gameDate: new Date("1/1/2000"),
+      player: {
+        empireId: '',
+        organizationId: '',
+        overlordId: ''
+      }
     };
     this.eventManager = eventManager;
     this.plotManager = plotManager;
@@ -53,16 +59,17 @@ export class GameManager {
     this.initialized = false;
   }
 
-  setInitialized(initialized){
+  setInitialized(initialized: boolean){
     this.initialized = initialized;
   }
 
-  setGameData(gameData){
+  setGameData(gameData: GameData){
     this.gameData = gameData;
   }
 
-  updateGameData(updatedGameData){
-    const update: Partial<GameData> = {
+  updateGameData(updatedGameData: Partial<GameData>){
+    console.log("Update Game Manager:", updatedGameData)
+    const update: GameData = {
       ...this.gameData,
       people: { ...this.gameData.people, ...updatedGameData.people },
       zones: { ...this.gameData.zones, ...updatedGameData.zones },

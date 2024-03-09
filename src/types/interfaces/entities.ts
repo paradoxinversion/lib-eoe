@@ -47,13 +47,26 @@ export interface Person {
     /** the person's current health */
     currentHealth: number;
     /** If present, data about the peron's agent status */
-    agent?: AgentData,
+    agent: AgentData|null,
     /** the max possible agents the agent can manage */
     leadership: number;
     /** The level of knowledge the EOE has on this person */
     intelligenceLevel: number;
     /** Whether or not the person is working in a building */
     isPersonnel: boolean;
+    basicAttributes: {
+        /** How capable of combat the character is, related to Evil Troops */
+        combat: number;
+        /** how smart the person is, related to Science */
+        intelligence: number;
+        /** the max possible agents the agent can manage */
+        leadership: number;
+        administration: number;
+    }
+    intelAttributes: {
+        intelligenceLevel: number;
+        loyalty: number;
+    }
 }
 
 export interface AgentData {
@@ -93,6 +106,16 @@ export interface Building {
     infrastructureCost: number;
     upkeepCost: number;
     housingCapacity: number;
-    type: number;
+    type: string;
     maxPersonnel: number;
+    basicAttributes: {
+        infrastructureCost: number;
+        upkeepCost: number;
+    }
+    resourceAttributes: {
+        wealthBonus: number;
+        housingCapacity: number;
+        scienceBonus: number;
+    }
+
 }

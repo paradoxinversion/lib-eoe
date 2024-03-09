@@ -76,9 +76,9 @@ const getZoneCitizens = (
 };
 
 interface TransferZoneControlParams{
-  zoneId?: string;
-  organizationId?: string;
-  nationId?: string;
+  zoneId: string;
+  organizationId: string;
+  nationId: string;
 }
 
 const transferZoneControl = (
@@ -92,13 +92,6 @@ const transferZoneControl = (
   zone.organizationId = organizationId;
   zone.nationId = nationId || zone.nationId;
 
-  // transfer building control
-  // const updatedZoneBuildings = getBuildings(gameManager, {
-  //   zoneId
-  // }).map(building => ({
-  //   ...building,
-  //   organizationId: organizationId
-  // }));
   const updatedZoneBuildings = getBuildings(gameManager, {
     zoneId,
   }).reduce((prev, building) => {
@@ -110,13 +103,6 @@ const transferZoneControl = (
       },
     };
   }, {});
-
-  // const updatedPeople = getPeople(gameManager, {
-  //   zoneId
-  // }).map(person => ({
-  //   ...person,
-  //   nationId: nationId
-  // }));
 
   const updatedPeople = getPeople(gameManager, {
     zoneId,

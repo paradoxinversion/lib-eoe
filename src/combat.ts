@@ -42,7 +42,7 @@ const generateInitiative = (aggressingForce: Person[], defendingForce: Person[])
     return prev;
   }, []);
   const defenderInit = defendingForce
-    .reduce((prev, person, index) => {
+    .reduce((prev: CombatInitiative[], person, index) => {
       if (person.currentHealth > 0) {
         prev.push(
           createInitiative(

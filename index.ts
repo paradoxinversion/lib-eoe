@@ -14,7 +14,7 @@ import * as dataManagement from "./src/dataManagement";
 import * as actions from "./src/actions";
 import { GameManager } from "./src/GameManager";
 
-module.exports = {
+export {
   gameGenerators,
   // eventGenerators,
   citizens,

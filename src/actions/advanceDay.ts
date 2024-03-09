@@ -2,6 +2,7 @@
 import { GameEventQueue, addPlotResolutions, prepareRandomEvents } from "../gameEvents";
 
 import { GameManager } from "../GameManager";
+import { Activity, ActivityResult } from "../plots";
 /**
  * Determines what events happen at end of turn and returns
  * updated gamedata with those events.
