@@ -2,14 +2,14 @@ import { GameData, GameManager } from "./GameManager";
 import { Building, Person } from "./types/interfaces/entities";
 import { getInfrastructure } from "./organization";
 
-interface BuildingSchematic{
+interface BuildingSchematic {
   buildingType: string;
   infrastructureCost: number;
   upkeepCost: number;
   housingCapacity?: number;
 }
 
-const buildingsSchematics: {[x: string]: BuildingSchematic} = {
+const buildingsSchematics: { [x: string]: BuildingSchematic } = {
   bank: {
     buildingType: "bank",
     infrastructureCost: 2,
@@ -32,7 +32,10 @@ const buildingsSchematics: {[x: string]: BuildingSchematic} = {
  * Get the infrastructure load of all buildings
  * controlled by the org.
  */
-const getInfrastructureLoad = (gameManager: GameManager, organizationId: string) => {
+const getInfrastructureLoad = (
+  gameManager: GameManager,
+  organizationId: string
+) => {
   const gameData = gameManager.gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalLoad, building) => {
@@ -48,7 +51,7 @@ const getInfrastructureLoad = (gameManager: GameManager, organizationId: string)
  * controlled by the org.
  */
 const getUpkeep = (gameManager: GameManager, organizationId: string) => {
-  const {gameData} = gameManager;
+  const { gameData } = gameManager;
 
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalUpkeep, building) => {
@@ -62,11 +65,14 @@ const getUpkeep = (gameManager: GameManager, organizationId: string) => {
  * Get the housing capacity total of all buildings
  * controlled by the org.
  */
-const getHousingCapacity = (gameManager: GameManager, organizationId: string) => {
+const getHousingCapacity = (
+  gameManager: GameManager,
+  organizationId: string
+) => {
   const gameData = gameManager.gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalCapacity, building) => {
-    console.log(building)
+    console.log(building);
     if (building.organizationId === organizationId) {
       totalCapacity = totalCapacity + building.housingCapacity || 0;
     }
@@ -91,9 +97,7 @@ const getWealthBonuses = (gameManager: GameManager, organizationId: string) => {
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalWealth, building) => {
     const buildingBaseWealthBonus = building.wealthBonus;
-    const overloadReduction = (
-      (overloadPercentage / 100) * building.wealthBonus
-    );
+    const overloadReduction = (overloadPercentage / 100) * building.wealthBonus;
 
     if (
       building.organizationId === organizationId &&
@@ -124,8 +128,8 @@ const getOrgLabs = (gameManager: GameManager, organizationId: string) => {
  */
 const addPersonnel = (person: Person, building: Building) => {
   const updatedGameData: {
-    people: {[x: string]: Person},
-    buildings: {[x:string]: Building}
+    people: { [x: string]: Person };
+    buildings: { [x: string]: Building };
   } = {
     people: {},
     buildings: {},
@@ -138,10 +142,10 @@ const addPersonnel = (person: Person, building: Building) => {
   if (building.personnel.length === building.maxPersonnel) {
     return;
   }
-  const updatedBuilding = {...building}
-  updatedBuilding.personnel = [...updatedBuilding.personnel, person.id]
-  
-  const updatedPerson = {...person};
+  const updatedBuilding = { ...building };
+  updatedBuilding.personnel = [...updatedBuilding.personnel, person.id];
+
+  const updatedPerson = { ...person };
   updatedPerson.isPersonnel = true;
   updatedGameData.buildings[building.id] = updatedBuilding;
   updatedGameData.people[person.id] = updatedPerson;
@@ -152,50 +156,59 @@ const addPersonnel = (person: Person, building: Building) => {
  *
  */
 const removePersonnel = (person: Person, building: Building) => {
-  const updatedPerson: Person = {...person, isPersonnel: false};
-  const personnelIndex = building.personnel.findIndex((personnel) => personnel === person.id);
+  const updatedPerson: Person = { ...person, isPersonnel: false };
+  const personnelIndex = building.personnel.findIndex(
+    (personnel) => personnel === person.id
+  );
   const updatedGameData: Partial<GameData> = {
-    people: {[updatedPerson.id]: updatedPerson },
-    buildings: {}
-  }
+    people: { [updatedPerson.id]: updatedPerson },
+    buildings: {},
+  };
   if (personnelIndex !== -1) {
     // building.personnel.splice(personnelIndex, 1);
-    updatedGameData.buildings![building.id] = {...building, personnel: building.personnel.splice(personnelIndex, 1)};
+    const bCopy = { ...building };
+    updatedGameData.buildings![bCopy.id] = {
+      ...bCopy,
+      personnel: bCopy.personnel.filter((person, index) => {
+        if (index === personnelIndex) {
+          return false;
+        }
+        return true;
+      }),
+    };
   }
 
   return updatedGameData;
 };
 
-interface GetBuildingsParams{
-  zoneId?: string|null;
-  organizationId?: string|null;
-  type?: string|null;
+interface GetBuildingsParams {
+  zoneId?: string | null;
+  organizationId?: string | null;
+  type?: string | null;
 }
 /**
- * 
+ *
  */
-const getBuildings = (gameManager: GameManager, {
-  zoneId = null,
-  organizationId = null,
-  type = null
-}: GetBuildingsParams = {}) => {
-  return Object.values(gameManager.gameData.buildings)
-    .filter(building => {
-      if (zoneId && building.zoneId !== zoneId){
-        return false;
-      }
+const getBuildings = (
+  gameManager: GameManager,
+  { zoneId = null, organizationId = null, type = null }: GetBuildingsParams = {}
+) => {
+  return Object.values(gameManager.gameData.buildings).filter((building) => {
+    if (zoneId && building.zoneId !== zoneId) {
+      return false;
+    }
 
-      if (organizationId && building.organizationId !== organizationId){
-        return false;
-      }
+    if (organizationId && building.organizationId !== organizationId) {
+      return false;
+    }
 
-      if (type && building.type !== type){
-        return false;
-      }
+    if (type && building.type !== type) {
+      return false;
+    }
 
-      return true;
-    })
-}
+    return true;
+  });
+};
 
 export {
   buildingsSchematics,
