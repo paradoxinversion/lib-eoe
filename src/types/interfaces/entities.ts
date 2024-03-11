@@ -54,6 +54,7 @@ export interface Person {
     intelligenceLevel: number;
     /** Whether or not the person is working in a building */
     isPersonnel: boolean;
+    dead: boolean;
     basicAttributes: {
         /** How capable of combat the character is, related to Evil Troops */
         combat: number;

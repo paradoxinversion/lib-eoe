@@ -1,4 +1,5 @@
-import { GameManager } from "../GameManager";
+import { GameData, GameManager } from "../GameManager";
+import { AgentData, Person } from "../types/interfaces/entities";
 
 interface GetPeopleParams {
   zoneId?: string | null;
@@ -7,22 +8,24 @@ interface GetPeopleParams {
     excludeAgents?: boolean;
     department?: number;
     agentsOnly?: boolean;
+    commander?: string;
   };
-  /**
-   * 0: No filter; 1: Only Agents; 2: No Agents
-   */
-  // agentFilter?: 0|1|2|null
+  excludePersonnel?: boolean;
+  organizationId?: string;
 }
 
 export const getPeople = (
   gameManager: GameManager,
   {
+    excludePersonnel = false,
     zoneId = null,
     nationId = null,
+    organizationId = null,
     agentFilter = {
       department: -1,
       excludeAgents: false,
       agentsOnly: false,
+      commander: '',
     },
   }: GetPeopleParams={}
 ) => {
@@ -31,6 +34,9 @@ export const getPeople = (
       return false;
     }
     if (agentFilter.excludeAgents && person.agent) {
+      return false;
+    }
+    if (agentFilter.commander && person.agent?.commanderId !== agentFilter.commander) {
       return false;
     }
     if (
@@ -47,6 +53,57 @@ export const getPeople = (
       return false;
     }
 
+    if (excludePersonnel && person.isPersonnel){
+      return false;
+    }
+
+    if (organizationId && person.agent?.organizationId !== organizationId){
+      return false;
+    }
+
     return true;
   });
 };
+
+export const getAgentDepartment = (agentData: AgentData) => {
+  if (agentData.department === 0) {
+    return 'Henchman';
+  } else if (agentData.department === 1) {
+    return "Administrator"
+  } else if (agentData.department === 2) {
+    return "Scientist"
+  } else if (agentData.department === 3) {
+    return "Chief Commander"
+  }
+}
+
+export const changeAgentDepartment = (theAgent: Person, department: number): Partial<GameData> => {
+  
+  const updatedPerson: Person = {
+    ...theAgent,
+    agent: {
+      ...theAgent.agent!,
+      department
+    }
+  }
+
+  return {
+    people: {
+      [updatedPerson.id]: updatedPerson
+    }
+  }
+}
+
+export const killPerson = (person: Person) => {
+  const updatedPerson: Person = {
+    ...person,
+    dead: true,
+    currentHealth: 0,
+  }
+
+  return {
+    people: {
+      [updatedPerson.id]: updatedPerson
+    }
+  }
+}

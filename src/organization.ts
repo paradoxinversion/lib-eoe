@@ -1,16 +1,19 @@
-import { GameManager } from "./GameManager";
+import { GameData, GameManager } from "./GameManager";
+import { killPerson } from "./actions/people";
 import { generateAgentData } from "./generators/game";
 import { Person } from "./types/interfaces/entities";
 import { throwErrorFromArray } from "./utilities";
 
 /**
  * Returns a copy of the recruited person
- * @param {string} organizationId - The recruiting org's id
- * @param {import("./typedef").Person} person - the person being recruited
+ * @param {string} organizationId - 
+ * @param {import("./typedef").Person} person - 
  * @returns {import("./typedef").Person} The updated person
  */
 const recruitAgent = (
+  /** The recruiting org's id */
   organizationId: string,
+  /** the person being recruited */
   person: Person,
   department = 0
 ) => {
@@ -119,9 +122,6 @@ const _getAgents = (gameManager: GameManager, parameters: GetAgentsPrams) => {
 
 /**
  * Return the agents in a zone.
- * @param {GameManager} gameManager
- * @param {string} organizationId
- * @param {string} zoneId
  * @returns
  */
 const getAgentsInZone = (
@@ -149,8 +149,6 @@ const getAgentsInZone = (
 
 /**
  * Return the max number of agents an organization can support.
- * @param {GameManager} gameManager - An array of all people
- * @param {string} organizationId
  */
 const getMaxAgents = (gameManager: GameManager, organizationId: string) => {
   const { gameData } = gameManager;
@@ -167,11 +165,6 @@ const getMaxAgents = (gameManager: GameManager, organizationId: string) => {
   }, 0);
 };
 
-/**
- *
- * @param {GameManager} gameManager
- * @param {import("./typedef").Person} agent
- */
 const getAgentSubordinates = (gameManager: GameManager, agent: Person) => {
   const { gameData } = gameManager;
   const peopleArray = Object.values(gameData.people);
@@ -180,11 +173,7 @@ const getAgentSubordinates = (gameManager: GameManager, agent: Person) => {
   );
 };
 
-/**
- * Return the science value of an org.
- * @param {GameManager} gameManager - An array of all people
- * @param {string} organizationId
- */
+
 const getScience = (gameManager: GameManager, organizationId: string) => {
   const { gameData } = gameManager;
   const orgLabs = Object.values(gameData.buildings).filter(
@@ -201,11 +190,7 @@ const getScience = (gameManager: GameManager, organizationId: string) => {
   }, 0);
 };
 
-/**
- * Return the infra value of an org.
- * @param {GameManager} gameManager - An array of all people
- * @param {string} organizationId
- */
+
 const getInfrastructure = (
   gameManager: GameManager,
   organizationId: string
@@ -234,11 +219,7 @@ const getPayroll = (gameManager: GameManager, organizationId: string) => {
   );
 };
 
-/**
- *
- * @param {GameManager} gameManager
- * @param {string} organizationId
- */
+
 const getControlledZones = (
   gameManager: GameManager,
   organizationId: string
@@ -251,15 +232,7 @@ const getControlledZones = (
   return zonesArray.filter((zone) => zone.organizationId === organizationId);
 };
 
-/**
- *
- * @param {import("./typedef").Person} agent
- * @param {string} organizationId
- * @param {number} department
- * @param {string} commanderId
- * @param {number} salary
- * @returns
- */
+
 const hireAgent = (
   agent: Person,
   organizationId: string,
@@ -291,27 +264,16 @@ const fireAgent = (agent: Person) => {
   };
 };
 
-/**
- *
- * @param {import("./typedef").Person} agent
- */
-const terminateAgent = (agent: Person) => {
-  const updatedAgent = {...agent};
-  updatedAgent.agent = null;
-  updatedAgent.currentHealth = 0;
+
+
+const terminateAgent = (agent: Person): Partial<GameData> => {
+  const updatedGameData = killPerson(agent);
+  updatedGameData.people[agent.id].agent = null;
 
   // TODO: Should have a positive impact on org's EVIL value
-  return {
-    people: {
-      [updatedAgent.id]: updatedAgent,
-    },
-  };
+  return updatedGameData
 };
 
-/**
- *
- * @param {import("./typedef").Person} agent
- */
 const calculateAgentSalary = (agent: Person) => {
   return (
     agent.administration + agent.combat + agent.intelligence + agent.leadership

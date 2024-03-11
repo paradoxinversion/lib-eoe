@@ -152,6 +152,7 @@ const generatePerson = ({
     loyalty,
     intelligence,
     combat,
+    dead: false,
     administration,
     leadership,
     health: 10,

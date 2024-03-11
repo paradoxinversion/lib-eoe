@@ -123,6 +123,39 @@ const getOrgLabs = (gameManager: GameManager, organizationId: string) => {
   );
 };
 
+export const getScienceOutput = (
+  gameManager: GameManager,
+  building: Building
+) => {
+  // Science requires working scientists
+  if (building.personnel.length === 0) {
+    return 0;
+  }
+
+  const base = 0;
+
+  const scientistBonuses = building.personnel.reduce((total, personId) => {
+    return (total = total + gameManager.gameData.people[personId].intelligence);
+  }, 0);
+
+  return base + scientistBonuses;
+};
+
+interface ResourceOutput {
+  science: number;
+}
+
+export const getResourceOutput = (
+  gameManager: GameManager,
+  building: Building
+): ResourceOutput => {
+  const science = getScienceOutput(gameManager, building);
+
+  return {
+    science,
+  };
+};
+
 /**
  *
  */

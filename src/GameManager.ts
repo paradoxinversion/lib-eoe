@@ -84,6 +84,7 @@ export class GameManager {
     };
 
     this.gameData = update;
+    return this.gameData;
   }
 }
 
