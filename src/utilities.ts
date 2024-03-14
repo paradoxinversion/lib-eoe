@@ -1,5 +1,6 @@
-import { GameManager } from "./GameManager";
-import { getControlledZones } from "./organization";
+import { GameManager } from './GameManager';
+import { getControlledZones } from './organization';
+import { getZones } from './zones';
 /**
  * Takes an array of strings and throws an error with those
  * strings joined (space seperated) as its message.
@@ -7,7 +8,7 @@ import { getControlledZones } from "./organization";
  */
 const throwErrorFromArray = (errorMessageArray: string[] = []) => {
   if (errorMessageArray.length > 0) {
-    throw new Error(errorMessageArray.join(" "));
+    throw new Error(errorMessageArray.join(' '));
   }
 };
 
@@ -20,7 +21,7 @@ const randomInt = (min = 0, max = 100) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-interface ShufflebagFrequency{
+interface ShufflebagFrequency {
   [x: string]: number;
 }
 
@@ -29,7 +30,8 @@ interface ShufflebagFrequency{
  */
 const Shufflebag = (
   /** a key/value map of options and their frequencies */
-  frequencyMap: ShufflebagFrequency) => {
+  frequencyMap: ShufflebagFrequency,
+) => {
   /**
    * Set the Shufflebag's values
    */
@@ -64,9 +66,12 @@ const Shufflebag = (
  */
 const checkGameOverState = (gameManager: GameManager) => {
   const { gameData } = gameManager;
-  if (gameData.people[gameData.player.overlordId]?.currentHealth <= 0) {
+  if (
+    gameData.people[gameData.player.overlordId]?.vitalAttributes
+      .currentHealth <= 0
+  ) {
     return {
-      gameOverCause: "overlord-death",
+      gameOverCause: 'overlord-death',
     };
   }
 
@@ -81,11 +86,11 @@ const checkVictoryState = (gameManager: GameManager) => {
   const { gameData } = gameManager;
   const playerZones = getControlledZones(
     gameManager,
-    gameData.player.organizationId
+    gameData.player.organizationId,
   );
   if (playerZones.length === Object.keys(gameData.zones).length) {
     return {
-      victoryCause: "world-domination",
+      victoryCause: 'world-domination',
     };
   }
 

@@ -1,6 +1,6 @@
-import { GameData, GameManager } from "./GameManager";
-import { Building, Person } from "./types/interfaces/entities";
-import { getInfrastructure } from "./organization";
+import { GameData, GameManager } from './GameManager';
+import { Building, Person } from './types/interfaces/entities';
+import { getInfrastructure } from './organization';
 
 interface BuildingSchematic {
   buildingType: string;
@@ -11,20 +11,25 @@ interface BuildingSchematic {
 
 const buildingsSchematics: { [x: string]: BuildingSchematic } = {
   bank: {
-    buildingType: "bank",
+    buildingType: 'bank',
     infrastructureCost: 2,
     upkeepCost: 2,
   },
   apartment: {
-    buildingType: "apartment",
+    buildingType: 'apartment',
     infrastructureCost: 1,
     upkeepCost: 1,
     housingCapacity: 10,
   },
   laboratory: {
-    buildingType: "laboratory",
+    buildingType: 'laboratory',
     infrastructureCost: 3,
     upkeepCost: 3,
+  },
+  office: {
+    buildingType: 'office',
+    infrastructureCost: 4,
+    upkeepCost: 4,
   },
 };
 
@@ -34,13 +39,13 @@ const buildingsSchematics: { [x: string]: BuildingSchematic } = {
  */
 const getInfrastructureLoad = (
   gameManager: GameManager,
-  organizationId: string
+  organizationId: string,
 ) => {
   const gameData = gameManager.gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalLoad, building) => {
     if (building.organizationId === organizationId) {
-      totalLoad = totalLoad + building.infrastructureCost;
+      totalLoad = totalLoad + building.basicAttributes.infrastructureCost;
     }
     return totalLoad;
   }, 0);
@@ -56,7 +61,7 @@ const getUpkeep = (gameManager: GameManager, organizationId: string) => {
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalUpkeep, building) => {
     if (building.organizationId === organizationId) {
-      totalUpkeep = totalUpkeep + building.upkeepCost;
+      totalUpkeep = totalUpkeep + building.basicAttributes.upkeepCost;
     }
     return totalUpkeep;
   }, 0);
@@ -67,14 +72,14 @@ const getUpkeep = (gameManager: GameManager, organizationId: string) => {
  */
 const getHousingCapacity = (
   gameManager: GameManager,
-  organizationId: string
+  organizationId: string,
 ) => {
   const gameData = gameManager.gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalCapacity, building) => {
-    console.log(building);
     if (building.organizationId === organizationId) {
-      totalCapacity = totalCapacity + building.housingCapacity || 0;
+      totalCapacity =
+        totalCapacity + building.resourceAttributes.housingCapacity || 0;
     }
     return totalCapacity;
   }, 0);
@@ -82,8 +87,6 @@ const getHousingCapacity = (
 /**
  * Get the wealth total of all buildings
  * controlled by the org.
- * @param {GameManager} gameManager
- * @param {string} organizationId
  */
 const getWealthBonuses = (gameManager: GameManager, organizationId: string) => {
   const gameData = gameManager.gameData;
@@ -91,13 +94,11 @@ const getWealthBonuses = (gameManager: GameManager, organizationId: string) => {
   const infrastructureLoad = getInfrastructureLoad(gameManager, organizationId);
   const overloadPercentage = (100 * infrastructureLoad) / maxInfrastructure;
 
-  /**
-   * @type {import("./typedef").Building[]}
-   */
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalWealth, building) => {
-    const buildingBaseWealthBonus = building.wealthBonus;
-    const overloadReduction = (overloadPercentage / 100) * building.wealthBonus;
+    const buildingBaseWealthBonus = building.resourceAttributes.wealthBonus;
+    const overloadReduction =
+      (overloadPercentage / 100) * building.resourceAttributes.wealthBonus;
 
     if (
       building.organizationId === organizationId &&
@@ -119,40 +120,97 @@ const getOrgLabs = (gameManager: GameManager, organizationId: string) => {
   return buildingsArray.filter(
     (building) =>
       building.organizationId === organizationId &&
-      building.type === "laboratory"
+      building.type === 'laboratory',
   );
 };
 
 export const getScienceOutput = (
   gameManager: GameManager,
-  building: Building
+  building: Building,
 ) => {
   // Science requires working scientists
-  if (building.personnel.length === 0) {
+  if (building.type !== 'laboratory' || building.personnel.length === 0) {
     return 0;
   }
 
-  const base = 0;
+  const base = building.resourceAttributes.scienceBonus;
 
   const scientistBonuses = building.personnel.reduce((total, personId) => {
-    return (total = total + gameManager.gameData.people[personId].intelligence);
+    return (total =
+      total +
+      gameManager.gameData.people[personId].basicAttributes.intelligence);
   }, 0);
 
   return base + scientistBonuses;
 };
 
-interface ResourceOutput {
+export const getWealthOutput = (
+  gameManager: GameManager,
+  building: Building,
+) => {
+  if (building.type !== 'bank' || building.personnel.length === 0) {
+    return 0;
+  }
+
+  const base = building.resourceAttributes.wealthBonus;
+
+  const personnelBonuses = building.personnel.reduce((total, personId) => {
+    return (total =
+      total +
+      gameManager.gameData.people[personId].basicAttributes.administration);
+  }, 0);
+
+  return base + personnelBonuses;
+};
+
+export const getHousingOutput = (
+  gameManager: GameManager,
+  building: Building,
+) => {
+  if (building.type !== 'apartment' || building.personnel.length === 0) {
+    return 0;
+  }
+
+  const base = building.resourceAttributes.housingCapacity;
+
+  return base;
+};
+
+export const getInfrastructureOutput = (
+  gameManager: GameManager,
+  building: Building,
+) => {
+  if (building.type !== 'office' || building.personnel.length === 0) {
+    return 0;
+  }
+
+  const base = 0;
+
+  const personnelBonuses = building.personnel.reduce((total, personId) => {
+    return (total =
+      total +
+      gameManager.gameData.people[personId].basicAttributes.administration);
+  }, 0);
+
+  return base + personnelBonuses;
+};
+
+export interface ResourceOutput {
   science: number;
+  wealth: number;
+  housing: number;
+  infrastructure: number;
 }
 
 export const getResourceOutput = (
   gameManager: GameManager,
-  building: Building
+  building: Building,
 ): ResourceOutput => {
-  const science = getScienceOutput(gameManager, building);
-
   return {
-    science,
+    science: getScienceOutput(gameManager, building),
+    wealth: getWealthOutput(gameManager, building),
+    housing: getHousingOutput(gameManager, building),
+    infrastructure: getInfrastructureOutput(gameManager, building),
   };
 };
 
@@ -172,7 +230,7 @@ const addPersonnel = (person: Person, building: Building) => {
     return;
   }
 
-  if (building.personnel.length === building.maxPersonnel) {
+  if (building.personnel.length === building.basicAttributes.maxPersonnel) {
     return;
   }
   const updatedBuilding = { ...building };
@@ -191,7 +249,7 @@ const addPersonnel = (person: Person, building: Building) => {
 const removePersonnel = (person: Person, building: Building) => {
   const updatedPerson: Person = { ...person, isPersonnel: false };
   const personnelIndex = building.personnel.findIndex(
-    (personnel) => personnel === person.id
+    (personnel) => personnel === person.id,
   );
   const updatedGameData: Partial<GameData> = {
     people: { [updatedPerson.id]: updatedPerson },
@@ -224,7 +282,11 @@ interface GetBuildingsParams {
  */
 const getBuildings = (
   gameManager: GameManager,
-  { zoneId = null, organizationId = null, type = null }: GetBuildingsParams = {}
+  {
+    zoneId = null,
+    organizationId = null,
+    type = null,
+  }: GetBuildingsParams = {},
 ) => {
   return Object.values(gameManager.gameData.buildings).filter((building) => {
     if (zoneId && building.zoneId !== zoneId) {

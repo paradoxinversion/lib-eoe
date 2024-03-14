@@ -1,7 +1,7 @@
-import { GameManager } from "./GameManager";
-import { getPeople } from "./actions/people";
-import { getBuildings } from "./buildings";
-import { Zone } from "./types/interfaces/entities";
+import { GameManager } from './GameManager';
+import { getPeople } from './actions/people';
+import { getBuildings } from './buildings';
+import { Zone } from './types/interfaces/entities';
 /**
  *
  */
@@ -16,8 +16,6 @@ const getZones = (gameManager: GameManager, nationId: string) => {
 
 /**
  *
- * @param {GameManager} gameManager
- * @param {import("./typedef").Zone} zone
  */
 const getZoneWealth = (gameManager: GameManager, zone: Zone) => {
   const { gameData } = gameManager;
@@ -57,7 +55,7 @@ const getZoneCitizens = (
   gameManager: GameManager,
   zoneId: string,
   excludeAgents?: boolean,
-  excludeDead?: boolean
+  excludeDead?: boolean,
 ) => {
   const { gameData } = gameManager;
   const peopleArray = Object.values(gameData.people);
@@ -66,7 +64,7 @@ const getZoneCitizens = (
       return false;
     }
 
-    if (excludeDead && person.currentHealth <= 0) {
+    if (excludeDead && person.vitalAttributes.currentHealth <= 0) {
       return false;
     }
 
@@ -75,7 +73,7 @@ const getZoneCitizens = (
   return citizens;
 };
 
-interface TransferZoneControlParams{
+interface TransferZoneControlParams {
   zoneId: string;
   organizationId: string;
   nationId: string;
@@ -83,7 +81,7 @@ interface TransferZoneControlParams{
 
 const transferZoneControl = (
   gameManager: GameManager,
-  { zoneId, organizationId, nationId }: TransferZoneControlParams
+  { zoneId, organizationId, nationId }: TransferZoneControlParams,
 ) => {
   const {
     gameData: { zones },

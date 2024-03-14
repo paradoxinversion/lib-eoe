@@ -1,8 +1,16 @@
-import { AgentData, Building, GoverningOrganization, Nation, Person, Zone } from "../types/interfaces/entities";
+import {
+  AgentData,
+  Building,
+  GoverningOrganization,
+  Nation,
+  Person,
+  StatusEffect,
+  Zone,
+} from '../types/interfaces/entities';
 
-import { throwErrorFromArray, randomInt } from "../utilities";
-import { generateName } from "../generators/names";
-const { v4: uuidv4 } = require("uuid");
+import { throwErrorFromArray, randomInt } from '../utilities';
+import { generateName } from '../generators/names';
+const { v4: uuidv4 } = require('uuid');
 
 interface GenerateNationOpts {
   /** The name of the nation. */
@@ -22,7 +30,7 @@ interface GenerateZoneOpts {
   intelligenceLevel?: number;
 }
 
-interface GeneratePersonOpts{
+interface GeneratePersonOpts {
   nationId?: string;
   homeZoneId?: string;
   name?: string;
@@ -38,14 +46,14 @@ interface GeneratePersonOpts{
  * Generate a new nation
  */
 const generateNation = ({
-  name = "Unnamed Nation",
+  name = 'Unnamed Nation',
   size = 1,
 }: GenerateNationOpts): Nation => {
   return {
-    id: "n_" + uuidv4(),
+    id: 'n_' + uuidv4(),
     name: name,
     size: size,
-    organizationId: ''
+    organizationId: '',
   };
 };
 
@@ -58,7 +66,7 @@ const generateNations = (
   /** The minimum amount of zones in the nation */
   minSize: number,
   /** An object who's keys are nation id's and values are nation objects */
-  maxSize: number
+  maxSize: number,
 ): { [x: string]: Nation } => {
   const errors = [];
   if (nationsAmt === undefined) {
@@ -74,11 +82,11 @@ const generateNations = (
     errors.push("'minSize' must be less than 'maxSize'.");
   }
   throwErrorFromArray(errors);
-  const nations: {[x: string]: Nation} = {};
+  const nations: { [x: string]: Nation } = {};
   for (let nationIndex = 0; nationIndex < nationsAmt; nationIndex++) {
     const newNation = generateNation({
       size: randomInt(1, maxSize),
-      name: "Nation " + nationIndex,
+      name: 'Nation ' + nationIndex,
     });
     nations[newNation.id] = newNation;
   }
@@ -89,20 +97,23 @@ const generateNations = (
  * Generate a zone
  */
 const generateZone = ({
-  nationId = "UNSET",
-  name = "Unnamed Zone",
-  size = 5,
-  organizationId = "UNSET",
+  nationId = 'UNSET',
+  name = 'Unnamed Zone',
+  size = 50,
+  organizationId = 'UNSET',
   intelligenceLevel = 25,
 }: GenerateZoneOpts): Zone => {
   return {
-    id: "z_" + uuidv4(),
+    id: 'z_' + uuidv4(),
     nationId,
     name,
     size,
     wealth: randomInt(1, 5),
     organizationId,
     intelligenceLevel,
+    intelAttributes: {
+      intelligenceLevel,
+    },
   };
 };
 
@@ -111,9 +122,9 @@ const generateZone = ({
  */
 const generateZones = (
   /** The amount of zones to create */
-  zonesAmt: number
+  zonesAmt: number,
 ): { [x: string]: Zone } => {
-  const zones: {[x: string]: Zone } = {};
+  const zones: { [x: string]: Zone } = {};
   for (let zoneIndex = 0; zoneIndex < zonesAmt; zoneIndex++) {
     const newZone = generateZone({});
     zones[newZone.id] = newZone;
@@ -122,9 +133,9 @@ const generateZones = (
 };
 
 const generatePerson = ({
-  nationId = "UNSET",
+  nationId = 'UNSET',
   homeZoneId = '',
-  name = "Unnamed Person",
+  name = 'Unnamed Person',
   initIntelligence,
   initCombat,
   initAdministration,
@@ -141,43 +152,62 @@ const generatePerson = ({
   const administration = initAdministration || randomInt(1, 10);
   const leadership = initLeadership || randomInt(1, 10);
 
-  if (name === "Unnamed Person") {
+  if (name === 'Unnamed Person') {
     name = generateName();
   }
+
+  const statusEffects: StatusEffect[] = [];
+  // "Quirks"
+  const isConspiracyNut = randomInt(0, 100) > 90;
+  const isSanguine = randomInt(0, 100) > 90;
+  const isParanoid = randomInt(0, 100) > 90;
+  if (isConspiracyNut) {
+    statusEffects.push('conspiracy-nut');
+  }
+
+  if (isSanguine) {
+    statusEffects.push('sanguine');
+  }
+
+  if (isParanoid) {
+    statusEffects.push('paranoid');
+  }
   return {
-    id: "p_" + uuidv4(),
+    id: 'p_' + uuidv4(),
     nationId,
     homeZoneId,
     name,
-    loyalty,
-    intelligence,
-    combat,
     dead: false,
-    administration,
-    leadership,
-    health: 10,
-    currentHealth: 10,
     agent: null,
     isPersonnel: false,
-    intelligenceLevel,
+    isCaptive: false,
     basicAttributes: {
       combat,
       intelligence,
       leadership,
-      administration
+      administration,
     },
     intelAttributes: {
       intelligenceLevel,
-      loyalty
-    }
+      loyalty,
+      loyalties: {
+        [homeZoneId]: 20 + loyalty,
+      },
+    },
+    vitalAttributes: {
+      health: 10,
+      currentHealth: 10,
+    },
+    wealth: randomInt(50, 500),
+    statusEffects,
   };
 };
 
 /**
  * Generate an amount of people
  */
-const generatePeople = (peopleAmt: number): {[x: string]: Person} => {
-  const people: {[x: string]: Person } = {};
+const generatePeople = (peopleAmt: number): { [x: string]: Person } => {
+  const people: { [x: string]: Person } = {};
   for (let personIndex = 0; personIndex < peopleAmt; personIndex++) {
     const person = generatePerson({});
     people[person.id] = person;
@@ -190,14 +220,14 @@ const generatePeople = (peopleAmt: number): {[x: string]: Person} => {
  */
 const generateAgentData = (
   /** The ID of the organization this agent will be associated with */
-  organizationId: string, 
+  organizationId: string,
   /** 0 (troop), 1 (administrator), 2 (scientist), or 3 (governing org leader) */
-  department: number, 
+  department: number,
   /** The id of the Agent that is directly superior to this one */
   /** the agent's monthly pay */
   salary: number,
-  commanderId?: string, 
-  ): AgentData => {
+  commanderId?: string,
+): AgentData => {
   return {
     department,
     organizationId,
@@ -206,7 +236,7 @@ const generateAgentData = (
   };
 };
 
-interface GenerateGoverningOrgOpts{
+interface GenerateGoverningOrgOpts {
   /** The ID of the nation the Org belongs to */
   nationId: string;
   evil?: boolean;
@@ -219,7 +249,7 @@ interface GenerateGoverningOrgOpts{
 const generateGoverningOrg = ({
   nationId,
   evil = false,
-  name = "Unnamed Organization",
+  name = 'Unnamed Organization',
 }: GenerateGoverningOrgOpts): GoverningOrganization => {
   const errors = [];
   if (!nationId) {
@@ -227,17 +257,18 @@ const generateGoverningOrg = ({
   }
   throwErrorFromArray(errors);
   return {
-    id: "o_" + uuidv4(),
+    id: 'o_' + uuidv4(),
     nationId,
     evil,
     name,
     wealth: 100,
     science: 0,
     infrastructure: 0,
-    totalEvil: 0
+    totalEvil: 0,
+    captives: [],
   };
 };
-interface GenerateBuildingOpts{
+interface GenerateBuildingOpts {
   zoneId: string;
   buildingType: string;
   organizationId: string;
@@ -275,43 +306,46 @@ const generateBuilding = ({
   let wealthBonus = 0;
   let housingCapacity = 0;
   let maxPersonnel = 4;
+  let infrastructureBonus = 0;
   switch (buildingType) {
-    case "bank":
-      wealthBonus = randomInt(10, 20);
+    case 'bank':
+      wealthBonus = randomInt(50, 200);
       break;
 
-    case "apartment":
+    case 'apartment':
       housingCapacity = randomInt(10, 20);
       break;
 
-    case "laboratory":
+    case 'laboratory':
       maxPersonnel = randomInt(1, 5);
+      break;
+    case 'office':
+      infrastructureBonus = randomInt(15, 30);
       break;
     default:
       break;
   }
   return {
-    id: "b_" + uuidv4(),
+    id: 'b_' + uuidv4(),
     name: buildingType,
     zoneId,
     organizationId,
-    wealthBonus,
-    infrastructureCost,
-    housingCapacity,
-    upkeepCost,
     type: buildingType,
-    maxPersonnel,
     personnel: [],
     basicAttributes: {
       upkeepCost,
       infrastructureCost,
-
+      maxPersonnel,
     },
     resourceAttributes: {
       wealthBonus,
       housingCapacity,
       scienceBonus: 1,
-    }
+      infrastructure: infrastructureBonus,
+    },
+    intelAttributes: {
+      intelligenceLevel: 25,
+    },
   };
 };
 

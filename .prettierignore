@@ -1,0 +1,13 @@
+**/.git
+**/.svn
+**/.hg
+**/node_modules
+**/.yarn
+**/coverage
+**/docs
+tsconfig.*
+*rc.json
+*.cjs
+*.mjs
+jsconfig.json
+package.json

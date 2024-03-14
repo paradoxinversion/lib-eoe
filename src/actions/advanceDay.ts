@@ -1,8 +1,13 @@
+import {
+  GameEventQueue,
+  addPlotResolutions,
+  prepareRandomEvents,
+} from '../gameEvents';
 
-import { GameEventQueue, addPlotResolutions, prepareRandomEvents } from "../gameEvents";
-
-import { GameManager } from "../GameManager";
-import { Activity, ActivityResult } from "../plots";
+import { GameManager } from '../GameManager';
+import { getOrgResources } from '../organization';
+import { Activity, ActivityResult } from '../plots';
+import { getPeople, simulateDay } from './people';
 /**
  * Determines what events happen at end of turn and returns
  * updated gamedata with those events.
@@ -14,6 +19,14 @@ export const advanceDay = (gameManager: GameManager) => {
     activityManager,
     plotManager,
   } = gameManager;
+  // Run actions for people
+  getPeople(gameManager, {
+    excludeDeceased: true,
+    agentFilter: { excludeAgents: true },
+  }).forEach((person) => {
+    gameManager.updateGameData(simulateDay(gameManager, person));
+  });
+  // Response with events
   const events = prepareRandomEvents(gameManager);
 
   const activities = activityManager.executeActivities(gameManager);
@@ -24,10 +37,7 @@ export const advanceDay = (gameManager: GameManager) => {
 
   gameEventQueue.addEvents(plotEvents);
 
-  /**
-   * @type {import("../typedef").UpdatedGameData}
-   */
-  const updatedGameData = JSON.parse(JSON.stringify(gameData));
+  const updatedGameData = { ...gameData };
   activities.forEach((activity) => {
     if (activity.result.updatedGameData) {
       updatedGameData.people = {

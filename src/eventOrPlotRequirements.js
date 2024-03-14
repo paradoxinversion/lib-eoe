@@ -1,29 +1,28 @@
-const { getCitizens } = require("./citizens");
-const { getAgents } = require("./organization");
-import { Plot } from "./plots.ts";
-const { getZoneCitizens } = require("./zones");
+const { getCitizens } = require('./citizens');
+const { getAgents } = require('./organization');
+import { Plot } from './plots.ts';
+const { getZoneCitizens } = require('./zones');
 
 /**
  *
- * @param {import("./typedef").GameData} gameData
  */
 const requirementEoECitizenAvailable = (gameData) => {
-  return getCitizens(gameData.people, gameData.player.empireId, true).length > 0
-    ? true
+  return (
+      getCitizens(gameData.people, gameData.player.empireId, true).length > 0
+    ) ?
+      true
     : false;
 };
 
 const requirementEoECitizenInZoneAvailable = (gameData, requirementParams) => {
   const zoneId = requirementParams.zoneId;
-  return getZoneCitizens(gameData.people, zoneId, true).length > 0
-    ? true
+  return getZoneCitizens(gameData.people, zoneId, true).length > 0 ?
+      true
     : false;
 };
 
 /**
  *
- * @param {import("./typedef").GameData} gameData
- * @param {Plot} plot
  */
 const requirementEoEMinAgents = (gameData, minAgents, plot) => {
   if (plot && plot.agents.length < minAgents) {

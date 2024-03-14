@@ -1,6 +1,6 @@
-import { GameData, GameManager } from "./GameManager";
-import { getControlledZones, hireAgent } from "./organization";
-import { getZoneCitizens } from "./zones";
+import { GameData, GameManager } from './GameManager';
+import { getControlledZones, hireAgent } from './organization';
+import { getZoneCitizens } from './zones';
 
 import {
   generateAgentData,
@@ -11,23 +11,29 @@ import {
   generateZone,
   generateBuilding,
   generateZones,
-} from './generators/game'
+} from './generators/game';
 
-import { nationNames,generateZoneName } from "./generators/names";
-import {Shufflebag, randomInt} from "./utilities";
-import settings from "./config";
-import { buildingsSchematics } from "./buildings";
-import { GameEventQueue } from "./gameEvents";
-import { PlotManager, ActivityManager } from "./plots";
-import { Person } from "./types/interfaces/entities";
-import { getPeople } from "./actions/people";
+import { nationNames, generateZoneName } from './generators/names';
+import { Shufflebag, randomInt } from './utilities';
+import settings from './config';
+import { addPersonnel, buildingsSchematics, getBuildings } from './buildings';
+import { GameEventQueue } from './gameEvents';
+import { PlotManager, ActivityManager } from './plots';
+import { Person } from './types/interfaces/entities';
+import {
+  getPeople,
+  initializeLoyalty,
+  setLoyalty,
+  updateLoyalty,
+} from './actions/people';
 /**
  * The main Shufflebag for building types
  */
 const buildingShufflebag = Shufflebag({
-  bank: 1,
+  bank: 2,
   apartment: 1,
   laboratory: 1,
+  office: 1,
 });
 
 /**
@@ -50,14 +56,12 @@ const nationNameShuffleBag = Shufflebag(
       ...nameMap,
       [name]: 1,
     };
-  }, {})
+  }, {}),
 );
 
 /**
  * Sets up a new EOE game, spawning Nations, Orgs,
  * Zones, and People, including the EVIL Empire.
- * @param {GameManager} gameManager
- * @returns {import("./typedef").GameData} An object containing game data
  */
 const handleNewGame = (gameManager: GameManager) => {
   const newGameData: GameData = {
@@ -68,47 +72,54 @@ const handleNewGame = (gameManager: GameManager) => {
     player: {
       empireId: '',
       overlordId: '',
-      organizationId: ''
+      organizationId: '',
     },
     buildings: {},
-    gameDate: new Date("2000-1-1"),
+    gameDate: new Date('2000-1-1'),
   };
 
   // Create the EVIL Empire nation
   const evilEmpireNation = generateNation({
-    name: "EVIL Empire",
+    name: 'EVIL Empire',
     size: 1,
   });
   newGameData.nations[evilEmpireNation.id] = evilEmpireNation;
   const evilEmpireOrg = generateGoverningOrg({
     nationId: evilEmpireNation.id,
     evil: true,
-    name: "EVIL Empire",
+    name: 'EVIL Empire',
   });
   newGameData.governingOrganizations[evilEmpireOrg.id] = evilEmpireOrg;
 
   evilEmpireNation.organizationId = evilEmpireOrg.id;
   const evilZone = generateZone({
     nationId: evilEmpireNation.id,
-    name: "Evil HQ",
-    size: 10,
+    name: 'Evil HQ',
+    size: 50,
     organizationId: evilEmpireOrg.id,
   });
-  evilZone.intelligenceLevel = 100;
+  evilZone.intelAttributes.intelligenceLevel = 100;
   newGameData.zones[evilZone.id] = evilZone;
 
   const evilOverlord = generatePerson({
     nationId: evilEmpireNation.id,
     homeZoneId: evilZone.id,
-    name: "EVIL Overlord",
+    name: 'EVIL Overlord',
     initIntelligence: 10,
     initCombat: 10,
     initLeadership: 20,
     initLoyalty: 100,
     initAdministration: 10,
   });
+  evilOverlord.intelAttributes.loyalties = setLoyalty(
+    evilOverlord,
+    evilEmpireOrg.id,
+    100,
+  ).people[evilOverlord.id].intelAttributes.loyalties;
+  console.log(evilOverlord.intelAttributes.loyalties);
+  evilOverlord.intelAttributes.intelligenceLevel = 100;
 
-  evilOverlord.agent = generateAgentData(evilEmpireOrg.id, 3, 0, );
+  evilOverlord.agent = generateAgentData(evilEmpireOrg.id, 3, 0);
 
   newGameData.people[evilOverlord.id] = evilOverlord;
 
@@ -152,15 +163,18 @@ const handleNewGame = (gameManager: GameManager) => {
 
   // For each zone, create people
   Object.values(newGameData.zones).forEach((zone) => {
-    // if (zone.nationId !== evilEmpireNation.id) {
     for (let personIndex = 0; personIndex < zone.size; personIndex++) {
       const p = generatePerson({
         nationId: zone.nationId,
         homeZoneId: zone.id,
       });
+
+      if (zone.id === evilZone.id) {
+        p.intelAttributes.intelligenceLevel = 75;
+      }
+
       newGameData.people[p.id] = p;
     }
-    // }
   });
 
   // For each zone, create Buildings
@@ -186,30 +200,35 @@ const handleNewGame = (gameManager: GameManager) => {
     }
   });
   gameManager.updateGameData(newGameData);
-
 };
 
 /**
  *
- * @param {GameManager} gameManager
  */
 const hireStartingAgents = (gameManager: GameManager) => {
   const gameData = gameManager.gameData;
-  /**
-   * @type {import("./typedef").UpdatedGameData}
-   */
-  const updatedGameData = {...gameData};
+  const updatedGameData = { ...gameData };
 
-  const updatedPeople: {[x: string]: Person} = {};
+  const updatedPeople: { [x: string]: Person } = {};
   const playerData = gameManager.gameData.player;
   Object.values(gameData.governingOrganizations).forEach((org) => {
     if (org.id === playerData.organizationId) {
-      const empireZone = getControlledZones(gameManager, playerData.organizationId)[0];
+      const empireZone = getControlledZones(
+        gameManager,
+        playerData.organizationId,
+      )[0];
       const citizens = getPeople(gameManager, { zoneId: empireZone.id });
       // Start at 1, 0 is the Overlord
-      for (let recruitIndex = 1; recruitIndex < 9; recruitIndex++){
-        const recruit = hireAgent(citizens[recruitIndex], playerData.organizationId, 1, playerData.overlordId, 1);
-        if (recruit !== null){
+      for (let recruitIndex = 1; recruitIndex < 9; recruitIndex++) {
+        const recruit = hireAgent(
+          citizens[recruitIndex],
+          playerData.organizationId,
+          1,
+          playerData.overlordId,
+        );
+        recruit!.intelAttributes.intelligenceLevel = 100;
+        recruit!.intelAttributes.loyalty = 80;
+        if (recruit !== null) {
           updatedPeople[recruit.id] = recruit;
         }
       }
@@ -235,15 +254,9 @@ const hireStartingAgents = (gameManager: GameManager) => {
       for (let recruitIndex = 0; recruitIndex < 3; recruitIndex++) {
         const recruitType = recruitDepartmentShufflebag.next().toString();
         const recruit = zoneCitizens[recruitIndex];
-        const agentUpdate = hireAgent(
-          recruit,
-          org.id,
-          1,
-          leader.id,
-          1
-        );
-        if (agentUpdate !== null){
-          updatedPeople[recruit.id] = agentUpdate
+        const agentUpdate = hireAgent(recruit, org.id, 1, leader.id);
+        if (agentUpdate !== null) {
+          updatedPeople[recruit.id] = agentUpdate;
         }
       }
     });
@@ -252,20 +265,79 @@ const hireStartingAgents = (gameManager: GameManager) => {
     ...gameData.people,
     ...updatedPeople,
   };
-  
-  gameManager.updateGameData(updatedGameData)
+
+  gameManager.updateGameData(updatedGameData);
+  initializeLoyalties(gameManager);
+  initializePersonnel(gameManager);
   return updatedGameData;
+};
+
+const initializeLoyalties = (gameManager: GameManager) => {
+  Object.values(gameManager.gameData.people).forEach((person) => {
+    const update = initializeLoyalty(person, gameManager);
+    if (update.people[person.id].agent) {
+      update.people[person.id].intelAttributes.loyalties = setLoyalty(
+        person,
+        person.agent?.organizationId!,
+        80,
+      ).people[person.id].intelAttributes.loyalties;
+    }
+    gameManager.updateGameData(update);
+  });
+};
+
+const initializePersonnel = (gameManager: GameManager) => {
+  let updatedGamedata = {
+    people: {},
+    buildings: {},
+  };
+  getBuildings(gameManager, {}).forEach((building) => {
+    // filter out empire buildings
+    if (
+      building.organizationId === gameManager.gameData.player.organizationId
+    ) {
+      return;
+    }
+
+    // Filter out apartments, they have no workers
+    if (building.type === 'apartment') {
+      return;
+    }
+
+    for (
+      let index = 0;
+      index < building.basicAttributes.maxPersonnel;
+      index++
+    ) {
+      const people = getPeople(gameManager, {
+        excludePersonnel: true,
+        zoneId: building.zoneId,
+        agentFilter: { excludeAgents: true },
+      });
+      const p = people[randomInt(0, people.length - 1)];
+      console.log(people.length);
+      const a = addPersonnel(p, building);
+      updatedGamedata = {
+        people: {
+          ...updatedGamedata.people,
+          ...a?.people,
+        },
+        buildings: {
+          ...updatedGamedata.buildings,
+          ...a?.buildings,
+        },
+      };
+      console.info(`Person employed at ${building.name}`, updatedGamedata);
+      gameManager.updateGameData(updatedGamedata);
+    }
+  });
 };
 
 const createGameManager = () =>
   new GameManager(
     new GameEventQueue(),
     new PlotManager(),
-    new ActivityManager()
+    new ActivityManager(),
   );
 
-export {
-  handleNewGame,
-  hireStartingAgents,
-  createGameManager
-};
+export { handleNewGame, hireStartingAgents, createGameManager };

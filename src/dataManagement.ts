@@ -9,9 +9,6 @@ const serializeGameData = (gameManager: GameManager) => {
   const activitiesData = activityManager.serializeActivities();
   const plotData = plotManager.serializePlots();
 
-  /**
-   * @type {import("empire-of-evil/src/typedef").SaveData}
-   */
   const saveData = {
     gameData,
     plotData: {
