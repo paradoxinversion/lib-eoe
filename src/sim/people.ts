@@ -1,6 +1,7 @@
 import { GameData, GameManager } from '../GameManager';
 import { updateLoyalty } from '../actions/people';
-import { Person, StatusEffect } from '../types/interfaces/entities';
+import { PersonStatusEffect } from '../statusEffects/person';
+import { Person } from '../types/interfaces/entities';
 import { randomInt } from '../utilities';
 
 interface SimulatedActivity {
@@ -10,7 +11,7 @@ interface SimulatedActivity {
     loyalty?: 'low' | 'average' | 'high';
     employedCitizen?: boolean;
     wealth?: 'low' | 'medium' | 'high' | 'not-broke';
-    hasStatusEffect?: StatusEffect;
+    hasStatusEffect?: PersonStatusEffect;
   };
   handler?: (gameManager: GameManager, person: Person) => Partial<GameData>;
 }
@@ -85,6 +86,56 @@ const simActivities: { [x: string]: SimulatedActivity } = {
       return p;
     },
   },
+  ['create-art']: {
+    name: 'create-art',
+    text: 'created art',
+    requirements: {
+      wealth: 'low',
+    },
+    handler(gameManager, person) {
+      const pay = randomInt(0, 10);
+      console.info(`${person.name} sold art for $${pay}`);
+      return {
+        people: {
+          [person.id]: {
+            ...person,
+            wealth: person.wealth + pay,
+          },
+        },
+      };
+    },
+  },
+  ['go-shopping']: {
+    name: 'go-shopping',
+    text: 'went shopping',
+    requirements: {
+      wealth: 'medium',
+    },
+    handler(gameManager, person) {
+      const cost = randomInt(0, 100);
+      console.info(`${person.name} spent $${cost}`);
+      return {
+        people: {
+          [person.id]: {
+            ...person,
+            wealth: person.wealth - cost,
+          },
+        },
+      };
+    },
+  },
+  ['stare-cry']: {
+    name: 'stare-cry',
+    text: 'stared into the void and cried',
+    requirements: {},
+  },
+  ['start-project']: {
+    name: 'start-project',
+    text: 'started a project',
+    requirements: {
+    },
+
+  }
 };
 
 const chooseActivity = (

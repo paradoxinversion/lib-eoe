@@ -4,12 +4,13 @@ import {
   GoverningOrganization,
   Nation,
   Person,
-  StatusEffect,
   Zone,
 } from '../types/interfaces/entities';
 
 import { throwErrorFromArray, randomInt } from '../utilities';
 import { generateName } from '../generators/names';
+import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
+import { PersonStatusEffect } from '../statusEffects/person';
 const { v4: uuidv4 } = require('uuid');
 
 interface GenerateNationOpts {
@@ -156,7 +157,7 @@ const generatePerson = ({
     name = generateName();
   }
 
-  const statusEffects: StatusEffect[] = [];
+  const statusEffects: PersonStatusEffect[] = [];
   // "Quirks"
   const isConspiracyNut = randomInt(0, 100) > 90;
   const isSanguine = randomInt(0, 100) > 90;
@@ -256,6 +257,7 @@ const generateGoverningOrg = ({
     errors.push("'nationId' is a required option parameter.");
   }
   throwErrorFromArray(errors);
+  const statusEffects: GoverningOrgStatusEffects[] = [];
   return {
     id: 'o_' + uuidv4(),
     nationId,
@@ -266,6 +268,7 @@ const generateGoverningOrg = ({
     infrastructure: 0,
     totalEvil: 0,
     captives: [],
+    statusEffects,
   };
 };
 interface GenerateBuildingOpts {

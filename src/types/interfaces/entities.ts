@@ -1,3 +1,6 @@
+import { GoverningOrgStatusEffects } from "../../statusEffects/governingOrg";
+import { PersonStatusEffect } from "../../statusEffects/person";
+
 interface IntelligenceSubject {
   intelligenceLevel: number;
 }
@@ -50,7 +53,6 @@ export interface PersonVitalAttributes {
   currentHealth: number;
 }
 
-export type StatusEffect = 'conspiracy-nut' | 'paranoid' | 'sanguine';
 export interface Person {
   /** The person's indentifier, prefixed with `p_` */
   id: string;
@@ -67,7 +69,7 @@ export interface Person {
   dead: boolean;
   wealth: number;
   isCaptive: boolean;
-  statusEffects: StatusEffect[];
+  statusEffects: PersonStatusEffect[];
   basicAttributes: PersonBasicAttributes;
   intelAttributes: PersonIntelAttributes;
   vitalAttributes: PersonVitalAttributes;
@@ -84,6 +86,7 @@ export interface AgentData {
   commanderId: string;
 }
 
+
 export interface GoverningOrganization {
   /** The governing body's indentifier, prefixed with `g_` */
   id: string;
@@ -99,6 +102,7 @@ export interface GoverningOrganization {
   infrastructure: number;
   totalEvil: number;
   captives: string[];
+  statusEffects: GoverningOrgStatusEffects[];
 }
 
 export interface Building {

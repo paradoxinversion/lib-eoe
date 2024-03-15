@@ -15,6 +15,9 @@ const serializeGameData = (gameManager: GameManager) => {
       activities: activitiesData,
       plots: plotData,
     },
+    scienceData: {
+      activeProjects: gameManager.scienceManager.activeProjects,
+    }
   };
 
   const data = JSON.stringify(saveData);

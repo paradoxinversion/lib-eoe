@@ -373,6 +373,37 @@ const releaseCaptive = (
   return update;
 };
 
+export const modifyOrgWealth = (
+  gameManager: GameManager,
+  orgId: string,
+  amount: number,
+): Partial<GameData> => {
+  const org = gameManager.gameData.governingOrganizations[orgId];
+  const updatedGo = { ...org };
+  updatedGo.wealth += amount;
+  return {
+    governingOrganizations: {
+      [org.id]: updatedGo,
+    },
+  };
+}
+
+export const modifyOrgScience = (
+  gameManager: GameManager,
+  orgId: string,
+  amount: number,
+): Partial<GameData> => {
+  const org = gameManager.gameData.governingOrganizations[orgId];
+  const updatedGo = { ...org };
+  updatedGo.science += amount;
+  return {
+    governingOrganizations: {
+      [org.id]: updatedGo,
+    },
+  };
+}
+
+
 export {
   recruitAgent,
   getAgents,

@@ -3,6 +3,7 @@
 import { Building, GoverningOrganization, Nation, Person, Zone } from "./types/interfaces/entities";
 import { PlotManager, ActivityManager } from "./plots";
 import { GameEventQueue } from "./gameEvents";
+import { ScienceManager } from "./managers/science";
 
 export interface GameData{
   /** A key-value pair object of ids and their associated people */
@@ -37,9 +38,10 @@ export class GameManager {
   initialized: boolean;
   plotManager: PlotManager;
   activityManager: ActivityManager;
+  scienceManager: ScienceManager;
   gameData: GameData
   eventManager:  GameEventQueue;
-  constructor(eventManager: GameEventQueue, plotManager: PlotManager, activityManager: ActivityManager) {
+  constructor(eventManager: GameEventQueue, plotManager: PlotManager, activityManager: ActivityManager, scienceManager: ScienceManager) {
     this.gameData = {
       people: {},
       nations: {},
@@ -56,6 +58,7 @@ export class GameManager {
     this.eventManager = eventManager;
     this.plotManager = plotManager;
     this.activityManager = activityManager;
+    this.scienceManager = scienceManager;
     this.initialized = false;
   }
 
@@ -68,7 +71,7 @@ export class GameManager {
   }
 
   updateGameData(updatedGameData: Partial<GameData>){
-    console.log("Update Game Manager:", updatedGameData)
+    // console.log("Update Game Manager:", updatedGameData)
     const update: GameData = {
       ...this.gameData,
       people: { ...this.gameData.people, ...updatedGameData.people },

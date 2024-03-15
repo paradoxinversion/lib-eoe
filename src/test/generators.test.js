@@ -1,5 +1,5 @@
-const { buildingsSchematics } = require("../buildings");
-const {
+import { buildingsSchematics } from "../buildings";
+import {
   generateNation,
   generateZone,
   generatePerson,
@@ -9,7 +9,7 @@ const {
   generatePeople,
   generateAgentData,
   generateBuilding,
-} = require("../generators/game");
+} from "../generators/game"
 
 describe("generators", () => {
   describe("game", () => {
@@ -21,7 +21,6 @@ describe("generators", () => {
       };
       expect(generateNation({}).size).toBe(1);
       expect(generateNation({}).id.startsWith("n_")).toBe(true);
-      // expect(generateNation({}).name).toBe("Unnamed Nation")
       expect(generateNation(args).size).toBe(args.size);
       expect(generateNation(args).name).toBe(args.name);
     });

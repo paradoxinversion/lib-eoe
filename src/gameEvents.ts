@@ -21,6 +21,7 @@ import {
 import { randomInt, Shufflebag } from './utilities';
 import { getResourceOutput, getUpkeep, getWealthBonuses } from './buildings';
 import { getPeople } from './actions/people';
+import { ScienceProjectResult } from './managers/scienceProjects';
 interface EvilApplicantParams {
   recruit: Person;
   department: number;
@@ -109,8 +110,14 @@ interface ReconZoneEventParams {
  */
 function setReconZoneParams(this: GameEvent, { plot }: ReconZoneEventParams) {
   this.params.plot = plot;
-  // this.params.zone = zone;
-  // this.params.participants = participants;
+}
+
+interface ProjectCompleteParams {
+  projectIndexName: string;
+}
+
+function setProjectCompleteParams(this: GameEvent, { projectIndexName }: ProjectCompleteParams) {
+  this.params.projectIndexName = projectIndexName;
 }
 
 /**
@@ -320,6 +327,17 @@ function resolveIntruderAlert(this: GameEvent, gameManager: GameManager) {
 
   return this.eventData;
 }
+
+function resolveProjectComplete(this: GameEvent, gameManager: GameManager) {
+  const { gameData } = gameManager;
+
+  this.eventData = {
+    type: 'project-complete',
+    resolution: {
+      updatedGameData: {},
+    },
+  };
+}
 /**
  *
  */
@@ -445,6 +463,15 @@ const eventConfig: { [x: string]: EventConfig } = {
       this.eventText = 'An intruder has been spotted';
     },
   },
+  projectComplete: {
+    name: 'Science Project Complete',
+    setParams: setProjectCompleteParams,
+    resolve: resolveProjectComplete,
+    getEventText(this: GameEvent) {
+      this.eventText = 'A project has been completed!';
+    },
+  
+  },
 };
 
 interface EventData {
@@ -480,6 +507,7 @@ class GameEvent {
     income?: number;
     expenses?: number;
     intruderId?: string;
+    projectIndexName?: string;
   };
   /**
    * Create a game event using configuration.
@@ -520,6 +548,12 @@ class GameEvent {
 const generateStandardReportEvent = () => {
   return new GameEvent(eventConfig.standardReport);
 };
+
+const generateProjectCompleteEvent = (projectResult: ScienceProjectResult) => {
+  return new GameEvent(eventConfig.projectComplete, {
+    projectIndexName: projectResult.indexName,
+  });
+}
 
 const generateMonthlyReportEvent = (gameManager: GameManager) => {
   const { gameData } = gameManager;
@@ -793,4 +827,5 @@ export {
   prepareRandomEvents,
   generateMonthlyReportEvent,
   generateIntruderAlertEvent,
+  generateProjectCompleteEvent
 };

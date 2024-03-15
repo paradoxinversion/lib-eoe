@@ -26,6 +26,8 @@ import {
   setLoyalty,
   updateLoyalty,
 } from './actions/people';
+import { ScienceManager } from './managers/science';
+import { SCIENCE_PROJECTS } from './managers/scienceProjects';
 /**
  * The main Shufflebag for building types
  */
@@ -315,20 +317,7 @@ const initializePersonnel = (gameManager: GameManager) => {
         agentFilter: { excludeAgents: true },
       });
       const p = people[randomInt(0, people.length - 1)];
-      console.log(people.length);
-      const a = addPersonnel(p, building);
-      updatedGamedata = {
-        people: {
-          ...updatedGamedata.people,
-          ...a?.people,
-        },
-        buildings: {
-          ...updatedGamedata.buildings,
-          ...a?.buildings,
-        },
-      };
-      console.info(`Person employed at ${building.name}`, updatedGamedata);
-      gameManager.updateGameData(updatedGamedata);
+      gameManager.updateGameData(addPersonnel(p, building) || {});
     }
   });
 };
@@ -338,6 +327,7 @@ const createGameManager = () =>
     new GameEventQueue(),
     new PlotManager(),
     new ActivityManager(),
+    new ScienceManager(SCIENCE_PROJECTS),
   );
 
 export { handleNewGame, hireStartingAgents, createGameManager };
