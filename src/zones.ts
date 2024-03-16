@@ -1,4 +1,4 @@
-import { GameManager } from './GameManager';
+import { GameData, GameManager } from './GameManager';
 import { getPeople } from './actions/people';
 import { getBuildings } from './buildings';
 import { Zone } from './types/interfaces/entities';
@@ -82,7 +82,7 @@ interface TransferZoneControlParams {
 const transferZoneControl = (
   gameManager: GameManager,
   { zoneId, organizationId, nationId }: TransferZoneControlParams,
-) => {
+): Partial<GameData> => {
   const {
     gameData: { zones },
   } = gameManager;

@@ -1,4 +1,4 @@
-import { updateVitalAttribute } from './actions/people';
+import { killPerson, updateVitalAttribute } from './actions/people';
 import { Person } from './types/interfaces/entities';
 
 interface CombatInitiative {
@@ -194,6 +194,17 @@ const doCombat = (
           );
           if (defender.vitalAttributes.currentHealth <= 0) {
             console.log(defender.name, 'has been killed');
+            if (isAggressingForce) {
+              // If our attacker is in the aggressing force
+              defendingForce[targetIndex] = killPerson(
+                defendingForce[targetIndex],
+              ).people[defendingForce[targetIndex].id];
+            } else {
+              // If our attacker is in the defending force
+              aggressingForce[targetIndex] = killPerson(
+                aggressingForce[targetIndex],
+              ).people[aggressingForce[targetIndex].id];
+            }
           }
         }
       }
@@ -206,7 +217,6 @@ const doCombat = (
     }
     return total;
   }, 0);
-  console.log(aggressingForce);
   const livingDefenders = defendingForce.reduce((total, currentAgent) => {
     if (currentAgent.vitalAttributes.currentHealth > 0) {
       return total + 1;

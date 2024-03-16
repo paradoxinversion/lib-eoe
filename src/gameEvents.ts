@@ -287,54 +287,50 @@ function resolveAttackZone(this: GameEvent, gameManager: GameManager) {
   const updatedGameData: {
     people: { [x: string]: Person };
     zones: { [x: string]: Zone };
+    governingOrganizations: { [x: string]: GoverningOrganization };
   } = {
     people: {},
     zones: {},
+    governingOrganizations: {},
   };
-  let f: any = {};
+
+  // Update the agents involved in the attack
   this.params.attackZone?.plot?.resolution.data.characters.attackers.forEach(
     (agent: Person) => {
       updatedGameData.people[agent.id] = agent;
     },
   );
+
   this.params.attackZone?.plot?.resolution.data.characters.defenders.forEach(
     (agent: Person) => {
       updatedGameData.people[agent.id] = agent;
     },
   );
-  if (this.params.attackZone?.plot?.resolution.data.victoryResult === 1) {
-    // const updatedZone = JSON.parse(
-    //   JSON.stringify(this.params.plot.plotParams.zone)
-    // );
-    // updatedZone.organizationId = gameData.player.organizationId;
-    // updatedZone.nationId = gameData.player.empireId;
-    // --
 
-    const updatedZone = {
-      ...gameManager.gameData.zones[
-        this.params?.attackZone.plot?.plotParams?.zone?.id!
-      ],
-      organizationId: gameData.player.empireId,
-      nationId: gameData.player.empireId,
+  if (this.params.attackZone?.plot?.resolution.data.victoryResult === 1) {
+    updatedGameData.zones = {
+      [this.params.attackZone.plot.plotParams.zoneId!]: transferZoneControl(
+        gameManager,
+        {
+          zoneId: this.params.attackZone!.plot.plotParams.zoneId!,
+          nationId: gameData.player.empireId,
+          organizationId: gameData.player.organizationId,
+        },
+      ).zones![this.params.attackZone.plot.plotParams.zoneId!],
     };
-    updatedGameData.zones[updatedZone.id] = updatedZone;
-    f = transferZoneControl(gameManager, {
-      zoneId: this.params.attackZone.plot.plotParams?.zone?.id!,
-      nationId: gameData.player.empireId,
-      organizationId: gameData.player.organizationId,
-    });
   }
+
   const preupdateEmpire = getEvilEmpire(gameManager);
   const evilEmpire: GoverningOrganization = {
     ...preupdateEmpire,
     totalEvil: preupdateEmpire.totalEvil + 10,
   };
-  f.governingOrganizations = {};
-  f.governingOrganizations[evilEmpire.id] = evilEmpire;
+  updatedGameData.governingOrganizations = {};
+  updatedGameData.governingOrganizations[evilEmpire.id] = evilEmpire;
   this.eventData = {
     type: 'attack-zone',
     resolution: {
-      updatedGameData: f,
+      updatedGameData,
     },
   };
 
