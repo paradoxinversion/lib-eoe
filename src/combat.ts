@@ -192,7 +192,12 @@ const doCombat = (
           combatLog.push(
             `${attacker.name} deals ${damage} damage to ${defender.name} (${defender.vitalAttributes.currentHealth})`,
           );
-          if (defender.vitalAttributes.currentHealth <= 0) {
+
+          if (
+            isAggressingForce ?
+              defendingForce[targetIndex].vitalAttributes.currentHealth
+            : aggressingForce[targetIndex].vitalAttributes.currentHealth <= 0
+          ) {
             console.log(defender.name, 'has been killed');
             if (isAggressingForce) {
               // If our attacker is in the aggressing force
@@ -223,7 +228,7 @@ const doCombat = (
     }
     return total;
   }, 0);
-  console.log('LA:', livingAttackers, 'LD:', livingDefenders);
+
   const victoryResult =
     livingAttackers === 0 && livingDefenders > 0 ? 0
     : livingAttackers > 0 && livingDefenders === 0 ? 1

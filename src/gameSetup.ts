@@ -78,6 +78,11 @@ const handleNewGame = (gameManager: GameManager) => {
     },
     buildings: {},
     gameDate: new Date('2000-1-1'),
+    gameLog: {
+      simActions: {
+        people: {},
+      },
+    },
   };
 
   // Create the EVIL Empire nation
@@ -225,7 +230,7 @@ const hireStartingAgents = (gameManager: GameManager) => {
         const recruit = hireAgent(
           citizens[recruitIndex],
           playerData.organizationId,
-          1,
+          0,
           playerData.overlordId,
         );
         recruit!.intelAttributes.intelligenceLevel = 100;

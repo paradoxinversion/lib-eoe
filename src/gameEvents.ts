@@ -14,6 +14,7 @@ import {
 import { getZoneCitizens, transferZoneControl } from './zones';
 import { Plot, PlotResolution } from './plots';
 import {
+  Building,
   GoverningOrganization,
   Person,
   Zone,
@@ -288,10 +289,12 @@ function resolveAttackZone(this: GameEvent, gameManager: GameManager) {
     people: { [x: string]: Person };
     zones: { [x: string]: Zone };
     governingOrganizations: { [x: string]: GoverningOrganization };
+    buildings: { [x: string]: Building };
   } = {
     people: {},
     zones: {},
     governingOrganizations: {},
+    buildings: {},
   };
 
   // Update the agents involved in the attack
@@ -306,18 +309,27 @@ function resolveAttackZone(this: GameEvent, gameManager: GameManager) {
       updatedGameData.people[agent.id] = agent;
     },
   );
-
+  console.log(this.params.attackZone);
   if (this.params.attackZone?.plot?.resolution.data.victoryResult === 1) {
-    updatedGameData.zones = {
-      [this.params.attackZone.plot.plotParams.zoneId!]: transferZoneControl(
-        gameManager,
-        {
-          zoneId: this.params.attackZone!.plot.plotParams.zoneId!,
-          nationId: gameData.player.empireId,
-          organizationId: gameData.player.organizationId,
-        },
-      ).zones![this.params.attackZone.plot.plotParams.zoneId!],
-    };
+    // updatedGameData.zones = {
+    //   [this.params.attackZone.plot.plotParams.zone?.id!]: transferZoneControl(
+    //     gameManager,
+    //     {
+    //       zoneId: this.params.attackZone!.plot.plotParams.zone?.id!,
+    //       nationId: gameData.player.empireId,
+    //       organizationId: gameData.player.organizationId,
+    //     },
+    //   ).zones![this.params.attackZone.plot.plotParams.zone?.id!],
+    // };
+    const zoneId = this.params.attackZone!.plot.plotParams.zone?.id!;
+    const zoneTransferUpdate = transferZoneControl(gameManager, {
+      zoneId,
+      nationId: gameData.player.empireId,
+      organizationId: gameData.player.organizationId,
+    });
+
+    updatedGameData.zones = { [zoneId]: zoneTransferUpdate.zones![zoneId] };
+    updatedGameData.buildings = zoneTransferUpdate.buildings!;
   }
 
   const preupdateEmpire = getEvilEmpire(gameManager);

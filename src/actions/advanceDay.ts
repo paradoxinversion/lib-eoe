@@ -28,7 +28,9 @@ export const advanceDay = (gameManager: GameManager) => {
     excludeDeceased: true,
     agentFilter: { excludeAgents: true },
   }).forEach((person) => {
-    gameManager.updateGameData(simulateDay(gameManager, person));
+    const simResults = simulateDay(gameManager, person);
+    gameManager.updateGameData(simResults.updatedGameData);
+    gameManager.updateSimActionLog(person.id, simResults.updatedLog);
   });
   // Response with events
   const events = prepareRandomEvents(gameManager);

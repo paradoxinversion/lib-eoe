@@ -11,6 +11,17 @@ import { PlotManager, ActivityManager } from './plots';
 import GameEventQueue from './events/GameEventQueue';
 import { ScienceManager } from './managers/science';
 
+export interface GameLog {
+  /** Logs of actions non-agent citizens have taken */
+  simActions: {
+    /** Map of people to an array of their actions */
+    people: {
+      /** An array of the names of the actions a person has taken over the course of the game */
+      [x: string]: string[];
+    };
+  };
+}
+
 export interface GameData {
   /** A key-value pair object of ids and their associated people */
   people: {
@@ -38,6 +49,8 @@ export interface GameData {
     overlordId: string;
     organizationId: string;
   };
+  /** Various game log info */
+  gameLog: GameLog;
 }
 
 export class GameManager {
@@ -64,6 +77,11 @@ export class GameManager {
         empireId: '',
         organizationId: '',
         overlordId: '',
+      },
+      gameLog: {
+        simActions: {
+          people: {},
+        },
       },
     };
     this.eventManager = eventManager;
@@ -99,5 +117,22 @@ export class GameManager {
 
     this.gameData = update;
     return this.gameData;
+  }
+
+  updateSimActionLog(personId: string, action: string | string[]) {
+    if (!this.gameData.gameLog.simActions.people[personId]) {
+      this.gameData.gameLog.simActions.people[personId] = [];
+    }
+    if (Array.isArray(action)) {
+      this.gameData.gameLog.simActions.people[personId] = [
+        ...this.gameData.gameLog.simActions.people[personId],
+        ...action,
+      ];
+      return;
+    }
+    this.gameData.gameLog.simActions.people[personId] = [
+      ...this.gameData.gameLog.simActions.people[personId],
+      action,
+    ];
   }
 }

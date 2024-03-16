@@ -16,7 +16,7 @@ interface SimulatedActivity {
   handler?: (gameManager: GameManager, person: Person) => Partial<GameData>;
 }
 
-const simActivities: { [x: string]: SimulatedActivity } = {
+export const simActivities: { [x: string]: SimulatedActivity } = {
   laze: {
     name: 'laze',
     text: 'lazed at home',
@@ -30,7 +30,7 @@ const simActivities: { [x: string]: SimulatedActivity } = {
     },
     handler: (gameManager: GameManager, person: Person): Partial<GameData> => {
       const pay = person.basicAttributes.intelligence;
-      console.info(`${person.name} got paid $${pay}`);
+      // console.info(`${person.name} got paid $${pay}`);
       return {
         people: {
           [person.id]: {
@@ -61,7 +61,7 @@ const simActivities: { [x: string]: SimulatedActivity } = {
     },
     handler(gameManager, person) {
       const cost = randomInt(0, 10);
-      console.info(`${person.name} spent $${cost}`);
+      // console.info(`${person.name} spent $${cost}`);
       return {
         people: {
           [person.id]: {
@@ -82,7 +82,7 @@ const simActivities: { [x: string]: SimulatedActivity } = {
       const orgId =
         gameManager.gameData.zones[person.homeZoneId].organizationId;
       const p = updateLoyalty(person, orgId, -randomInt(0, 3));
-      console.info(`${person.name} lost loyalty`);
+      // console.info(`${person.name} lost loyalty`);
       return p;
     },
   },
@@ -94,7 +94,7 @@ const simActivities: { [x: string]: SimulatedActivity } = {
     },
     handler(gameManager, person) {
       const pay = randomInt(0, 10);
-      console.info(`${person.name} sold art for $${pay}`);
+      // console.info(`${person.name} sold art for $${pay}`);
       return {
         people: {
           [person.id]: {
@@ -113,7 +113,7 @@ const simActivities: { [x: string]: SimulatedActivity } = {
     },
     handler(gameManager, person) {
       const cost = randomInt(0, 100);
-      console.info(`${person.name} spent $${cost}`);
+      // console.info(`${person.name} spent $${cost}`);
       return {
         people: {
           [person.id]: {
@@ -190,7 +190,7 @@ const chooseActivity = (
   return activityOptions[randomInt(0, activityOptions.length - 1)];
 };
 
-interface SimulatedActivityResolution {
+export interface SimulatedActivityResolution {
   updatedGamedata?: Partial<GameData>;
   activity?: string;
 }
@@ -201,7 +201,8 @@ export const simulateActivity = (
   completedActivities: string[],
 ): SimulatedActivityResolution | null => {
   const simActivity = chooseActivity(gameManager, person, completedActivities);
-  // console.log(`${person.name} ${simActivity.text}`);
+  // console.log(`${person.name} ${simActivity.text}`);\
+  // gameManager.updateSimActionLog(person.id, simActivity.name);
   completedActivities.push(simActivity.name);
   if (simActivity.handler) {
     return {

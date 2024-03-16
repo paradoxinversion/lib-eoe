@@ -1,9 +1,9 @@
 /**
  * People related actions.
  */
-import { GameData, GameManager } from '../GameManager';
+import { GameData, GameLog, GameManager } from '../GameManager';
 import { getActivityParticipants } from '../plots';
-import { simulateActivity } from '../sim/people';
+import { SimulatedActivityResolution, simulateActivity } from '../sim/people';
 import {
   AgentData,
   Person,
@@ -293,9 +293,9 @@ export const updateVitalAttribute = (
  */
 export const simulateDay = (gameManager: GameManager, person: Person) => {
   const completedActivities: string[] = [];
-  const updates = [];
+  const updates: SimulatedActivityResolution[] = [];
   for (let index = 0; index < 4; index++) {
-    updates.push(simulateActivity(gameManager, person, completedActivities));
+    updates.push(simulateActivity(gameManager, person, completedActivities)!);
   }
   const update = updates.reduce<Partial<GameData>>(
     (ugd, curr) => {
@@ -313,9 +313,8 @@ export const simulateDay = (gameManager: GameManager, person: Person) => {
       people: {},
     },
   );
-  return update;
-  // ;
-  // simulateActivity(gameManager, person, completedActivities);
-  // simulateActivity(gameManager, person, completedActivities);
-  // console.log(`${person.name} lived life.`);
+
+  const activityNames = completedActivities.map((activity) => activity);
+
+  return { updatedGameData: update, updatedLog: activityNames };
 };
