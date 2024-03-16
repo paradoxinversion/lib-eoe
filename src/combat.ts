@@ -2,26 +2,32 @@ import { updateVitalAttribute } from './actions/people';
 import { Person } from './types/interfaces/entities';
 
 interface CombatInitiative {
+  /** The initiative order */
   initiative: number;
+  /** Is this person in the attacking force? */
   attackingForce: boolean;
+  /** The index of the character within their source array */
   characterIndex: number;
+  person: Person;
 }
 
 /**
  * Creates a CombatInitiative object.
- * @param {number} initiative - The initiative value
- * @param {boolean} attackingForce - Whether or not the associated character is in the attacking side of this combat encounter
- * @param {number} characterIndex - The index of the associate character within their source array.
  */
 const createInitiative = (
+  /** The initiativevalue */
   initiative: number,
+  /** Whether or not the associated character is in the attacking side of this combat encounter */
   attackingForce: boolean,
+  /** The index of the associated character within their source array. */
   characterIndex: number,
+  person: Person,
 ): CombatInitiative => {
   return {
     initiative,
     attackingForce,
     characterIndex,
+    person,
   };
 };
 
@@ -35,37 +41,39 @@ const generateInitiative = (
   aggressingForce: Person[],
   defendingForce: Person[],
 ) => {
-  const attackerInit = aggressingForce.reduce(
-    (prev: CombatInitiative[], person, index) => {
+  const attackerInitiative = aggressingForce.reduce(
+    (initiativeArray: CombatInitiative[], person, index) => {
       if (person.vitalAttributes.currentHealth > 0) {
-        prev.push(
+        initiativeArray.push(
           createInitiative(
             Math.floor(Math.random() * 10 + person.basicAttributes.combat),
             true,
             index,
+            person,
           ),
         );
       }
-      return prev;
+      return initiativeArray;
     },
     [],
   );
-  const defenderInit = defendingForce
-    .reduce((prev: CombatInitiative[], person, index) => {
+  const defenderInitiative = defendingForce
+    .reduce((initiativeArray: CombatInitiative[], person, index) => {
       if (person.vitalAttributes.currentHealth > 0) {
-        prev.push(
+        initiativeArray.push(
           createInitiative(
             Math.floor(Math.random() * 10 + person.basicAttributes.combat),
             false,
             index,
+            person,
           ),
         );
       }
-      return prev;
+      return initiativeArray;
     }, [])
     .sort();
-  return attackerInit
-    .concat(defenderInit)
+  return attackerInitiative
+    .concat(defenderInitiative)
     .sort((a, b) => a.initiative - b.initiative);
 };
 
@@ -74,9 +82,11 @@ const generateInitiative = (
  * Currently, this means that they have more health than zero (ie,
  * not dead), so take care that `targetForce` only includes intended
  * entities.
- * @param targetForce - An array of people who are allowable targets. Allies should be excluded.
  */
-const getPossibleTargets = (targetForce: Person[]) => {
+const getPossibleTargets = (
+  /** An array of people who are allowable targets. Allies should be excluded. */
+  targetForce: Person[],
+) => {
   return targetForce.reduce((prev: number[], person, index) => {
     if (person.vitalAttributes.currentHealth > 0) {
       prev.push(index);
@@ -86,8 +96,11 @@ const getPossibleTargets = (targetForce: Person[]) => {
 };
 
 interface CombatResult {
+  /** The number of rounds the combat encounter lasted */
   rounds: number;
+  /** An array of strings representing the combat log */
   combatLog: string[];
+  /** The result of the combat encounter */
   victoryResult: 0 | 1 | 2;
   characters: {
     attackers: Person[];
@@ -98,12 +111,11 @@ interface CombatResult {
 /**
  * Executes a combat encounter between two opposing forces. Individual characters
  * from each force will attack turn-by-turn depending on an initative order.
- *
- * @param aggressingForce - The attacking force in the enouncter
- * @param defendingForce - The defending force in the encounter.
  */
 const doCombat = (
+  /** The attacking force in the encounter */
   aggressingForce: Person[],
+  /** The defending force in the encounter */
   defendingForce: Person[],
 ): CombatResult => {
   // Seed the combat log
@@ -128,14 +140,13 @@ const doCombat = (
     // Start going down the list of combat initiatives
     initiativeArray.forEach((combatInitiative) => {
       const isAggressingForce = combatInitiative.attackingForce;
-      // Determine who this attacker is
       const attacker =
         isAggressingForce ?
           aggressingForce[combatInitiative.characterIndex]
         : defendingForce[combatInitiative.characterIndex];
 
+      // If the attacker is alive, get a list of living/targetable enemies
       if (attacker.vitalAttributes.currentHealth >= 0) {
-        // If the attacker is alive, get a list of living/targetable enemies
         const possibleTargets = getPossibleTargets(
           isAggressingForce ? defendingForce : aggressingForce,
         );
@@ -170,12 +181,12 @@ const doCombat = (
               ).people[defendingForce[targetIndex].id];
             }
           } else {
-            if (defendingForce[targetIndex]) {
+            if (aggressingForce[targetIndex]) {
               aggressingForce[targetIndex] = updateVitalAttribute(
-                defendingForce[targetIndex],
+                aggressingForce[targetIndex],
                 'currentHealth',
                 -damage,
-              ).people[defendingForce[targetIndex].id];
+              ).people[aggressingForce[targetIndex].id];
             }
           }
           combatLog.push(

@@ -2,14 +2,15 @@ import { GameData, GameManager } from './GameManager';
 import { Building, Person } from './types/interfaces/entities';
 import { getInfrastructure } from './organization';
 
-interface BuildingSchematic {
-  buildingType: string;
-  infrastructureCost: number;
-  upkeepCost: number;
-  housingCapacity?: number;
-}
+// interface BuildingSchematic {
+//   buildingType: string;
+//   infrastructureCost: number;
+//   upkeepCost: number;
+//   housingCapacity?: number;
+// }
 
-const buildingsSchematics: { [x: string]: BuildingSchematic } = {
+// const buildingsSchematics: { [x: string]: BuildingSchematic } = {
+  const buildingsSchematics = {
   bank: {
     buildingType: 'bank',
     infrastructureCost: 2,
@@ -31,7 +32,9 @@ const buildingsSchematics: { [x: string]: BuildingSchematic } = {
     infrastructureCost: 4,
     upkeepCost: 4,
   },
+  
 };
+type BuildingTypes = keyof typeof buildingsSchematics;
 
 /**
  * Get the infrastructure load of all buildings

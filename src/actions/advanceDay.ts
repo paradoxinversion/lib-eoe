@@ -1,10 +1,12 @@
+/**
+ * advanceDay.ts
+ *
+ */
 import {
-  GameEventQueue,
   addPlotResolutions,
   generateProjectCompleteEvent,
   prepareRandomEvents,
 } from '../gameEvents';
-
 import { GameManager } from '../GameManager';
 import { getOrgResources, modifyOrgScience } from '../organization';
 import { Activity, ActivityResult } from '../plots';
@@ -20,6 +22,7 @@ export const advanceDay = (gameManager: GameManager) => {
     activityManager,
     plotManager,
   } = gameManager;
+
   // Run actions for people
   getPeople(gameManager, {
     excludeDeceased: true,
@@ -48,22 +51,24 @@ export const advanceDay = (gameManager: GameManager) => {
     }
   });
 
-  // Handle science project
+  // Handle science projects
   const scienceProjectStatuses = [...gameManager.scienceManager.activeProjects];
 
   scienceProjectStatuses.forEach((projectStatus) => {
-    const project = gameManager.scienceManager.PROJECTS[projectStatus.name];
+    const project =
+      gameManager.scienceManager.PROJECTS[projectStatus.indexName];
     const result = project.progressHandler(gameManager, projectStatus);
     if (result.complete) {
       const completeResult = gameManager.scienceManager.completeProject(
         gameManager,
-        projectStatus.name,
+        projectStatus.indexName,
       );
 
       gameEventQueue.addEvent(generateProjectCompleteEvent(completeResult));
     }
   });
 
+  // Handle resource (daily) gain
   const scienceGain = getOrgResources(
     gameManager,
     gameData.player.organizationId,
@@ -75,9 +80,13 @@ export const advanceDay = (gameManager: GameManager) => {
   );
   updatedGameData.governingOrganizations =
     scienceUpdate.governingOrganizations!;
+
+  // Handle the date
   const gameDate = new Date(gameData.gameDate);
   gameDate.setDate(gameDate.getDate() + 1);
   updatedGameData.gameDate = gameDate;
+
+  // Finalize the updates
   gameManager.updateGameData(updatedGameData);
   return { updatedGameData, gameEventQueue };
 };

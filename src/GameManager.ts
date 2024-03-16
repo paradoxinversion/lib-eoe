@@ -1,37 +1,43 @@
 // export
 
-import { Building, GoverningOrganization, Nation, Person, Zone } from "./types/interfaces/entities";
-import { PlotManager, ActivityManager } from "./plots";
-import { GameEventQueue } from "./gameEvents";
-import { ScienceManager } from "./managers/science";
+import {
+  Building,
+  GoverningOrganization,
+  Nation,
+  Person,
+  Zone,
+} from './types/interfaces/entities';
+import { PlotManager, ActivityManager } from './plots';
+import GameEventQueue from './events/GameEventQueue';
+import { ScienceManager } from './managers/science';
 
-export interface GameData{
+export interface GameData {
   /** A key-value pair object of ids and their associated people */
   people: {
-    [x: string]: Person
-  },
+    [x: string]: Person;
+  };
   /** A key-value pair object of ids and their associated nations */
   nations: {
-    [x: string]: Nation
-  },
+    [x: string]: Nation;
+  };
   /** A key-value pair object of ids and their associated organizations */
   governingOrganizations: {
-    [x: string]: GoverningOrganization
-  },
+    [x: string]: GoverningOrganization;
+  };
   /** A key-value pair object of ids and their associated zones */
   zones: {
-    [x: string]: Zone
-  },
+    [x: string]: Zone;
+  };
   /** A key-value pair object of ids and their associated buildings */
   buildings: {
-    [x: string]: Building
-  },
-  gameDate: Date,
+    [x: string]: Building;
+  };
+  gameDate: Date;
   player: {
     empireId: string;
     overlordId: string;
     organizationId: string;
-  }
+  };
 }
 
 export class GameManager {
@@ -39,21 +45,26 @@ export class GameManager {
   plotManager: PlotManager;
   activityManager: ActivityManager;
   scienceManager: ScienceManager;
-  gameData: GameData
-  eventManager:  GameEventQueue;
-  constructor(eventManager: GameEventQueue, plotManager: PlotManager, activityManager: ActivityManager, scienceManager: ScienceManager) {
+  gameData: GameData;
+  eventManager: GameEventQueue;
+  constructor(
+    eventManager: GameEventQueue,
+    plotManager: PlotManager,
+    activityManager: ActivityManager,
+    scienceManager: ScienceManager,
+  ) {
     this.gameData = {
       people: {},
       nations: {},
       governingOrganizations: {},
       zones: {},
       buildings: {},
-      gameDate: new Date("1/1/2000"),
+      gameDate: new Date('1/1/2000'),
       player: {
         empireId: '',
         organizationId: '',
-        overlordId: ''
-      }
+        overlordId: '',
+      },
     };
     this.eventManager = eventManager;
     this.plotManager = plotManager;
@@ -62,15 +73,15 @@ export class GameManager {
     this.initialized = false;
   }
 
-  setInitialized(initialized: boolean){
+  setInitialized(initialized: boolean) {
     this.initialized = initialized;
   }
 
-  setGameData(gameData: GameData){
+  setGameData(gameData: GameData) {
     this.gameData = gameData;
   }
 
-  updateGameData(updatedGameData: Partial<GameData>){
+  updateGameData(updatedGameData: Partial<GameData>) {
     // console.log("Update Game Manager:", updatedGameData)
     const update: GameData = {
       ...this.gameData,
@@ -90,4 +101,3 @@ export class GameManager {
     return this.gameData;
   }
 }
-

@@ -25,9 +25,9 @@ export class ScienceManager{
     /** Complete a science project */
     completeProject(gameManager: GameManager, projectName: string){
         const projectConstant = this.PROJECTS[projectName];
-        const project = this.activeProjects.find(p => p.name === projectName)!;
-        const result = projectConstant.completeHandler(project);
-        this.activeProjects = this.activeProjects.filter(p => p.name !== projectName);
+        const project = this.activeProjects.find(p => p.indexName === projectName)!;
+        const result = projectConstant.completeHandler(gameManager, project);
+        this.activeProjects = this.activeProjects.filter(p => p.indexName !== projectName);
         return result;
     }
 }

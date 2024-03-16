@@ -1,4 +1,5 @@
 import { GameData, GameManager } from '../GameManager';
+import { applyStatusEffect } from '../organization';
 import { ScienceManager } from './science';
 
 export interface ScienceProjectResult {
@@ -8,7 +9,7 @@ export interface ScienceProjectResult {
 
 export interface ScienceProjectStatus {
   /** The indexName of the science project */
-  name: string;
+  indexName: string;
   /** The amount of science applied toward the project */
   science: number;
   targetScience?: number;
@@ -28,8 +29,14 @@ export interface ScienceProject {
     gameManager: GameManager,
     status: ScienceProjectStatus,
   ) => ScienceProjectStatus;
-  /** The function to call to finish the project */
-  completeHandler: (status: ScienceProjectStatus) => ScienceProjectResult;
+  /**
+   * The function to call to finish the project
+   * The handler should also modify status effects as necessary
+   */
+  completeHandler: (
+    gameManager: GameManager,
+    status: ScienceProjectStatus,
+  ) => ScienceProjectResult;
   /** The amount of science required to complete the project */
   science: number;
   /** The amount of money required to start the project */
@@ -55,7 +62,7 @@ export const SCIENCE_PROJECTS: ScienceProjectMap = {
           gameManager.gameData.player.organizationId
         ].science;
       return {
-        name: 'test',
+        indexName: 'test',
         science: currentScience,
         complete: false,
       };
@@ -64,7 +71,7 @@ export const SCIENCE_PROJECTS: ScienceProjectMap = {
       gameManager: GameManager,
       status: ScienceProjectStatus,
     ) {
-      const project = SCIENCE_PROJECTS[status.name];
+      const project = SCIENCE_PROJECTS[status.indexName];
       const empireScience =
         gameManager.gameData.governingOrganizations[
           gameManager.gameData.player.organizationId
@@ -78,15 +85,20 @@ export const SCIENCE_PROJECTS: ScienceProjectMap = {
       }
 
       return {
-        name: status.name,
+        indexName: status.indexName,
         science: status.science + contribution,
         complete: status.science + contribution >= project.science,
       };
     },
-    completeHandler: function (status: ScienceProjectStatus) {
+    completeHandler: function (gameManager, status: ScienceProjectStatus) {
+      console.log('Test project complete');
       return {
-        indexName: status.name,
-        updatedGameData: {},
+        indexName: status.indexName,
+        updatedGameData: applyStatusEffect(
+          gameManager,
+          'centralized-telecommunications',
+          gameManager.gameData.player.organizationId,
+        ),
       };
     },
     science: 1,

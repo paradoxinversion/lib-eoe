@@ -8,7 +8,7 @@ import {
 } from '../types/interfaces/entities';
 
 import { throwErrorFromArray, randomInt } from '../utilities';
-import { generateName } from '../generators/names';
+import { generateCompanyName, generateName } from '../generators/names';
 import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
 import { PersonStatusEffect } from '../statusEffects/person';
 const { v4: uuidv4 } = require('uuid');
@@ -330,7 +330,7 @@ const generateBuilding = ({
   }
   return {
     id: 'b_' + uuidv4(),
-    name: buildingType,
+    name: generateCompanyName(),
     zoneId,
     organizationId,
     type: buildingType,

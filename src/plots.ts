@@ -7,8 +7,8 @@ import {
 import { doCombat } from './combat';
 import { getAgentsInZone } from './organization';
 import { randomInt } from './utilities';
-import { citizens, zones } from '..';
-import { people } from './actions';
+import { zones } from '..';
+
 import {
   updateBasicAttribute,
   updateIntelAttribute,

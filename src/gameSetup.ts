@@ -17,7 +17,7 @@ import { nationNames, generateZoneName } from './generators/names';
 import { Shufflebag, randomInt } from './utilities';
 import settings from './config';
 import { addPersonnel, buildingsSchematics, getBuildings } from './buildings';
-import { GameEventQueue } from './gameEvents';
+import GameEventQueue from './events/GameEventQueue';
 import { PlotManager, ActivityManager } from './plots';
 import { Person } from './types/interfaces/entities';
 import {

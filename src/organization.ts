@@ -7,6 +7,7 @@ import {
   getUpkeep,
 } from './buildings';
 import { generateAgentData } from './generators/game';
+import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
 import { GoverningOrganization, Person } from './types/interfaces/entities';
 import { throwErrorFromArray } from './utilities';
 
@@ -396,6 +397,17 @@ export const modifyOrgScience = (
   const org = gameManager.gameData.governingOrganizations[orgId];
   const updatedGo = { ...org };
   updatedGo.science += amount;
+  return {
+    governingOrganizations: {
+      [org.id]: updatedGo,
+    },
+  };
+}
+
+export const applyStatusEffect = (gameManager: GameManager, statusEffect: GoverningOrgStatusEffects, orgId: string) => {
+  const org = getEvilEmpire(gameManager);
+  const updatedGo = { ...org };
+  updatedGo.statusEffects = [...updatedGo.statusEffects, statusEffect];
   return {
     governingOrganizations: {
       [org.id]: updatedGo,

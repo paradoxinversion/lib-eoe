@@ -132,10 +132,8 @@ const simActivities: { [x: string]: SimulatedActivity } = {
   ['start-project']: {
     name: 'start-project',
     text: 'started a project',
-    requirements: {
-    },
-
-  }
+    requirements: {},
+  },
 };
 
 const chooseActivity = (
@@ -203,7 +201,7 @@ export const simulateActivity = (
   completedActivities: string[],
 ): SimulatedActivityResolution | null => {
   const simActivity = chooseActivity(gameManager, person, completedActivities);
-  console.log(`${person.name} ${simActivity.text}`);
+  // console.log(`${person.name} ${simActivity.text}`);
   completedActivities.push(simActivity.name);
   if (simActivity.handler) {
     return {

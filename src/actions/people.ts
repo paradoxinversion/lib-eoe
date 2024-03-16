@@ -1,3 +1,6 @@
+/**
+ * People related actions.
+ */
 import { GameData, GameManager } from '../GameManager';
 import { getActivityParticipants } from '../plots';
 import { simulateActivity } from '../sim/people';
@@ -26,17 +29,29 @@ interface GetPeopleParams {
   deceasedOnly?: boolean;
 }
 
+/**
+ * Get all people in the game that match the given parameters.
+ */
 export const getPeople = (
   gameManager: GameManager,
   {
+    /** Exclude people working in buildings */
     excludePersonnel = false,
+    /** The zone to filter by */
     zoneId = null,
+    /** The nation to filter by */
     nationId = null,
+    /** The organization to filter by */
     organizationId = null,
+    /** Only include deceased people */
     deceasedOnly = false,
+    /** Exclude deceased people */
     excludeDeceased = false,
+    /** Filter agents */
     agentFilter = {
+      /** Filter agent by Department */
       department: -1,
+      /** Exclude agents */
       excludeAgents: false,
       agentsOnly: false,
       commander: '',

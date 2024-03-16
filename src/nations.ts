@@ -31,4 +31,21 @@ const getNationCitizens = (gameManager: GameManager, nationId: string) => {
   return peopleArray.filter((person) => person.nationId === nationId);
 };
 
-export { getNationOrganization, getNationCitizens };
+interface GetNationsParams {
+  isEvilEmpire?: boolean;
+}
+
+const getNations = (
+  gameManager: GameManager,
+  { isEvilEmpire = false }: GetNationsParams,
+) => {
+  const { gameData } = gameManager;
+  return Object.values(gameData.nations).filter((nation) => {
+    if (isEvilEmpire && nation.id !== gameData.player.empireId) {
+      return false;
+    }
+    return true;
+  });
+};
+
+export { getNationOrganization, getNationCitizens, getNations };
