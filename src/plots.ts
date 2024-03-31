@@ -16,7 +16,7 @@ import {
 } from './actions/people';
 import { getGroupSkillValue, getSkillValue } from './sim/people';
 
-interface ActivityConfig {
+export interface ActivityConfig {
   /** The name of the activity (to be shown to the user) */
   name: string;
   /** The activity's type */
