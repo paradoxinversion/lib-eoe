@@ -10,7 +10,7 @@ import { getInfrastructure } from './organization';
 // }
 
 // const buildingsSchematics: { [x: string]: BuildingSchematic } = {
-  const buildingsSchematics = {
+const buildingsSchematics = {
   bank: {
     buildingType: 'bank',
     infrastructureCost: 2,
@@ -32,7 +32,6 @@ import { getInfrastructure } from './organization';
     infrastructureCost: 4,
     upkeepCost: 4,
   },
-  
 };
 type BuildingTypes = keyof typeof buildingsSchematics;
 
@@ -141,7 +140,7 @@ export const getScienceOutput = (
   const scientistBonuses = building.personnel.reduce((total, personId) => {
     return (total =
       total +
-      gameManager.gameData.people[personId].basicAttributes.intelligence);
+      gameManager.gameData.people[personId].standardAttributes.intelligence);
   }, 0);
 
   return base + scientistBonuses;
@@ -159,8 +158,7 @@ export const getWealthOutput = (
 
   const personnelBonuses = building.personnel.reduce((total, personId) => {
     return (total =
-      total +
-      gameManager.gameData.people[personId].basicAttributes.administration);
+      total + gameManager.gameData.people[personId].skills.administration);
   }, 0);
 
   return base + personnelBonuses;
@@ -191,8 +189,7 @@ export const getInfrastructureOutput = (
 
   const personnelBonuses = building.personnel.reduce((total, personId) => {
     return (total =
-      total +
-      gameManager.gameData.people[personId].basicAttributes.administration);
+      total + gameManager.gameData.people[personId].skills.administration);
   }, 0);
 
   return base + personnelBonuses;

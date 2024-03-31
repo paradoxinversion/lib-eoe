@@ -67,10 +67,12 @@ describe('generators', () => {
       // expect(() => generatePerson({})).toThrowError();
       expect(generatePerson(args1).id.startsWith('p_')).toBe(true);
       expect(
-        generatePerson(args1).basicAttributes.administration,
+        generatePerson(args1).standardAttributes.administration,
       ).toBeDefined();
-      expect(generatePerson(args1).basicAttributes.intelligence).toBeDefined();
-      expect(generatePerson(args1).basicAttributes.combat).toBeDefined();
+      expect(
+        generatePerson(args1).standardAttributes.intelligence,
+      ).toBeDefined();
+      expect(generatePerson(args1).skills.combat).toBeDefined();
       expect(generatePerson(args2).name).toBe(args2.name);
     });
 

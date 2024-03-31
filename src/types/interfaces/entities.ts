@@ -1,5 +1,5 @@
-import { GoverningOrgStatusEffects } from "../../statusEffects/governingOrg";
-import { PersonStatusEffect } from "../../statusEffects/person";
+import { GoverningOrgStatusEffects } from '../../statusEffects/governingOrg';
+import { PersonStatusEffect } from '../../statusEffects/person';
 
 interface IntelligenceSubject {
   intelligenceLevel: number;
@@ -31,26 +31,38 @@ export interface Zone {
   intelAttributes: IntelligenceSubject;
 }
 
-export interface PersonBasicAttributes {
-  /** How capable of combat the character is, related to Evil Troops */
+export interface Skills {
+  /** Factors into recon */
+  espionage: number;
+  /** Factors into recon */
+  disguise: number;
+  security: number;
+  science: number;
+  administration: number;
+  leadership: number;
   combat: number;
+}
+
+export type SkillTypes = keyof Skills;
+
+export interface PersonStandardAttributes {
+  /** Factors into combat damage */
+  strength: number;
+  /** Factors into health */
+  constitution: number;
+  /** Factors into evasion */
+  agility: number;
   /** how smart the person is, related to Science */
   intelligence: number;
-  /** the max possible agents the agent can manage */
-  leadership: number;
-  administration: number;
 }
+
+export type PersonBasicAttributeTypes = keyof PersonStandardAttributes;
 
 export interface PersonIntelAttributes extends IntelligenceSubject {
   loyalty: number;
   loyalties: {
     [x: string]: number;
   };
-}
-
-export interface PersonVitalAttributes {
-  health: number;
-  currentHealth: number;
 }
 
 export interface Person {
@@ -70,9 +82,17 @@ export interface Person {
   wealth: number;
   isCaptive: boolean;
   statusEffects: PersonStatusEffect[];
-  basicAttributes: PersonBasicAttributes;
+  standardAttributes: PersonStandardAttributes;
+  derivedAttributes: {
+    health: {
+      currentHealth: number;
+      totalHealth: number;
+    };
+    evasion: number;
+    defense: number;
+  };
   intelAttributes: PersonIntelAttributes;
-  vitalAttributes: PersonVitalAttributes;
+  skills: Skills;
 }
 
 export interface AgentData {
@@ -85,7 +105,6 @@ export interface AgentData {
   /** the id of the agent commanding this one */
   commanderId: string;
 }
-
 
 export interface GoverningOrganization {
   /** The governing body's indentifier, prefixed with `g_` */

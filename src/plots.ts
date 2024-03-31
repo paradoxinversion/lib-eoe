@@ -1,7 +1,7 @@
 import { GameData, GameManager } from './GameManager';
 import {
   Person,
-  PersonBasicAttributes,
+  PersonStandardAttributes,
   Zone,
 } from './types/interfaces/entities';
 import { doCombat } from './combat';
@@ -14,6 +14,7 @@ import {
   updateIntelAttribute,
   updateLoyalty,
 } from './actions/people';
+import { getGroupSkillValue, getSkillValue } from './sim/people';
 
 interface ActivityConfig {
   /** The name of the activity (to be shown to the user) */
@@ -40,11 +41,13 @@ const activityConfig: ActivityConfig[] = [
           const particpantObject: Person = {
             ...gameData.people[participantId],
           };
-          const basicAttributes = Object.keys(particpantObject.basicAttributes);
+          const basicAttributes = Object.keys(
+            particpantObject.standardAttributes,
+          );
           const attributeKey = randomInt(0, basicAttributes.length);
           const updatedGameData = updateBasicAttribute(
             particpantObject,
-            basicAttributes[attributeKey] as keyof PersonBasicAttributes,
+            basicAttributes[attributeKey] as keyof PersonStandardAttributes,
             1,
           );
 
@@ -147,32 +150,45 @@ const plotRecon = (
 ) => {
   const { gameData } = gameManager;
   const zone = gameData.zones[zoneId];
-  const participantIntelligence = Object.values(gameData.people)
-    .filter((participant) => participants.some((p) => p === participant.id))
-    .reduce((total, currentParticipant) => {
-      return total + currentParticipant.basicAttributes.intelligence;
-    }, 0);
+  /** Final intelligence modifier for the zone. May be negative
+   * if the plot is failed
+   */
+  let intelMod = 0;
 
-  const zoneDefenderIntelligence = getAgentsInZone(
+  // Detection Phase
+  // Zone agents may detect the player agents
+  const detection = getAgentsInZone(
     gameManager,
     zone.organizationId,
     zone.id,
   ).reduce((total, currentParticipant) => {
-    return total + currentParticipant.basicAttributes.intelligence;
+    return total + currentParticipant.skills.security;
   }, 0);
 
-  /**
-   * Can be positive or negative
-   */
-  let intelMod = 0;
-  let success = false;
-  if (participantIntelligence > zoneDefenderIntelligence / 2) {
-    intelMod = randomInt(5, 10);
-    success = true;
-  }
+  const stealth = participants.reduce((total, currentParticipant) => {
+    const agent = gameData.people[currentParticipant];
+    return total + agent.skills.espionage + agent.skills.disguise;
+  }, 0);
 
-  if (intelMod > 100) {
-    intelMod = 100;
+  const detectionRoll =
+    randomInt(0, detection) + randomInt(0, detection) + randomInt(0, detection);
+  const stealthRoll =
+    randomInt(0, stealth) + randomInt(0, stealth) + randomInt(0, stealth);
+
+  const success = stealthRoll > detectionRoll;
+
+  let capturedAgentIds: string[] = [];
+  if (success) {
+    // Intelligence Phase
+    intelMod = randomInt(5, 10);
+    if (intelMod > 100) {
+      intelMod = 100;
+    }
+  } else {
+    // Enemy Alert Phase
+    // Empire agents may be captured here
+    // For now, we're going to make it a simple coin toss
+    capturedAgentIds = participants.filter(() => Math.random() > 0.01);
   }
 
   const evil = 5;
@@ -180,7 +196,8 @@ const plotRecon = (
     data: {
       intelligenceModifier: intelMod,
       success,
-      evil: 5,
+      evil,
+      capturedAgentIds,
     },
   };
 };

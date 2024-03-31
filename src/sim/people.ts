@@ -1,7 +1,7 @@
 import { GameData, GameManager } from '../GameManager';
 import { updateLoyalty } from '../actions/people';
 import { PersonStatusEffect } from '../statusEffects/person';
-import { Person } from '../types/interfaces/entities';
+import { Person, SkillTypes } from '../types/interfaces/entities';
 import { randomInt } from '../utilities';
 
 interface SimulatedActivity {
@@ -29,7 +29,7 @@ export const simActivities: { [x: string]: SimulatedActivity } = {
       employedCitizen: true,
     },
     handler: (gameManager: GameManager, person: Person): Partial<GameData> => {
-      const pay = person.basicAttributes.intelligence;
+      const pay = person.standardAttributes.intelligence;
       // console.info(`${person.name} got paid $${pay}`);
       return {
         people: {
@@ -211,4 +211,28 @@ export const simulateActivity = (
     };
   }
   return {};
+};
+
+export const getSkillValue = (
+  gameManager: GameManager,
+  personId: string,
+  skill: SkillTypes,
+) => {
+  const person = gameManager.gameData.people[personId];
+  if (person.skills[skill as keyof typeof person.skills]) {
+    return person.skills[skill as keyof typeof person.skills];
+  }
+  // If no skill is found, return null
+  return null;
+};
+
+export const getGroupSkillValue = (
+  gameManager: GameManager,
+  personIds: string[],
+  skill: SkillTypes,
+) => {
+  const skillValues = personIds.map((personId) =>
+    getSkillValue(gameManager, personId, skill),
+  );
+  return skillValues.reduce((acc, val) => acc! + (val || 0), 0)!;
 };

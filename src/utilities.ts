@@ -67,7 +67,7 @@ const Shufflebag = (
 const checkGameOverState = (gameManager: GameManager) => {
   const { gameData } = gameManager;
   if (
-    gameData.people[gameData.player.overlordId]?.vitalAttributes
+    gameData.people[gameData.player.overlordId]?.derivedAttributes.health
       .currentHealth <= 0
   ) {
     return {
@@ -115,6 +115,10 @@ const numberWithErrorMargin = (trueValue: number, confidence: number) => {
   const marginOfErrorAmt = (marginOfErrorPercentage / 100) * trueValue;
 
   return trueValue - marginOfErrorAmt / 2;
+};
+
+const skillCheck = () => {
+  // to implement
 };
 
 export {

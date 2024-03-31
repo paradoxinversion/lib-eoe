@@ -64,7 +64,7 @@ const getZoneCitizens = (
       return false;
     }
 
-    if (excludeDead && person.vitalAttributes.currentHealth <= 0) {
+    if (excludeDead && person.derivedAttributes.health.currentHealth <= 0) {
       return false;
     }
 

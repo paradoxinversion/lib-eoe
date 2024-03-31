@@ -1,4 +1,4 @@
-import { killPerson, updateVitalAttribute } from './actions/people';
+import { killPerson, updateCurrentHealth } from './actions/people';
 import { Person } from './types/interfaces/entities';
 
 interface CombatInitiative {
@@ -43,10 +43,10 @@ const generateInitiative = (
 ) => {
   const attackerInitiative = aggressingForce.reduce(
     (initiativeArray: CombatInitiative[], person, index) => {
-      if (person.vitalAttributes.currentHealth > 0) {
+      if (person.derivedAttributes.health.currentHealth > 0) {
         initiativeArray.push(
           createInitiative(
-            Math.floor(Math.random() * 10 + person.basicAttributes.combat),
+            Math.floor(Math.random() * 10 + person.skills.combat),
             true,
             index,
             person,
@@ -59,10 +59,10 @@ const generateInitiative = (
   );
   const defenderInitiative = defendingForce
     .reduce((initiativeArray: CombatInitiative[], person, index) => {
-      if (person.vitalAttributes.currentHealth > 0) {
+      if (person.derivedAttributes.health.currentHealth > 0) {
         initiativeArray.push(
           createInitiative(
-            Math.floor(Math.random() * 10 + person.basicAttributes.combat),
+            Math.floor(Math.random() * 10 + person.skills.combat),
             false,
             index,
             person,
@@ -88,7 +88,7 @@ const getPossibleTargets = (
   targetForce: Person[],
 ) => {
   return targetForce.reduce((prev: number[], person, index) => {
-    if (person.vitalAttributes.currentHealth > 0) {
+    if (person.derivedAttributes.health.currentHealth > 0) {
       prev.push(index);
     }
     return prev;
@@ -131,10 +131,10 @@ const doCombat = (
   // Loop the main battle logic until one side is entirely dead.
   while (
     defendingForce.some(
-      (defender) => defender.vitalAttributes.currentHealth > 0,
+      (defender) => defender.derivedAttributes.health.currentHealth > 0,
     ) &&
     aggressingForce.some(
-      (attacker) => attacker.vitalAttributes.currentHealth > 0,
+      (attacker) => attacker.derivedAttributes.health.currentHealth > 0,
     )
   ) {
     // Start going down the list of combat initiatives
@@ -146,7 +146,7 @@ const doCombat = (
         : defendingForce[combatInitiative.characterIndex];
 
       // If the attacker is alive, get a list of living/targetable enemies
-      if (attacker.vitalAttributes.currentHealth >= 0) {
+      if (attacker.derivedAttributes.health.currentHealth >= 0) {
         const possibleTargets = getPossibleTargets(
           isAggressingForce ? defendingForce : aggressingForce,
         );
@@ -166,37 +166,36 @@ const doCombat = (
           // Determine the damage of the attack
           let damage =
             Math.floor(Math.random() * 6 + 1) +
-            attacker.basicAttributes.combat -
-            defender.basicAttributes.combat;
+            attacker.skills.combat -
+            defender.skills.combat;
           if (damage <= 0) {
             damage = 1;
           }
 
           if (isAggressingForce) {
             if (defendingForce[targetIndex]) {
-              defendingForce[targetIndex] = updateVitalAttribute(
+              defendingForce[targetIndex] = updateCurrentHealth(
                 defendingForce[targetIndex],
-                'currentHealth',
                 -damage,
               ).people[defendingForce[targetIndex].id];
             }
           } else {
             if (aggressingForce[targetIndex]) {
-              aggressingForce[targetIndex] = updateVitalAttribute(
+              aggressingForce[targetIndex] = updateCurrentHealth(
                 aggressingForce[targetIndex],
-                'currentHealth',
                 -damage,
               ).people[aggressingForce[targetIndex].id];
             }
           }
           combatLog.push(
-            `${attacker.name} deals ${damage} damage to ${defender.name} (${defender.vitalAttributes.currentHealth})`,
+            `${attacker.name} deals ${damage} damage to ${defender.name} (${defender.derivedAttributes.health.currentHealth})`,
           );
 
           if (
             isAggressingForce ?
-              defendingForce[targetIndex].vitalAttributes.currentHealth
-            : aggressingForce[targetIndex].vitalAttributes.currentHealth <= 0
+              defendingForce[targetIndex].derivedAttributes.health.currentHealth
+            : aggressingForce[targetIndex].derivedAttributes.health
+                .currentHealth <= 0
           ) {
             console.log(defender.name, 'has been killed');
             if (isAggressingForce) {
@@ -217,13 +216,13 @@ const doCombat = (
     rounds++;
   }
   const livingAttackers = aggressingForce.reduce((total, currentAgent) => {
-    if (currentAgent.vitalAttributes.currentHealth > 0) {
+    if (currentAgent.derivedAttributes.health.currentHealth > 0) {
       return total + 1;
     }
     return total;
   }, 0);
   const livingDefenders = defendingForce.reduce((total, currentAgent) => {
-    if (currentAgent.vitalAttributes.currentHealth > 0) {
+    if (currentAgent.derivedAttributes.health.currentHealth > 0) {
       return total + 1;
     }
     return total;

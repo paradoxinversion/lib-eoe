@@ -97,7 +97,7 @@ const _getAgents = (gameManager: GameManager, parameters: GetAgentsPrams) => {
     if (parameters.exclude) {
       if (
         parameters.exclude.corpses &&
-        person.vitalAttributes.currentHealth <= 0
+        person.derivedAttributes.health.currentHealth <= 0
       ) {
         return false;
       }
@@ -151,7 +151,7 @@ const getMaxAgents = (gameManager: GameManager, organizationId: string) => {
       currentAgent.agent &&
       currentAgent.agent.organizationId === organizationId
     ) {
-      return maxAgentValue + currentAgent.basicAttributes.leadership;
+      return maxAgentValue + currentAgent.skills.leadership;
     }
 
     return maxAgentValue;
@@ -178,7 +178,7 @@ const getScience = (gameManager: GameManager, organizationId: string) => {
     let labIntelBonus = 0;
     lab.personnel.forEach((personnelId) => {
       labIntelBonus +=
-        gameData.people[personnelId].basicAttributes.intelligence;
+        gameData.people[personnelId].standardAttributes.intelligence;
     });
     return tv + labIntelBonus;
   }, 0);
@@ -194,7 +194,7 @@ const getInfrastructure = (
         currentAgent?.agent?.department === 1 ||
         currentAgent?.agent?.department === 3
       ) {
-        return infrastructure + currentAgent.basicAttributes.administration;
+        return infrastructure + currentAgent.skills.administration;
       }
 
       return infrastructure;
@@ -265,10 +265,9 @@ const terminateAgent = (agent: Person): Partial<GameData> => {
 
 const calculateAgentSalary = (agent: Person) => {
   return (
-    agent.basicAttributes.administration +
-    agent.basicAttributes.combat +
-    agent.basicAttributes.intelligence +
-    agent.basicAttributes.leadership
+    agent.skills.administration +
+    agent.standardAttributes.intelligence +
+    agent.skills.leadership
   );
 };
 
@@ -387,7 +386,7 @@ export const modifyOrgWealth = (
       [org.id]: updatedGo,
     },
   };
-}
+};
 
 export const modifyOrgScience = (
   gameManager: GameManager,
@@ -402,9 +401,13 @@ export const modifyOrgScience = (
       [org.id]: updatedGo,
     },
   };
-}
+};
 
-export const applyStatusEffect = (gameManager: GameManager, statusEffect: GoverningOrgStatusEffects, orgId: string) => {
+export const applyStatusEffect = (
+  gameManager: GameManager,
+  statusEffect: GoverningOrgStatusEffects,
+  orgId: string,
+) => {
   const org = getEvilEmpire(gameManager);
   const updatedGo = { ...org };
   updatedGo.statusEffects = [...updatedGo.statusEffects, statusEffect];
@@ -413,8 +416,7 @@ export const applyStatusEffect = (gameManager: GameManager, statusEffect: Govern
       [org.id]: updatedGo,
     },
   };
-}
-
+};
 
 export {
   recruitAgent,

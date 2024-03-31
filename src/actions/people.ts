@@ -7,9 +7,8 @@ import { SimulatedActivityResolution, simulateActivity } from '../sim/people';
 import {
   AgentData,
   Person,
-  PersonBasicAttributes,
+  PersonStandardAttributes,
   PersonIntelAttributes,
-  PersonVitalAttributes,
 } from '../types/interfaces/entities';
 import { randomInt } from '../utilities';
 
@@ -27,6 +26,8 @@ interface GetPeopleParams {
   excludePersonnel?: boolean;
   organizationId?: string | null;
   deceasedOnly?: boolean;
+  excludeCaptured?: boolean;
+  capturedOnly?: boolean;
 }
 
 /**
@@ -47,6 +48,8 @@ export const getPeople = (
     deceasedOnly = false,
     /** Exclude deceased people */
     excludeDeceased = false,
+    excludeCaptured = false,
+    capturedOnly = false,
     /** Filter agents */
     agentFilter = {
       /** Filter agent by Department */
@@ -60,6 +63,12 @@ export const getPeople = (
   }: GetPeopleParams = {},
 ) => {
   return Object.values(gameManager.gameData.people).filter((person) => {
+    if (excludeCaptured && person.isCaptive) {
+      return false;
+    }
+    if (capturedOnly && !person.isCaptive) {
+      return false;
+    }
     if (
       agentFilter.excludeParticipants &&
       getActivityParticipants(gameManager).some(
@@ -149,9 +158,12 @@ export const killPerson = (person: Person) => {
   const updatedPerson: Person = {
     ...person,
     dead: true,
-    vitalAttributes: {
-      ...person.vitalAttributes,
-      currentHealth: 0,
+    derivedAttributes: {
+      ...person.derivedAttributes,
+      health: {
+        ...person.derivedAttributes.health,
+        currentHealth: 0,
+      },
     },
   };
 
@@ -164,14 +176,14 @@ export const killPerson = (person: Person) => {
 
 export const updateBasicAttribute = (
   person: Person,
-  attribute: keyof PersonBasicAttributes,
+  attribute: keyof PersonStandardAttributes,
   modAmt: number,
 ) => {
   const updatedPerson: Person = {
     ...person,
-    basicAttributes: {
-      ...person.basicAttributes,
-      [attribute]: person.basicAttributes[attribute] + modAmt,
+    standardAttributes: {
+      ...person.standardAttributes,
+      [attribute]: person.standardAttributes[attribute] + modAmt,
     },
   };
 
@@ -268,16 +280,16 @@ export const initializeLoyalty = (person: Person, gameManager: GameManager) => {
     },
   };
 };
-export const updateVitalAttribute = (
-  person: Person,
-  attribute: keyof PersonVitalAttributes,
-  modAmt: number,
-) => {
+
+export const updateCurrentHealth = (person: Person, modAmt: number) => {
   const updatedPerson: Person = {
     ...person,
-    vitalAttributes: {
-      ...person.vitalAttributes,
-      [attribute]: person.vitalAttributes[attribute] + modAmt,
+    derivedAttributes: {
+      ...person.derivedAttributes,
+      health: {
+        ...person.derivedAttributes.health,
+        currentHealth: person.derivedAttributes.health.currentHealth + modAmt,
+      },
     },
   };
 

@@ -123,7 +123,9 @@ export interface ReconZoneEventParams {
  *
  */
 function setReconZoneParams(this: GameEvent, { plot }: ReconZoneEventParams) {
-  this.params.reconZone!.plot = plot;
+  this.params.reconZone = {
+    plot,
+  };
 }
 
 export interface ProjectCompleteParams {
@@ -154,15 +156,19 @@ function resolveReconZone(
   const updatedGameData: {
     zones: { [x: string]: Zone };
     governingOrganizations: { [x: string]: GoverningOrganization };
+    people: { [x: string]: Person };
   } = {
     zones: {},
     governingOrganizations: {},
+    people: {},
   };
+
   const updatedZone: Zone = JSON.parse(
     JSON.stringify(
       gameData.zones[this.params.reconZone!.plot?.plotParams.zoneId!],
     ),
   );
+
   updatedZone.intelAttributes.intelligenceLevel +=
     this.params.reconZone!.plot?.resolution.data.intelligenceModifier;
   updatedGameData.zones[updatedZone.id] = updatedZone;
@@ -172,6 +178,20 @@ function resolveReconZone(
     totalEvil: preupdateEmpire.totalEvil + 10,
   };
   updatedGameData.governingOrganizations[evilEmpire.id] = evilEmpire;
+
+  // update captured agents
+  const capturedAgents: string[] =
+    this.params.reconZone!.plot.resolution.data.capturedAgentIds;
+  if (capturedAgents) {
+    capturedAgents.forEach((agent) => {
+      updatedGameData.people[agent] = takeCaptive(
+        gameManager,
+        updatedZone.organizationId,
+        gameData.people[agent],
+      ).people![agent];
+      console.log(agent, 'taken captive');
+    });
+  }
   this.eventData = {
     type: 'recon-zone',
     resolution: {

@@ -144,21 +144,25 @@ const generatePerson = ({
   initLoyalty,
   intelligenceLevel = 25,
 }: GeneratePersonOpts): Person => {
-  const errors: string[] = [];
-  throwErrorFromArray(errors);
-
-  const loyalty = initLoyalty || randomInt(1, 100);
-  const intelligence = initIntelligence || randomInt(1, 10);
-  const combat = initCombat || randomInt(1, 10);
-  const administration = initAdministration || randomInt(1, 10);
-  const leadership = initLeadership || randomInt(1, 10);
-
   if (name === 'Unnamed Person') {
     name = generateName();
   }
+  // Standard Attributes
+  const strength = randomInt(1, 10);
+  const constitution = randomInt(1, 10);
+  const agility = randomInt(1, 10);
+  const intelligence = initIntelligence || randomInt(1, 10);
 
-  const statusEffects: PersonStatusEffect[] = [];
+  const loyalty = initLoyalty || randomInt(1, 100);
+  const combat = initCombat || randomInt(1, 10);
+
+  // Derived Attriibutes
+  const totalHealth = constitution * 5 + strength * 2 + randomInt(1, 10);
+  const defense = constitution * 2 + randomInt(1, 10);
+  const evasion = agility * 2 + randomInt(1, 10);
+
   // "Quirks"
+  const statusEffects: PersonStatusEffect[] = [];
   const isConspiracyNut = randomInt(0, 100) > 90;
   const isSanguine = randomInt(0, 100) > 90;
   const isParanoid = randomInt(0, 100) > 90;
@@ -173,6 +177,14 @@ const generatePerson = ({
   if (isParanoid) {
     statusEffects.push('paranoid');
   }
+
+  // Skills
+  const espionage = randomInt(1, 10);
+  const disguise = randomInt(1, 10);
+  const science = randomInt(1, 10);
+  const administration = initAdministration || randomInt(1, 10);
+  const leadership = initLeadership || randomInt(1, 10);
+  const security = randomInt(1, 10);
   return {
     id: 'p_' + uuidv4(),
     nationId,
@@ -182,11 +194,19 @@ const generatePerson = ({
     agent: null,
     isPersonnel: false,
     isCaptive: false,
-    basicAttributes: {
-      combat,
+    standardAttributes: {
+      strength,
       intelligence,
-      leadership,
-      administration,
+      constitution,
+      agility,
+    },
+    derivedAttributes: {
+      health: {
+        currentHealth: totalHealth,
+        totalHealth,
+      },
+      defense,
+      evasion,
     },
     intelAttributes: {
       intelligenceLevel,
@@ -195,12 +215,17 @@ const generatePerson = ({
         [homeZoneId]: 20 + loyalty,
       },
     },
-    vitalAttributes: {
-      health: 10,
-      currentHealth: 10,
-    },
     wealth: randomInt(50, 500),
     statusEffects,
+    skills: {
+      espionage,
+      disguise,
+      science,
+      administration,
+      leadership,
+      combat,
+      security,
+    },
   };
 };
 

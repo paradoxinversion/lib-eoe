@@ -120,19 +120,20 @@ export class GameManager {
   }
 
   updateSimActionLog(personId: string, action: string | string[]) {
-    if (!this.gameData.gameLog.simActions.people[personId]) {
-      this.gameData.gameLog.simActions.people[personId] = [];
-    }
-    if (Array.isArray(action)) {
-      this.gameData.gameLog.simActions.people[personId] = [
-        ...this.gameData.gameLog.simActions.people[personId],
-        ...action,
-      ];
-      return;
-    }
-    this.gameData.gameLog.simActions.people[personId] = [
-      ...this.gameData.gameLog.simActions.people[personId],
-      action,
-    ];
+    // if (!this.gameData.gameLog.simActions.people[personId]) {
+    //   this.gameData.gameLog.simActions.people[personId] = [];
+    // }
+    // if (Array.isArray(action)) {
+    //   this.gameData.gameLog.simActions.people[personId] = [
+    //     ...this.gameData.gameLog.simActions.people[personId],
+    //     ...action,
+    //   ];
+    //   return;
+    // }
+    // this.gameData.gameLog.simActions.people[personId] = [
+    //   ...this.gameData.gameLog.simActions.people[personId],
+    //   action,
+    // ];
+    return this.gameData;
   }
 }
