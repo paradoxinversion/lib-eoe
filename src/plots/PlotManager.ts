@@ -1,5 +1,6 @@
 import { GameManager } from '../GameManager';
-import { ActivityConfig, Plot } from '../plots';
+import { ActivityConfig } from '../activities/activityConfig';
+import Plot from './Plot';
 export interface PlotResolution {
   plot: Plot;
   resolution: any;

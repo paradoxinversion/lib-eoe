@@ -1,7 +1,6 @@
-import { ActivityConfig } from '../plots';
 import { attackZone } from './plotFunctions/attackZone';
-import { recon } from './plotFunctions/recon';
-
+import { executeReconPlot } from './plotFunctions/recon';
+import { ActivityConfig } from '../activities/activityConfig';
 const plotConfig: { [x: string]: ActivityConfig } = {
   'attack-zone': {
     name: 'Attack Zone',
@@ -11,7 +10,7 @@ const plotConfig: { [x: string]: ActivityConfig } = {
   'recon-zone': {
     name: 'Recon',
     type: 'recon-zone',
-    fn: recon,
+    fn: executeReconPlot,
   },
 };
 

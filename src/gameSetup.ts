@@ -18,7 +18,8 @@ import { Shufflebag, randomInt } from './utilities';
 import settings from './config';
 import { addPersonnel, buildingsSchematics, getBuildings } from './buildings';
 import GameEventQueue from './events/GameEventQueue';
-import { PlotManager, ActivityManager } from './plots';
+import ActivityManager from './activities/ActivityManager';
+import { PlotManager } from './plots/PlotManager';
 import { Person } from './types/interfaces/entities';
 import {
   getPeople,

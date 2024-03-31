@@ -7,10 +7,10 @@ import {
   Person,
   Zone,
 } from './types/interfaces/entities';
-import { PlotManager, ActivityManager } from './plots';
 import GameEventQueue from './events/GameEventQueue';
 import { ScienceManager } from './managers/science';
-
+import { PlotManager } from './plots/PlotManager';
+import ActivityManager from './activities/ActivityManager';
 export interface GameLog {
   /** Logs of actions non-agent citizens have taken */
   simActions: {

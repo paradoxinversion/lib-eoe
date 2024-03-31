@@ -9,7 +9,6 @@ import {
 } from '../gameEvents';
 import { GameManager } from '../GameManager';
 import { getOrgResources, modifyOrgScience } from '../organization';
-import { Activity, ActivityResult } from '../plots';
 import { getPeople, simulateDay } from './people';
 /**
  * Determines what events happen at end of turn and returns

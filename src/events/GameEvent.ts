@@ -1,6 +1,5 @@
 import { GameData } from '../GameManager';
 import {
-  EvilApplicantParams,
   CombatEventParams,
   MonthlyReportEventParams,
   ReconZoneEventParams,
@@ -8,7 +7,7 @@ import {
   IntruderAlertEventParams,
   ProjectCompleteParams,
 } from '../gameEvents';
-
+import { EvilApplicantParams } from './eventFunctions/applicant';
 export interface EventData {
   type: string;
   resolution: {
@@ -36,18 +35,26 @@ class GameEvent {
   resolveEvent: Function;
   eventData: EventData;
   eventName: string;
-  params: {
-    evilApplicant?: EvilApplicantParams;
-    wealthMod?: {
-      modAmount: number;
-    };
-    combat?: CombatEventParams;
-    monthlyReport?: MonthlyReportEventParams;
-    reconZone?: ReconZoneEventParams;
-    attackZone?: AttackZoneParams;
-    intruderAlert?: IntruderAlertEventParams;
-    projectComplete?: ProjectCompleteParams;
-  };
+  // params: {
+  //   evilApplicant?: EvilApplicantParams;
+  //   wealthMod?: {
+  //     modAmount: number;
+  //   };
+  //   combat?: CombatEventParams;
+  //   monthlyReport?: MonthlyReportEventParams;
+  //   reconZone?: ReconZoneEventParams;
+  //   attackZone?: AttackZoneParams;
+  //   intruderAlert?: IntruderAlertEventParams;
+  //   projectComplete?: ProjectCompleteParams;
+  // };
+  params:
+    | {}
+    | ReconZoneEventParams
+    | EvilApplicantParams
+    | MonthlyReportEventParams
+    | AttackZoneParams
+    | IntruderAlertEventParams
+    | ProjectCompleteParams;
   /**
    * Create a game event using configuration.
    */
