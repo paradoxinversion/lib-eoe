@@ -1,5 +1,5 @@
 import { GameData, GameManager } from './GameManager';
-import { getControlledZones, hireAgent } from './organization';
+import { hireAgent } from './organization';
 import { getZoneCitizens } from './zones';
 
 import {
@@ -29,6 +29,7 @@ import {
 } from './actions/people';
 import { ScienceManager } from './managers/science';
 import { SCIENCE_PROJECTS } from './managers/scienceProjects';
+import { getZones } from './actions/zones';
 /**
  * The main Shufflebag for building types
  */
@@ -62,11 +63,16 @@ const nationNameShuffleBag = Shufflebag(
   }, {}),
 );
 
+export type NewGameOptions = {
+  pet?: boolean;
+  overlordName?: string;
+};
+
 /**
  * Sets up a new EOE game, spawning Nations, Orgs,
  * Zones, and People, including the EVIL Empire.
  */
-const handleNewGame = (gameManager: GameManager) => {
+const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
   const newGameData: GameData = {
     nations: {},
     governingOrganizations: {},
@@ -83,6 +89,7 @@ const handleNewGame = (gameManager: GameManager) => {
       simActions: {
         people: {},
       },
+      events: [],
     },
   };
 
@@ -97,6 +104,10 @@ const handleNewGame = (gameManager: GameManager) => {
     evil: true,
     name: 'EVIL Empire',
   });
+  if (options.pet) {
+    evilEmpireOrg.statusEffects.push('pet');
+  }
+
   newGameData.governingOrganizations[evilEmpireOrg.id] = evilEmpireOrg;
 
   evilEmpireNation.organizationId = evilEmpireOrg.id;
@@ -112,19 +123,20 @@ const handleNewGame = (gameManager: GameManager) => {
   const evilOverlord = generatePerson({
     nationId: evilEmpireNation.id,
     homeZoneId: evilZone.id,
-    name: 'EVIL Overlord',
+    name: options.overlordName || 'EVIL Overlord',
     initIntelligence: 10,
     initCombat: 10,
     initLeadership: 20,
     initLoyalty: 100,
     initAdministration: 10,
   });
+
   evilOverlord.intelAttributes.loyalties = setLoyalty(
     evilOverlord,
     evilEmpireOrg.id,
     100,
   ).people[evilOverlord.id].intelAttributes.loyalties;
-  console.log(evilOverlord.intelAttributes.loyalties);
+
   evilOverlord.intelAttributes.intelligenceLevel = 100;
 
   evilOverlord.agent = generateAgentData(evilEmpireOrg.id, 3, 0);
@@ -221,10 +233,9 @@ const hireStartingAgents = (gameManager: GameManager) => {
   const playerData = gameManager.gameData.player;
   Object.values(gameData.governingOrganizations).forEach((org) => {
     if (org.id === playerData.organizationId) {
-      const empireZone = getControlledZones(
-        gameManager,
-        playerData.organizationId,
-      )[0];
+      const empireZone = getZones(gameManager, {
+        organizationId: playerData.organizationId,
+      })[0];
       const citizens = getPeople(gameManager, { zoneId: empireZone.id });
       // Start at 1, 0 is the Overlord
       for (let recruitIndex = 1; recruitIndex < 9; recruitIndex++) {
@@ -243,7 +254,7 @@ const hireStartingAgents = (gameManager: GameManager) => {
       return;
     }
 
-    const orgZones = getControlledZones(gameManager, org.id);
+    const orgZones = getZones(gameManager, { organizationId: org.id });
     const leader = generatePerson({
       homeZoneId: orgZones[0].id,
       nationId: org.nationId,

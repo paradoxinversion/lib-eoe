@@ -3,47 +3,58 @@ const personStatusEffects = {
     name: 'Paranoid',
     description:
       'The person people thinks (aside from us) are out to get them.',
-      requires: [],
-      prohibits: []
+    requires: [],
+    prohibits: [],
   },
   ['conspiracy-nut']: {
     name: 'Conspiracy Nut',
     description:
       'The person has an unhealthy obsession with conspiracy theories.',
     requires: [],
-    prohibits: []
+    prohibits: [],
   },
   sanguine: {
     name: 'Sanguine',
     description: 'The person is always optimistic.',
     requires: [],
-      prohibits: []
+    prohibits: [],
   },
   ['artistically-inclined']: {
     name: 'Artisically Inclined',
     description: 'The person is artistically inclined.',
     requires: [],
-      prohibits: []
+    prohibits: [],
   },
   clever: {
     name: 'Clever',
     description: 'The person is clever.',
     requires: [],
-      prohibits: []
+    prohibits: [],
   },
   pacifist: {
     name: 'Pacificist',
     description: 'The person is a pacifist.',
     requires: [],
-      prohibits: []
+    prohibits: [],
   },
   righteous: {
     name: 'Righteous',
     description: 'The person is is exceptionally good.',
     requires: [],
-    prohibits: []
+    prohibits: [],
   },
-  
+  stiffed: {
+    name: 'Stiffed',
+    description: "The person wasn't given their last paycheck.",
+    requires: [],
+    prohibits: ['unemployed'],
+  },
+  unemployed: {
+    name: 'Unemployed',
+    description: 'The person has no job.',
+    requires: [],
+    prohibits: [],
+  },
 };
 
 export type PersonStatusEffect = keyof typeof personStatusEffects;

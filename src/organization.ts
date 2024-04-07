@@ -7,9 +7,10 @@ import {
   getUpkeep,
 } from './buildings';
 import { generateAgentData } from './generators/game';
+import { getCodeName } from './generators/names';
 import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
 import { GoverningOrganization, Person } from './types/interfaces/entities';
-import { throwErrorFromArray } from './utilities';
+import { randomInt, throwErrorFromArray } from './utilities';
 
 /**
  * Returns a copy of the recruited person
@@ -26,26 +27,9 @@ const recruitAgent = (
     agent: {
       organizationId,
       department,
+      codename: getCodeName(),
     },
   };
-};
-
-/**
- *
- */
-const getAgents = (
-  gameManager: GameManager,
-  organizationId: string,
-  excludeCorpses = true,
-  excludeUnavailable = false,
-) => {
-  return _getAgents(gameManager, {
-    organizationId,
-    exclude: {
-      corpses: excludeCorpses,
-      unavailable: excludeUnavailable,
-    },
-  });
 };
 
 interface GetAgentsPrams {
@@ -60,85 +44,6 @@ interface GetAgentsPrams {
     personnel?: boolean;
   };
 }
-
-/**
- *
- */
-const _getAgents = (gameManager: GameManager, parameters: GetAgentsPrams) => {
-  const { gameData } = gameManager;
-  if (!parameters.organizationId) {
-    console.error('parameters.organizationId is required.');
-  }
-
-  return Object.values(gameData.people).filter((person) => {
-    if (!person.agent) {
-      return false;
-    }
-
-    if (person.agent.organizationId !== parameters.organizationId) {
-      return false;
-    }
-
-    if (parameters.filter) {
-      if (parameters.filter.department !== undefined) {
-        if (parameters.filter.department !== person.agent.department) {
-          return false;
-        }
-      }
-
-      if (
-        parameters.filter.zoneId &&
-        parameters.filter.zoneId !== person.homeZoneId
-      ) {
-        return false;
-      }
-    }
-
-    if (parameters.exclude) {
-      if (
-        parameters.exclude.corpses &&
-        person.derivedAttributes.health.currentHealth <= 0
-      ) {
-        return false;
-      }
-
-      if (parameters.exclude.personnel) {
-        return !!!Object.values(gameData.buildings).find((building) =>
-          building.personnel.includes(person.id),
-        );
-      }
-    }
-
-    return true;
-  });
-};
-
-/**
- * Return the agents in a zone.
- * @returns
- */
-const getAgentsInZone = (
-  gameManager: GameManager,
-  organizationId: string,
-  zoneId: string,
-) => {
-  const { gameData } = gameManager;
-  const peopleArray = Object.values(gameData.people);
-  const errors = [];
-  if (!organizationId) {
-    errors.push("'organizationId' is a required parameter");
-  }
-  if (!zoneId) {
-    errors.push("'zoneId' is a required parameter");
-  }
-  throwErrorFromArray(errors);
-  return peopleArray.filter(
-    (person) =>
-      person.agent &&
-      person.agent.organizationId === organizationId &&
-      person.homeZoneId === zoneId,
-  );
-};
 
 /**
  * Return the max number of agents an organization can support.
@@ -188,19 +93,19 @@ const getInfrastructure = (
   gameManager: GameManager,
   organizationId: string,
 ) => {
-  return getAgents(gameManager, organizationId).reduce(
-    (infrastructure, currentAgent) => {
-      if (
-        currentAgent?.agent?.department === 1 ||
-        currentAgent?.agent?.department === 3
-      ) {
-        return infrastructure + currentAgent.skills.administration;
-      }
+  return getPeople(gameManager, {
+    organizationId,
+    agentFilter: { agentsOnly: true },
+  }).reduce((infrastructure, currentAgent) => {
+    if (
+      currentAgent?.agent?.department === 1 ||
+      currentAgent?.agent?.department === 3
+    ) {
+      return infrastructure + currentAgent.skills.administration;
+    }
 
-      return infrastructure;
-    },
-    0,
-  );
+    return infrastructure;
+  }, 0);
 };
 
 const getPayroll = (gameManager: GameManager, organizationId: string) => {
@@ -210,16 +115,6 @@ const getPayroll = (gameManager: GameManager, organizationId: string) => {
   }).reduce((payroll, currentAgent) => {
     return payroll + (currentAgent?.agent?.salary || 0);
   }, 0);
-};
-
-const getControlledZones = (
-  gameManager: GameManager,
-  organizationId: string,
-) => {
-  const { gameData } = gameManager;
-
-  const zonesArray = Object.values(gameData.zones);
-  return zonesArray.filter((zone) => zone.organizationId === organizationId);
 };
 
 const hireAgent = (
@@ -418,18 +313,104 @@ export const applyStatusEffect = (
   };
 };
 
+interface GetOrganizationsOptions {
+  exclude?: {
+    player?: boolean;
+  };
+  statusFilter?: {
+    hasStatus?: GoverningOrgStatusEffects;
+    doesNotHaveStatus?: GoverningOrgStatusEffects;
+    hasStatuses?: GoverningOrgStatusEffects[];
+    doesNotHaveStatuses?: GoverningOrgStatusEffects[];
+  };
+}
+
+const defaultGetOrganizationsOptions: GetOrganizationsOptions = {
+  exclude: {
+    player: false,
+  },
+};
+
+export const getOrganizations = (
+  gameManager: GameManager,
+  options: GetOrganizationsOptions,
+) => {
+  const opts = { ...defaultGetOrganizationsOptions, ...options };
+
+  return Object.values(gameManager.gameData.governingOrganizations).filter(
+    (org) => {
+      if (
+        opts.exclude?.player === true &&
+        org.id === gameManager.gameData.player.organizationId
+      ) {
+        return false;
+      }
+      return true;
+    },
+  );
+};
+
+export interface GetRandomOrgOptions {
+  excludePlayer?: boolean;
+}
+
+export const getRandomOrg = (
+  gameManager: GameManager,
+  options: GetRandomOrgOptions,
+): GoverningOrganization => {
+  const pool = getOrganizations(gameManager, {
+    exclude: { player: options.excludePlayer },
+  });
+  return pool[randomInt(0, pool.length - 1)];
+};
+
+export const updateOrgWealth = (
+  gameManager: GameManager,
+  orgId: string,
+  amt: number,
+) => {
+  const org = gameManager.gameData.governingOrganizations[orgId];
+  console.log(
+    `${amt > 0 ? 'Increaing' : 'Reducing'} wealth for ${org} by ${amt}`,
+  );
+  const updatedGameData: Partial<GameData> = {
+    governingOrganizations: {
+      [orgId]: {
+        ...org,
+        wealth: org.wealth + amt,
+      },
+    },
+  };
+  gameManager.updateGameData(updatedGameData);
+  return updatedGameData;
+};
+
+export const updateEvil = (gameManager: GameManager, amount: number) => {
+  const org = getEvilEmpire(gameManager);
+  const updatedGo: GoverningOrganization = {
+    ...org,
+    totalEvil: org.totalEvil + amount,
+  };
+  gameManager.updateGameData({
+    governingOrganizations: {
+      [org.id]: updatedGo,
+    },
+  });
+  return {
+    governingOrganizations: {
+      [org.id]: updatedGo,
+    },
+  };
+};
+
 export {
   recruitAgent,
-  getAgents,
-  _getAgents,
   getMaxAgents,
   getScience,
   getInfrastructure,
   getPayroll,
   getAgentSubordinates,
-  getControlledZones,
   hireAgent,
-  getAgentsInZone,
   calculateAgentSalary,
   fireAgent,
   terminateAgent,

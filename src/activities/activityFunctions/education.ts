@@ -1,5 +1,6 @@
 import { GameManager } from '../../GameManager';
 import { updateLoyalty } from '../../actions/people';
+import { updateEvil } from '../../organization';
 import { Person } from '../../types/interfaces/entities';
 import { randomInt } from '../../utilities';
 
@@ -7,6 +8,9 @@ export const education = (
   gameManager: GameManager,
   participantArray: string[],
 ) => {
+  if (participantArray.length === 0) {
+    return null;
+  }
   const { gameData } = gameManager;
   const updatedAgents: { [x: string]: Person } = participantArray.reduce(
     (participants: { [x: string]: Person }, participant) => {
@@ -25,5 +29,6 @@ export const education = (
     },
     {},
   );
+  updateEvil(gameManager, 1);
   return { people: updatedAgents };
 };

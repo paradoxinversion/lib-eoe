@@ -1,6 +1,7 @@
 import { GameData, GameManager } from './GameManager';
 import { Building, Person } from './types/interfaces/entities';
 import { getInfrastructure } from './organization';
+import { BuildingStatusEffects } from './statusEffects/building';
 
 // interface BuildingSchematic {
 //   buildingType: string;
@@ -237,6 +238,7 @@ const addPersonnel = (person: Person, building: Building) => {
   updatedBuilding.personnel = [...updatedBuilding.personnel, person.id];
 
   const updatedPerson = { ...person };
+  updatedPerson.personnelAt = building.id;
   updatedPerson.isPersonnel = true;
   updatedGameData.buildings[building.id] = updatedBuilding;
   updatedGameData.people[person.id] = updatedPerson;
@@ -247,7 +249,11 @@ const addPersonnel = (person: Person, building: Building) => {
  *
  */
 const removePersonnel = (person: Person, building: Building) => {
-  const updatedPerson: Person = { ...person, isPersonnel: false };
+  const updatedPerson: Person = {
+    ...person,
+    isPersonnel: false,
+    personnelAt: null,
+  };
   const personnelIndex = building.personnel.findIndex(
     (personnel) => personnel === person.id,
   );
@@ -303,6 +309,36 @@ const getBuildings = (
 
     return true;
   });
+};
+
+export const addBuildingStatusEffect = (
+  gameManager: GameManager,
+  buildingId: string,
+  statusEffect: BuildingStatusEffects,
+) => {
+  const building = { ...gameManager.gameData.buildings[buildingId] };
+  if (!building.statusEffects.includes(statusEffect)) {
+    building.statusEffects = [...building.statusEffects, statusEffect];
+  }
+  const updatedGameData = { buildings: { [buildingId]: building } };
+  gameManager.updateGameData(updatedGameData);
+
+  return updatedGameData;
+};
+
+export const removeBuildingStatusEffect = (
+  gameManager: GameManager,
+  buildingId: string,
+  statusEffect: BuildingStatusEffects,
+) => {
+  const building = gameManager.gameData.buildings[buildingId];
+  if (building.statusEffects.includes(statusEffect)) {
+    building.statusEffects = building.statusEffects.filter(
+      (effect) => effect !== statusEffect,
+    );
+  }
+  gameManager.updateGameData({ buildings: { [buildingId]: building } });
+  return building;
 };
 
 export {

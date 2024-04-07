@@ -4,6 +4,7 @@
 import { GameData, GameLog, GameManager } from '../GameManager';
 import { getActivityParticipants } from '../plots';
 import { SimulatedActivityResolution, simulateActivity } from '../sim/people';
+import { PersonStatusEffect } from '../statusEffects/person';
 import {
   AgentData,
   Person,
@@ -21,6 +22,7 @@ interface GetPeopleParams {
     agentsOnly?: boolean;
     commander?: string;
     excludeParticipants?: boolean;
+    excludeDepartments?: number[];
   };
   excludeDeceased?: boolean;
   excludePersonnel?: boolean;
@@ -28,94 +30,140 @@ interface GetPeopleParams {
   deceasedOnly?: boolean;
   excludeCaptured?: boolean;
   capturedOnly?: boolean;
+  captive?: {
+    captiveOnly?: boolean;
+    capturedBy?: string;
+  };
 }
+
+const GetPeopleDefaultParams: GetPeopleParams = {
+  zoneId: null,
+  nationId: null,
+  agentFilter: {
+    excludeAgents: false,
+    department: -1,
+    agentsOnly: false,
+    commander: '',
+    excludeParticipants: false,
+    excludeDepartments: [],
+  },
+  excludeDeceased: false,
+  excludePersonnel: false,
+  organizationId: null,
+  deceasedOnly: false,
+  excludeCaptured: false,
+  capturedOnly: false,
+  captive: {
+    captiveOnly: false,
+    capturedBy: '',
+  },
+};
 
 /**
  * Get all people in the game that match the given parameters.
  */
 export const getPeople = (
   gameManager: GameManager,
-  {
-    /** Exclude people working in buildings */
-    excludePersonnel = false,
-    /** The zone to filter by */
-    zoneId = null,
-    /** The nation to filter by */
-    nationId = null,
-    /** The organization to filter by */
-    organizationId = null,
-    /** Only include deceased people */
-    deceasedOnly = false,
-    /** Exclude deceased people */
-    excludeDeceased = false,
-    excludeCaptured = false,
-    capturedOnly = false,
-    /** Filter agents */
-    agentFilter = {
-      /** Filter agent by Department */
-      department: -1,
-      /** Exclude agents */
-      excludeAgents: false,
-      agentsOnly: false,
-      commander: '',
-      excludeParticipants: false,
-    },
-  }: GetPeopleParams = {},
+  params: GetPeopleParams = {},
 ) => {
+  const options: GetPeopleParams = {
+    ...GetPeopleDefaultParams,
+    ...params,
+    agentFilter: {
+      ...GetPeopleDefaultParams.agentFilter,
+      ...params.agentFilter,
+    },
+    captive: {
+      ...GetPeopleDefaultParams.captive,
+      ...params.captive,
+    },
+  };
   return Object.values(gameManager.gameData.people).filter((person) => {
-    if (excludeCaptured && person.isCaptive) {
+    let capturingOrg = null;
+    if (options.captive?.capturedBy) {
+      capturingOrg =
+        gameManager.gameData.governingOrganizations[options.captive.capturedBy];
+    }
+    if (options.captive?.captiveOnly && !person.isCaptive) {
       return false;
     }
-    if (capturedOnly && !person.isCaptive) {
-      return false;
-    }
+
     if (
-      agentFilter.excludeParticipants &&
+      options.captive?.capturedBy &&
+      !capturingOrg?.captives.includes(person.id)
+    ) {
+      return false;
+    }
+
+    if (options.excludeCaptured && person.isCaptive) {
+      return false;
+    }
+
+    if (options.capturedOnly && !person.isCaptive) {
+      return false;
+    }
+
+    if (
+      options.agentFilter?.excludeParticipants &&
       getActivityParticipants(gameManager).some(
         (p) => p.participant.id === person.id,
       )
     ) {
       return false;
     }
-    if (agentFilter.agentsOnly && person.agent === null) {
+
+    if (options.agentFilter?.agentsOnly && person.agent === null) {
       return false;
     }
-    if (agentFilter.excludeAgents && person.agent) {
+
+    if (options.agentFilter?.excludeAgents && person.agent) {
       return false;
     }
     if (
-      agentFilter.commander &&
-      person.agent?.commanderId !== agentFilter.commander
+      options.agentFilter?.excludeDepartments &&
+      options.agentFilter?.excludeDepartments.includes(
+        person.agent?.department!,
+      )
     ) {
       return false;
     }
     if (
-      agentFilter.department !== -1 &&
-      person.agent?.department !== agentFilter.department
+      options.agentFilter?.commander &&
+      person.agent?.commanderId !== options.agentFilter?.commander
     ) {
       return false;
     }
-    if (zoneId && person.homeZoneId !== zoneId) {
+
+    if (
+      options.agentFilter?.department !== -1 &&
+      person.agent?.department !== options.agentFilter?.department
+    ) {
+      return false;
+    }
+    if (options.zoneId && person.homeZoneId !== options.zoneId) {
       return false;
     }
 
-    if (nationId && person.nationId !== nationId) {
+    if (options.nationId && person.nationId !== options.nationId) {
       return false;
     }
 
-    if (excludePersonnel && person.isPersonnel) {
+    if (options.excludePersonnel && person.isPersonnel) {
       return false;
     }
 
-    if (organizationId && person.agent?.organizationId !== organizationId) {
+    if (
+      options.organizationId &&
+      person.agent?.organizationId !== options.organizationId
+    ) {
       return false;
     }
 
-    if (deceasedOnly && !person.dead) {
+    if (options.deceasedOnly && !person.dead) {
       return false;
     }
 
-    if (excludeDeceased && person.dead) {
+    if (options.excludeDeceased && person.dead) {
       return false;
     }
 
@@ -300,6 +348,59 @@ export const updateCurrentHealth = (person: Person, modAmt: number) => {
   };
 };
 
+export const addPersonStatusEffect = (
+  gameManager: GameManager,
+  person: Person,
+  statusEffect: PersonStatusEffect,
+  duration: number = -1,
+): Partial<GameData> => {
+  const updatedPerson: Person = {
+    ...person,
+    statusEffects: {
+      ...person.statusEffects,
+      [statusEffect]: duration,
+    },
+  };
+
+  gameManager.updateGameData({
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  });
+
+  return {
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  };
+};
+
+export const removePersonStatusEffect = (
+  gameManager: GameManager,
+  person: Person,
+  statusEffect: PersonStatusEffect,
+) => {
+  const updatedPerson: Person = {
+    ...person,
+    statusEffects: {
+      ...person.statusEffects,
+    },
+  };
+  delete updatedPerson.statusEffects[statusEffect];
+
+  gameManager.updateGameData({
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  });
+
+  return {
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  };
+};
+
 /**
  * Simulate the the person does on a given day.
  */
@@ -329,4 +430,31 @@ export const simulateDay = (gameManager: GameManager, person: Person) => {
   const activityNames = completedActivities.map((activity) => activity);
 
   return { updatedGameData: update, updatedLog: activityNames };
+};
+
+export const setCodename = (
+  gameManager: GameManager,
+  personId: string,
+  codename: string,
+) => {
+  const person = gameManager.gameData.people[personId];
+  const updatedPerson = {
+    ...person,
+    agent: {
+      ...person.agent!,
+      codename,
+    },
+  };
+
+  gameManager.updateGameData({
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  });
+
+  return {
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  };
 };

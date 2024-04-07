@@ -1,5 +1,3 @@
-// export
-
 import {
   Building,
   GoverningOrganization,
@@ -11,6 +9,7 @@ import GameEventQueue from './events/GameEventQueue';
 import { ScienceManager } from './managers/science';
 import { PlotManager } from './plots/PlotManager';
 import ActivityManager from './activities/ActivityManager';
+
 export interface GameLog {
   /** Logs of actions non-agent citizens have taken */
   simActions: {
@@ -20,6 +19,11 @@ export interface GameLog {
       [x: string]: string[];
     };
   };
+  events: {
+    color: string;
+    text: string;
+    icon: string;
+  }[];
 }
 
 export interface GameData {
@@ -82,6 +86,7 @@ export class GameManager {
         simActions: {
           people: {},
         },
+        events: [],
       },
     };
     this.eventManager = eventManager;
@@ -119,21 +124,26 @@ export class GameManager {
     return this.gameData;
   }
 
-  updateSimActionLog(personId: string, action: string | string[]) {
-    // if (!this.gameData.gameLog.simActions.people[personId]) {
-    //   this.gameData.gameLog.simActions.people[personId] = [];
-    // }
-    // if (Array.isArray(action)) {
-    //   this.gameData.gameLog.simActions.people[personId] = [
-    //     ...this.gameData.gameLog.simActions.people[personId],
-    //     ...action,
-    //   ];
-    //   return;
-    // }
-    // this.gameData.gameLog.simActions.people[personId] = [
-    //   ...this.gameData.gameLog.simActions.people[personId],
-    //   action,
-    // ];
+  updateSimActionLog(personId: string, action: string[]) {
+    const personalLog = [
+      ...(this.gameData.gameLog.simActions.people[personId] || []),
+      ...action,
+    ];
+
+    // this.gameData.gameLog.simActions.people[personId] = personalLog;
+    this.gameData = {
+      ...this.gameData,
+      gameLog: {
+        ...this.gameData.gameLog,
+        simActions: {
+          people: {
+            ...this.gameData.gameLog.simActions.people,
+            [personId]: personalLog,
+          },
+        },
+      },
+    };
+
     return this.gameData;
   }
 }

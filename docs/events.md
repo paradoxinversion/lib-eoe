@@ -1,6 +1,24 @@
 # Events
 
-Events are situations the player responds to. Events (with rare exception) are assumed to have already happened by the time the player sees them.
+Events are situations that occur in the game. Some events have options for the player to choose from in response to them. These events are generally assumed to have already happened by the time the player has the option to respond.
+
+## Event Definitions
+
+Each Game Event requires a Game Event Configuration object and some code to support the event.
+
+### Event Definition
+
+### Event Definition Properties
+
+name - The name of the event, to be shown to the player
+icon - the icon to associate with the event. icons should be chosen categorically. 
+
+### Event Definition Functions
+Set Params
+Each event function has a function to set its parameters. These functions should not contain event execution logic (ie, modification of game entities).
+
+Resolve
+Each event object definition should have a resolve function. This function is responsible for modifying game entities and committing changes.
 
 ## GameEvent
 

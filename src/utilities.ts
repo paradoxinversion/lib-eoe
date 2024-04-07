@@ -1,6 +1,5 @@
 import { GameManager } from './GameManager';
-import { getControlledZones } from './organization';
-import { getZones } from './zones';
+import { getZones } from './actions/zones';
 /**
  * Takes an array of strings and throws an error with those
  * strings joined (space seperated) as its message.
@@ -84,10 +83,9 @@ const checkGameOverState = (gameManager: GameManager) => {
  */
 const checkVictoryState = (gameManager: GameManager) => {
   const { gameData } = gameManager;
-  const playerZones = getControlledZones(
-    gameManager,
-    gameData.player.organizationId,
-  );
+  const playerZones = getZones(gameManager, {
+    organizationId: gameData.player.organizationId,
+  });
   if (playerZones.length === Object.keys(gameData.zones).length) {
     return {
       victoryCause: 'world-domination',

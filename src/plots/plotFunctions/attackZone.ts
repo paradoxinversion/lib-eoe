@@ -1,6 +1,7 @@
 import { GameManager } from '../../GameManager';
+import { getPeople } from '../../actions/people';
 import { doCombat } from '../../combat';
-import { getAgentsInZone, getEvilEmpire } from '../../organization';
+import { getEvilEmpire } from '../../organization';
 import {
   Building,
   GoverningOrganization,
@@ -28,7 +29,11 @@ export const attackZone = (
   }: PlotAttackZoneOpts,
 ): PlotResult => {
   const { gameData } = gameManager;
-  const defendingAgents = getAgentsInZone(gameManager, zoneOrgId, zoneId);
+  const defendingAgents = getPeople(gameManager, {
+    organizationId: zoneOrgId,
+    zoneId,
+    agentFilter: { agentsOnly: true },
+  });
   const attackingAgents = participants.map((agent) => gameData.people[agent]);
   const result = doCombat(attackingAgents, defendingAgents);
 

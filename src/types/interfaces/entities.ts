@@ -1,3 +1,4 @@
+import { BuildingStatusEffects } from '../../statusEffects/building';
 import { GoverningOrgStatusEffects } from '../../statusEffects/governingOrg';
 import { PersonStatusEffect } from '../../statusEffects/person';
 
@@ -78,10 +79,11 @@ export interface Person {
   agent: AgentData | null;
   /** Whether or not the person is working in a building */
   isPersonnel: boolean;
+  personnelAt: string | null;
   dead: boolean;
   wealth: number;
   isCaptive: boolean;
-  statusEffects: PersonStatusEffect[];
+  statusEffects: { [x: string]: number };
   standardAttributes: PersonStandardAttributes;
   derivedAttributes: {
     health: {
@@ -104,6 +106,7 @@ export interface AgentData {
   salary: number;
   /** the id of the agent commanding this one */
   commanderId: string;
+  codename: string;
 }
 
 export interface GoverningOrganization {
@@ -143,4 +146,5 @@ export interface Building {
     infrastructure: number;
   };
   intelAttributes: IntelligenceSubject;
+  statusEffects: BuildingStatusEffects[];
 }

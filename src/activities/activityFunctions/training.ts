@@ -1,5 +1,6 @@
 import { GameManager } from '../../GameManager';
 import { updateBasicAttribute } from '../../actions/people';
+import { updateEvil } from '../../organization';
 import {
   Person,
   PersonStandardAttributes,
@@ -10,6 +11,9 @@ export const executeTrainingActivity = (
   gameManager: GameManager,
   participantArray: string[],
 ) => {
+  if (participantArray.length === 0) {
+    return null;
+  }
   const { gameData } = gameManager;
 
   const updatedAgents: { [x: string]: Person } = participantArray.reduce(
@@ -31,6 +35,6 @@ export const executeTrainingActivity = (
     },
     {},
   );
-
+  updateEvil(gameManager, 1);
   return { people: updatedAgents };
 };

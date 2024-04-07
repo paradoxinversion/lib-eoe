@@ -162,20 +162,21 @@ const generatePerson = ({
   const evasion = agility * 2 + randomInt(1, 10);
 
   // "Quirks"
-  const statusEffects: PersonStatusEffect[] = [];
+  const statusEffects: { [x: string]: number } = {};
   const isConspiracyNut = randomInt(0, 100) > 90;
   const isSanguine = randomInt(0, 100) > 90;
   const isParanoid = randomInt(0, 100) > 90;
   if (isConspiracyNut) {
-    statusEffects.push('conspiracy-nut');
+    // statusEffects.push('conspiracy-nut');
+    statusEffects['conspiracy-nut'] = -1;
   }
 
   if (isSanguine) {
-    statusEffects.push('sanguine');
+    statusEffects['sanguine'] = -1;
   }
 
   if (isParanoid) {
-    statusEffects.push('paranoid');
+    statusEffects['paranoid'] = -1;
   }
 
   // Skills
@@ -194,6 +195,7 @@ const generatePerson = ({
     agent: null,
     isPersonnel: false,
     isCaptive: false,
+    personnelAt: '',
     standardAttributes: {
       strength,
       intelligence,
@@ -253,12 +255,14 @@ const generateAgentData = (
   /** the agent's monthly pay */
   salary: number,
   commanderId?: string,
+  codeName?: string,
 ): AgentData => {
   return {
     department,
     organizationId,
     salary,
     commanderId: commanderId || '',
+    codename: codeName || '',
   };
 };
 
@@ -374,6 +378,7 @@ const generateBuilding = ({
     intelAttributes: {
       intelligenceLevel: 25,
     },
+    statusEffects: [],
   };
 };
 

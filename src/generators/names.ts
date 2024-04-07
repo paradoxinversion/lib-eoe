@@ -6,6 +6,7 @@ import compoundZoneNameBases from './names/zone-compound-name-base.json';
 import compoundZoneNameEndings from './names/compound-zone-name-end.json';
 import companyBaseNames from './names/company.json';
 import companyDescriptors from './names/company-descriptor.json';
+import codeNames from './names/codenames-people.json';
 const nationNames = [
   'Arcadia',
   'Dystopia',
@@ -45,6 +46,10 @@ const generateName = () => {
     lastNames[randomInt(0, lastNames.length - 1)]
   }`;
   return name;
+};
+
+export const getCodeName = () => {
+  return codeNames[randomInt(0, codeNames.length - 1)];
 };
 
 export { generateName, generateZoneName, nationNames };

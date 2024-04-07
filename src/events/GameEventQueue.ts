@@ -64,7 +64,7 @@ class GameEventQueue {
   /**
    * Return the current game event
    */
-  getCurrentEvent() {
+  getCurrentEvent(): GameEvent {
     return this.events[this.eventIndex];
   }
 

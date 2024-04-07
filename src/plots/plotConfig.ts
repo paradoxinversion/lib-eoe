@@ -6,11 +6,13 @@ const plotConfig: { [x: string]: ActivityConfig } = {
     name: 'Attack Zone',
     type: 'attack-zone',
     fn: attackZone,
+    costPerParticipant: 0,
   },
   'recon-zone': {
     name: 'Recon',
     type: 'recon-zone',
     fn: executeReconPlot,
+    costPerParticipant: 0,
   },
 };
 

@@ -34,6 +34,10 @@ export class PlotManager {
     this.plots = [];
   }
 
+  removePlot(index: number) {
+    this.plotQueue.splice(index, 1);
+  }
+
   /**
    * Add a plot to the queue
    * @param {Plot} plot

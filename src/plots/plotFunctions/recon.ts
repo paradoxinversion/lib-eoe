@@ -1,11 +1,7 @@
 import { GameManager } from '../../GameManager';
+import { getPeople } from '../../actions/people';
 import { CombatResult, doCombat } from '../../combat';
-import GameEvent from '../../events/GameEvent';
-import {
-  getAgentsInZone,
-  getEvilEmpire,
-  takeCaptive,
-} from '../../organization';
+import { getEvilEmpire, takeCaptive } from '../../organization';
 import {
   GoverningOrganization,
   Person,
@@ -22,6 +18,7 @@ export interface PlotReconParams {
 export interface ReconPlotData {
   intelligenceModifier: number;
   capturedAgentIds: string[];
+  combatResult: CombatResult | null;
 }
 
 export const executeReconPlot = (
@@ -35,11 +32,12 @@ export const executeReconPlot = (
    * if the plot is failed
    */
   let intelMod = 0;
-  const enemyZoneAgents = getAgentsInZone(
-    gameManager,
-    zone.organizationId,
-    zone.id,
-  );
+
+  const enemyZoneAgents = getPeople(gameManager, {
+    organizationId: zone.organizationId,
+    zoneId: zone.id,
+    agentFilter: { agentsOnly: true },
+  });
   const empireAgents = participants.map((agent) => gameData.people[agent]);
   // Detection Phase
   // Zone agents may detect the player agents
@@ -128,6 +126,7 @@ export const executeReconPlot = (
     resolutionData: {
       intelligenceModifier: intelMod,
       capturedAgentIds,
+      combatResult,
     },
   };
 };

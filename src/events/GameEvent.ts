@@ -1,13 +1,12 @@
 import { GameData } from '../GameManager';
-import {
-  CombatEventParams,
-  MonthlyReportEventParams,
-  ReconZoneEventParams,
-  AttackZoneParams,
-  IntruderAlertEventParams,
-  ProjectCompleteParams,
-} from '../gameEvents';
+import { EventRequirements } from '../gameEvents';
 import { EvilApplicantParams } from './eventFunctions/applicant';
+import { AttackZoneParams } from './eventFunctions/attackZone';
+import { IntruderAlertEventParams } from './eventFunctions/intruderAlert';
+import { MonthlyReportEventParams } from './eventFunctions/monthlyReport';
+import { OccupationalHazardParams } from './eventFunctions/occupationalHazard';
+import { ProjectCompleteParams } from './eventFunctions/projectComplete';
+import { ReconZoneEventParams } from './eventFunctions/recon';
 export interface EventData {
   type: string;
   resolution: {
@@ -23,6 +22,10 @@ export interface EventConfig {
   setParams: Function;
   resolve: Function;
   getEventText: Function;
+  icon: string;
+  type: string;
+  forceStop: boolean;
+  requirements?: EventRequirements;
 }
 
 /**
@@ -35,18 +38,6 @@ class GameEvent {
   resolveEvent: Function;
   eventData: EventData;
   eventName: string;
-  // params: {
-  //   evilApplicant?: EvilApplicantParams;
-  //   wealthMod?: {
-  //     modAmount: number;
-  //   };
-  //   combat?: CombatEventParams;
-  //   monthlyReport?: MonthlyReportEventParams;
-  //   reconZone?: ReconZoneEventParams;
-  //   attackZone?: AttackZoneParams;
-  //   intruderAlert?: IntruderAlertEventParams;
-  //   projectComplete?: ProjectCompleteParams;
-  // };
   params:
     | {}
     | ReconZoneEventParams
@@ -54,7 +45,9 @@ class GameEvent {
     | MonthlyReportEventParams
     | AttackZoneParams
     | IntruderAlertEventParams
+    | OccupationalHazardParams
     | ProjectCompleteParams;
+  type: string;
   /**
    * Create a game event using configuration.
    */
@@ -79,6 +72,7 @@ class GameEvent {
     this.eventName = config.name;
     this.setParams(eventSetupData);
     this.getEventText();
+    this.type = config.type;
   }
 }
 

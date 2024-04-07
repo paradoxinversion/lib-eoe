@@ -1,5 +1,7 @@
 import { GameManager } from '../GameManager';
+import { updateEvil, updateOrgWealth } from '../organization';
 import { Person } from '../types/interfaces/entities';
+import activityConfig from './activityConfig';
 
 export interface ActivityParticipants {
   name: string;
@@ -15,11 +17,23 @@ export default class Activity {
   agents: string[];
   /** Execution function for this activity */
   fn: Function;
+  type: string;
+  costPerParticipant: number;
+  description?: string;
 
-  constructor(name: string, executionFn: Function) {
+  constructor(
+    name: string,
+    type: string,
+    costPerParticipant: number,
+    executionFn: Function,
+    description?: string,
+  ) {
     this.name = name;
     this.agents = [];
     this.fn = executionFn;
+    this.type = type;
+    this.costPerParticipant = costPerParticipant;
+    this.description = description;
   }
 
   /**
@@ -56,7 +70,9 @@ export default class Activity {
     };
     const agentIndex = this.agents.findIndex((agent) => agent === agentId);
     if (agentIndex != -1) {
-      this.agents.splice(agentIndex, 1);
+      const agents = [...this.agents];
+      agents.splice(agentIndex, 1);
+      this.agents = agents;
       const updatedAgent: Person = JSON.parse(
         JSON.stringify(gameData.people[agentId]),
       );
@@ -70,10 +86,18 @@ export default class Activity {
    */
   executeActivity(gameManager: GameManager) {
     const result = this.fn(gameManager, this.agents);
+
     const updatedGameData: { people: { [x: string]: Person } } = {
       people: {},
     };
+
     if (result) {
+      // Update empire wealth
+      updateOrgWealth(
+        gameManager,
+        gameManager.gameData.player.organizationId,
+        -this.costPerParticipant * this.agents.length,
+      );
       Object.values<Person>(result.people).forEach((person: Person) => {
         updatedGameData.people[person.id] = person;
       });

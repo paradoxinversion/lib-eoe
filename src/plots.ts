@@ -28,7 +28,13 @@ const populateActivities = (gameManager: GameManager) => {
   ) {
     const activityParameters = activityConfig[activityParamIndex];
     activities.push(
-      new Activity(activityParameters.name, activityParameters.fn),
+      new Activity(
+        activityParameters.name,
+        activityParameters.type,
+        activityParameters.costPerParticipant,
+        activityParameters.fn,
+        activityParameters.description,
+      ),
     );
   }
   activityManager.setActivities(activities);

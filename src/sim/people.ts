@@ -179,7 +179,7 @@ const chooseActivity = (
 
     if (
       requirements.hasStatusEffect &&
-      !person.statusEffects.includes(requirements.hasStatusEffect)
+      !person.statusEffects[requirements.hasStatusEffect]
     ) {
       return false;
     }

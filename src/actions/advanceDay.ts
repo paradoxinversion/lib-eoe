@@ -2,9 +2,10 @@
  * advanceDay.ts
  *
  */
+import { generateProjectCompleteEvent } from '../events/eventFunctions/projectComplete';
 import {
   addPlotResolutions,
-  generateProjectCompleteEvent,
+  eventConfig,
   prepareRandomEvents,
 } from '../gameEvents';
 import { GameManager } from '../GameManager';
@@ -21,15 +22,16 @@ export const advanceDay = (gameManager: GameManager) => {
     activityManager,
     plotManager,
   } = gameManager;
-
+  const updatedGameData = { ...gameData };
   // Run actions for people
   getPeople(gameManager, {
     excludeDeceased: true,
-    agentFilter: { excludeAgents: true },
+    agentFilter: { excludeDepartments: [3] },
   }).forEach((person) => {
     const simResults = simulateDay(gameManager, person);
     gameManager.updateGameData(simResults.updatedGameData);
     gameManager.updateSimActionLog(person.id, simResults.updatedLog);
+    console.log(simResults.updatedLog);
   });
   // Response with events
   const events = prepareRandomEvents(gameManager);
@@ -42,7 +44,6 @@ export const advanceDay = (gameManager: GameManager) => {
 
   gameEventQueue.addEvents(plotEvents);
 
-  const updatedGameData = { ...gameData };
   activities.forEach((activity) => {
     if (activity.result.updatedGameData) {
       updatedGameData.people = {
@@ -89,5 +90,20 @@ export const advanceDay = (gameManager: GameManager) => {
 
   // Finalize the updates
   gameManager.updateGameData(updatedGameData);
-  return { updatedGameData, gameEventQueue };
+  return {
+    updatedGameData,
+    gameEventQueue,
+    stop: gameEventQueue.events.some(
+      (event) => eventConfig[event.type].forceStop,
+    ),
+  };
+};
+
+export const advanceDays = (gameManager: GameManager, days: number) => {
+  for (let i = 0; i < days; i++) {
+    const { updatedGameData, gameEventQueue, stop } = advanceDay(gameManager);
+    if (stop) {
+      return updatedGameData;
+    }
+  }
 };
