@@ -17,6 +17,7 @@ import { nationNames, generateZoneName } from './generators/names';
 import { Shufflebag, randomInt } from './utilities';
 import settings from './config';
 import {
+  BuildingType,
   addMultiplePersonnel,
   addPersonnel,
   buildingsSchematics,
@@ -43,6 +44,7 @@ const buildingShufflebag = Shufflebag({
   apartment: 1,
   laboratory: 1,
   office: 1,
+  hospital: 1,
 });
 
 /**
@@ -71,6 +73,7 @@ const nationNameShuffleBag = Shufflebag(
 export type NewGameOptions = {
   pet?: boolean;
   overlordName?: string;
+  takePrisoners: boolean;
 };
 
 /**
@@ -109,8 +112,14 @@ const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
     evil: true,
     name: 'EVIL Empire',
   });
+
   if (options.pet) {
     evilEmpireOrg.statusEffects.push('pet');
+  }
+  console.log(options);
+  if (options.takePrisoners === false) {
+    evilEmpireOrg.statusEffects.push('no-prisoners');
+    evilEmpireOrg.totalEvil += 25;
   }
 
   newGameData.governingOrganizations[evilEmpireOrg.id] = evilEmpireOrg;
@@ -213,11 +222,10 @@ const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
       buildingIndex++
     ) {
       const buildingType = buildingShufflebag.next();
-      const schematic =
-        buildingsSchematics[buildingType as keyof typeof buildingsSchematics];
+      const schematic = buildingsSchematics[buildingType as BuildingType];
       const b = generateBuilding({
         zoneId: zone.id,
-        buildingType: schematic.buildingType,
+        buildingType: schematic.buildingType as BuildingType,
         infrastructureCost: schematic.infrastructureCost,
         organizationId: newGameData.nations[zone.nationId].organizationId,
         upkeepCost: schematic.upkeepCost,

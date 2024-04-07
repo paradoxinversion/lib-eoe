@@ -11,6 +11,7 @@ import { throwErrorFromArray, randomInt } from '../utilities';
 import { generateCompanyName, generateName } from '../generators/names';
 import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
 import { PersonStatusEffect } from '../statusEffects/person';
+import { BuildingType, buildingsSchematics } from '../buildings';
 const { v4: uuidv4 } = require('uuid');
 
 interface GenerateNationOpts {
@@ -302,7 +303,7 @@ const generateGoverningOrg = ({
 };
 interface GenerateBuildingOpts {
   zoneId: string;
-  buildingType: string;
+  buildingType: BuildingType;
   organizationId: string;
   infrastructureCost: number;
   upkeepCost: number;
@@ -339,6 +340,8 @@ const generateBuilding = ({
   let housingCapacity = 0;
   let maxPersonnel = 4;
   let infrastructureBonus = 0;
+  let beds = 0;
+  const schematic = buildingsSchematics[buildingType];
   switch (buildingType) {
     case 'bank':
       wealthBonus = randomInt(50, 200);
@@ -353,6 +356,9 @@ const generateBuilding = ({
       break;
     case 'office':
       infrastructureBonus = randomInt(15, 30);
+      break;
+    case 'hospital':
+      beds = randomInt(schematic.maxBeds / 2, schematic.maxBeds);
       break;
     default:
       break;
@@ -374,6 +380,7 @@ const generateBuilding = ({
       housingCapacity,
       scienceBonus: 1,
       infrastructure: infrastructureBonus,
+      hospitalBeds: beds,
     },
     intelAttributes: {
       intelligenceLevel: 25,

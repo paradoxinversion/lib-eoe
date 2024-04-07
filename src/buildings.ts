@@ -3,39 +3,49 @@ import { Building, Person } from './types/interfaces/entities';
 import { getInfrastructure } from './organization';
 import { BuildingStatusEffects } from './statusEffects/building';
 
-// interface BuildingSchematic {
-//   buildingType: string;
-//   infrastructureCost: number;
-//   upkeepCost: number;
-//   housingCapacity?: number;
-// }
+interface BuildingSchematic {
+  buildingType: string;
+  infrastructureCost: number;
+  upkeepCost: number;
+  housingCapacity: number;
+  maxBeds: number;
+}
 
-// const buildingsSchematics: { [x: string]: BuildingSchematic } = {
 const buildingsSchematics = {
   bank: {
     buildingType: 'bank',
     infrastructureCost: 2,
     upkeepCost: 2,
+    maxBeds: 0,
   },
   apartment: {
     buildingType: 'apartment',
     infrastructureCost: 1,
     upkeepCost: 1,
     housingCapacity: 10,
+    maxBeds: 0,
   },
   laboratory: {
     buildingType: 'laboratory',
     infrastructureCost: 3,
     upkeepCost: 3,
+    maxBeds: 0,
   },
   office: {
     buildingType: 'office',
     infrastructureCost: 4,
     upkeepCost: 4,
+    maxBeds: 0,
+  },
+  hospital: {
+    buildingType: 'hospital',
+    infrastructureCost: 5,
+    upkeepCost: 5,
+    maxBeds: 10,
   },
 };
-type BuildingTypes = keyof typeof buildingsSchematics;
-
+export type BuildingType = keyof typeof buildingsSchematics;
+type BuildingSchematics = { [key in BuildingType]: BuildingSchematic };
 /**
  * Get the infrastructure load of all buildings
  * controlled by the org.
@@ -311,7 +321,7 @@ const removePersonnel = (person: Person, building: Building) => {
 interface GetBuildingsParams {
   zoneId?: string | null;
   organizationId?: string | null;
-  type?: string | null;
+  type?: BuildingType | null;
 }
 /**
  *

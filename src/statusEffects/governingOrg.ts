@@ -51,6 +51,13 @@ const statusEffects = {
     requires: [],
     prohibits: [],
   },
+  'no-prisoners': {
+    name: 'no-prisoners',
+    description:
+      'The nation takes no prisoners. People that would be taken captive are instead killed.',
+    requires: [],
+    prohibits: [],
+  },
 };
 
 export type GoverningOrgStatusEffects = keyof typeof statusEffects;

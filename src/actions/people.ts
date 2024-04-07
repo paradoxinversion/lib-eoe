@@ -30,6 +30,7 @@ interface GetPeopleParams {
   deceasedOnly?: boolean;
   excludeCaptured?: boolean;
   capturedOnly?: boolean;
+  injuredOnly?: boolean;
   captive?: {
     captiveOnly?: boolean;
     capturedBy?: string;
@@ -53,6 +54,7 @@ const GetPeopleDefaultParams: GetPeopleParams = {
   deceasedOnly: false,
   excludeCaptured: false,
   capturedOnly: false,
+  injuredOnly: false,
   captive: {
     captiveOnly: false,
     capturedBy: '',
@@ -104,9 +106,12 @@ export const getPeople = (
     }
 
     if (
-      options.agentFilter?.excludeParticipants &&
-      getActivityParticipants(gameManager).some(
-        (p) => p.participant.id === person.id,
+      (options.agentFilter?.excludeParticipants &&
+        getActivityParticipants(gameManager).some(
+          (p) => p.participant.id === person.id,
+        )) ||
+      gameManager.plotManager.plotQueue.some((p) =>
+        p.standardParams.participants.some((p) => p === person.id),
       )
     ) {
       return false;
@@ -164,6 +169,14 @@ export const getPeople = (
     }
 
     if (options.excludeDeceased && person.dead) {
+      return false;
+    }
+
+    if (
+      options.injuredOnly &&
+      person.derivedAttributes.health.currentHealth ===
+        person.derivedAttributes.health.totalHealth
+    ) {
       return false;
     }
 

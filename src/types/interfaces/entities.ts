@@ -144,6 +144,7 @@ export interface Building {
     housingCapacity: number;
     scienceBonus: number;
     infrastructure: number;
+    hospitalBeds: number;
   };
   intelAttributes: IntelligenceSubject;
   statusEffects: BuildingStatusEffects[];
