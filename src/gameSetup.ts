@@ -16,7 +16,12 @@ import {
 import { nationNames, generateZoneName } from './generators/names';
 import { Shufflebag, randomInt } from './utilities';
 import settings from './config';
-import { addPersonnel, buildingsSchematics, getBuildings } from './buildings';
+import {
+  addMultiplePersonnel,
+  addPersonnel,
+  buildingsSchematics,
+  getBuildings,
+} from './buildings';
 import GameEventQueue from './events/GameEventQueue';
 import ActivityManager from './activities/ActivityManager';
 import { PlotManager } from './plots/PlotManager';
@@ -208,7 +213,8 @@ const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
       buildingIndex++
     ) {
       const buildingType = buildingShufflebag.next();
-      const schematic = buildingsSchematics[buildingType];
+      const schematic =
+        buildingsSchematics[buildingType as keyof typeof buildingsSchematics];
       const b = generateBuilding({
         zoneId: zone.id,
         buildingType: schematic.buildingType,
@@ -317,12 +323,14 @@ const initializePersonnel = (gameManager: GameManager) => {
     ) {
       return;
     }
+    const employees = [];
 
     // Filter out apartments, they have no workers
     if (building.type === 'apartment') {
       return;
     }
 
+    let updatedBuilding = { ...building };
     for (
       let index = 0;
       index < building.basicAttributes.maxPersonnel;
@@ -334,7 +342,21 @@ const initializePersonnel = (gameManager: GameManager) => {
         agentFilter: { excludeAgents: true },
       });
       const p = people[randomInt(0, people.length - 1)];
-      gameManager.updateGameData(addPersonnel(p, building) || {});
+      employees.push(p);
+      const addPersonnelResult = addPersonnel(p, updatedBuilding);
+      const update = gameManager.updateGameData({
+        people: { ...updatedGamedata.people, ...addPersonnelResult!.people },
+        buildings: {
+          ...updatedGamedata.buildings,
+          ...addPersonnelResult!.buildings,
+        },
+      });
+      updatedBuilding = update.buildings[building.id];
+      console.log(updatedBuilding);
+      updatedGamedata = {
+        people: { ...updatedGamedata.people, ...update.people },
+        buildings: { ...updatedGamedata.buildings, ...update.buildings },
+      };
     }
   });
 };

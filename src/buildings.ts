@@ -245,6 +245,36 @@ const addPersonnel = (person: Person, building: Building) => {
   return updatedGameData;
 };
 
+export const addMultiplePersonnel = (people: Person[], building: Building) => {
+  const updatedGameData: Partial<GameData> = {
+    people: {},
+    buildings: {},
+  };
+
+  people.forEach((person) => {
+    if (building.personnel.includes(person.id)) {
+      return;
+    }
+
+    if (building.personnel.length === building.basicAttributes.maxPersonnel) {
+      return;
+    }
+    const updatedBuilding: Building = {
+      ...building,
+      personnel: [...building.personnel, person.id],
+    };
+
+    const updatedPerson: Person = {
+      ...person,
+      personnelAt: building.id,
+      isPersonnel: true,
+    };
+    updatedGameData.buildings![building.id] = updatedBuilding;
+    updatedGameData.people![person.id] = updatedPerson;
+  });
+  return updatedGameData;
+};
+
 /**
  *
  */
