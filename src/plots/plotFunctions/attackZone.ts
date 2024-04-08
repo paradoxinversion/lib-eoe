@@ -11,6 +11,8 @@ import {
 import { transferZoneControl } from '../../zones';
 import { PlotResult } from '../Plot';
 
+export interface PlotAttackZoneParams {}
+
 interface PlotAttackZoneOpts {
   zone: {
     id: string;

@@ -58,6 +58,18 @@ const statusEffects = {
     requires: [],
     prohibits: [],
   },
+  'miniaturized-locomotion': {
+    name: 'miniaturized-locomotion',
+    description: 'The nation has miniaturized locomotion.',
+    requires: [],
+    prohibits: [],
+  },
+  'micro-flight-control': {
+    name: 'micro-flight-control',
+    description: 'The nation has drone technology.',
+    requires: ['miniaturized-locomotion'],
+    prohibits: [],
+  },
 };
 
 export type GoverningOrgStatusEffects = keyof typeof statusEffects;

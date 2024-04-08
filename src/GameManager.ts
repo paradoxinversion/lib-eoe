@@ -6,7 +6,7 @@ import {
   Zone,
 } from './types/interfaces/entities';
 import GameEventQueue from './events/GameEventQueue';
-import { ScienceManager } from './managers/science';
+import { ScienceManager } from './managers/science/science';
 import { PlotManager } from './plots/PlotManager';
 import ActivityManager from './activities/ActivityManager';
 

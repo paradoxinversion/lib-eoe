@@ -9,6 +9,7 @@ import {
   prepareRandomEvents,
 } from '../gameEvents';
 import { GameManager } from '../GameManager';
+import { ScienceProject } from '../managers/science/types';
 import { getOrgResources, modifyOrgScience } from '../organization';
 import { getPeople, simulateDay } from './people';
 /**
@@ -58,12 +59,22 @@ export const advanceDay = (gameManager: GameManager) => {
 
   scienceProjectStatuses.forEach((projectStatus) => {
     const project =
-      gameManager.scienceManager.PROJECTS[projectStatus.indexName];
-    const result = project.progressHandler(gameManager, projectStatus);
-    if (result.complete) {
+      gameManager.scienceManager.PROJECT_DEFINITIONS[
+        projectStatus.indexName as ScienceProject
+      ];
+    const result = gameManager.scienceManager.handleProjectProgress(
+      gameManager,
+      projectStatus,
+    );
+    gameManager.scienceManager.updateActiveProject(
+      result,
+      projectStatus.indexName as ScienceProject,
+    );
+    console.log(result);
+    if (result.complete && result.daysRemaining === 0) {
       const completeResult = gameManager.scienceManager.completeProject(
         gameManager,
-        projectStatus.indexName,
+        projectStatus.indexName as ScienceProject,
       );
 
       gameEventQueue.addEvent(generateProjectCompleteEvent(completeResult));

@@ -31,6 +31,8 @@ interface GetPeopleParams {
   excludeCaptured?: boolean;
   capturedOnly?: boolean;
   injuredOnly?: boolean;
+  hospitalizedOnly?: boolean;
+  noHospitalized?: boolean;
   captive?: {
     captiveOnly?: boolean;
     capturedBy?: string;
@@ -55,6 +57,8 @@ const GetPeopleDefaultParams: GetPeopleParams = {
   excludeCaptured: false,
   capturedOnly: false,
   injuredOnly: false,
+  hospitalizedOnly: false,
+  noHospitalized: false,
   captive: {
     captiveOnly: false,
     capturedBy: '',
@@ -177,6 +181,14 @@ export const getPeople = (
       person.derivedAttributes.health.currentHealth ===
         person.derivedAttributes.health.totalHealth
     ) {
+      return false;
+    }
+
+    if (options.hospitalizedOnly && !person.hospitalizedAt) {
+      return false;
+    }
+
+    if (options.noHospitalized && person.hospitalizedAt) {
       return false;
     }
 

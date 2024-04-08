@@ -381,6 +381,108 @@ export const removeBuildingStatusEffect = (
   return building;
 };
 
+export const admitHospitalPatient = (
+  gameManager: GameManager,
+  hospital: string,
+  person: string,
+) => {
+  const hospitalBuilding = gameManager.gameData.buildings[hospital];
+  const personData = gameManager.gameData.people[person];
+  if (hospitalBuilding.type !== 'hospital') {
+    return;
+  }
+
+  if (
+    hospitalBuilding.inhabitants.length >=
+    hospitalBuilding.resourceAttributes.hospitalBeds
+  ) {
+    return;
+  }
+
+  const updatedHospital = {
+    ...hospitalBuilding,
+    inhabitants: [...hospitalBuilding.inhabitants, person],
+  };
+  gameManager.updateGameData({
+    buildings: { [hospital]: updatedHospital },
+    people: { [person]: { ...personData, hospitalizedAt: hospital } },
+  });
+};
+
+export const handleHospitalOperations = (gameManager: GameManager) => {
+  // All hospitals handle their operations at once
+  const hospitals = getBuildings(gameManager, { type: 'hospital' });
+  hospitals.forEach((hospital) => {
+    if (hospital.personnel.length === 0) {
+      return;
+    }
+
+    if (hospital.inhabitants.length === 0) {
+      return;
+    }
+
+    hospital.inhabitants.forEach((inhabitantId) => {
+      const inhabitant = gameManager.gameData.people[inhabitantId];
+      const {
+        derivedAttributes: {
+          health: { currentHealth, totalHealth },
+        },
+      } = inhabitant;
+
+      if (currentHealth === totalHealth) {
+        // direct discharge
+        dischargeHospitalPatient(gameManager, hospital.id, inhabitantId);
+      }
+
+      if (inhabitant.derivedAttributes.health.currentHealth < currentHealth) {
+        const updatedInhabitant = {
+          ...inhabitant,
+          health:
+            inhabitant.derivedAttributes.health.currentHealth +
+            1 * hospital.personnel.length,
+        };
+
+        gameManager.updateGameData({
+          people: { [inhabitantId]: updatedInhabitant },
+        });
+        if (
+          updatedInhabitant.derivedAttributes.health.currentHealth ===
+          totalHealth
+        ) {
+          // direct discharge
+          dischargeHospitalPatient(gameManager, hospital.id, inhabitantId);
+        }
+      }
+    });
+  });
+};
+
+export const dischargeHospitalPatient = (
+  gameManager: GameManager,
+  hospital: string,
+  person: string,
+) => {
+  const hospitalBuilding = gameManager.gameData.buildings[hospital];
+  const personData = gameManager.gameData.people[person];
+  const updatedHospital = {
+    ...hospitalBuilding,
+    inhabitants: hospitalBuilding.inhabitants.filter(
+      (inhabitant) => inhabitant !== personData.id,
+    ),
+  };
+
+  const updatedPerson = {
+    ...personData,
+    hospitalizedAt: null,
+  };
+
+  gameManager.updateGameData({
+    buildings: { [hospitalBuilding.id]: updatedHospital },
+    people: { [personData.id]: updatedPerson },
+  });
+
+  return updatedHospital;
+};
 export {
   buildingsSchematics,
   getInfrastructureLoad,

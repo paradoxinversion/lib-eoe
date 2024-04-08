@@ -1,6 +1,7 @@
 import { GameData, GameManager } from '../GameManager';
 import { CombatResult } from '../combat';
 import plotConfig from './plotConfig';
+import { PlotAttackZoneParams } from './plotFunctions/attackZone';
 import { PlotReconParams, ReconPlotData } from './plotFunctions/recon';
 /** Basic parameters common to any plot */
 export interface PlotParamsStandard {
@@ -21,7 +22,7 @@ export default class Plot {
   name: string;
   /** Basic parameters common to any plot */
   standardParams: PlotParamsStandard;
-  plotParams: PlotReconParams | {};
+  plotParams: PlotReconParams | PlotAttackZoneParams | {};
   /** The parameters (set by the user) under which to execute the plot */
   plotType: string;
   resolution: PlotResult | {};
@@ -30,7 +31,7 @@ export default class Plot {
     name: string,
     plotType: string,
     standardParams: PlotParamsStandard,
-    plotParams: PlotReconParams,
+    plotParams: PlotReconParams | PlotAttackZoneParams | {},
   ) {
     this.name = name;
     this.standardParams = standardParams;

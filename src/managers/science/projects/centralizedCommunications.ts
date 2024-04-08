@@ -1,0 +1,94 @@
+import { GameManager } from '../../../GameManager';
+import { applyStatusEffect } from '../../../organization';
+import {
+  ScienceProject,
+  ScienceProjectDefinition,
+  ScienceProjectResult,
+  ScienceProjectStatus,
+} from '../types';
+
+const startHandler = function (
+  laboratoryId: string,
+  gameManager?: GameManager,
+): ScienceProjectStatus {
+  const currentScience =
+    gameManager!.gameData.governingOrganizations[
+      gameManager!.gameData.player.organizationId
+    ].science;
+  return {
+    indexName: config.indexName,
+    accumulatedScience: currentScience,
+    laboratory: laboratoryId,
+    complete: false,
+    daysRemaining: config.completionTime,
+  };
+};
+
+const progressHandler = function (
+  gameManager: GameManager,
+  status: ScienceProjectStatus,
+): ScienceProjectStatus {
+  const project =
+    gameManager.scienceManager.PROJECT_DEFINITIONS[
+      status.indexName as ScienceProject
+    ];
+  const empireUpdate =
+    gameManager.gameData.governingOrganizations[
+      gameManager.gameData.player.organizationId
+    ];
+  const contribution = Math.min(
+    empireUpdate.science,
+    project.science - status.accumulatedScience,
+  );
+
+  // This function should be consuming the empire's
+  // science, but the empire's science is not being
+  // reduced, and this event never completes.
+  if (contribution > 0) {
+    gameManager.updateGameData({
+      governingOrganizations: {
+        ...gameManager.gameData.governingOrganizations,
+        [gameManager.gameData.player.organizationId]: {
+          ...empireUpdate,
+          science: empireUpdate.science - contribution,
+        },
+      },
+    });
+  }
+
+  return {
+    ...status,
+    accumulatedScience: status.accumulatedScience + contribution,
+    complete: status.accumulatedScience + contribution >= project.science,
+    daysRemaining: status.daysRemaining - 1,
+  };
+};
+
+const completeHandler = function (
+  gameManager: GameManager,
+  status: ScienceProjectStatus,
+): ScienceProjectResult {
+  return {
+    indexName: status.indexName,
+    updatedGameData: applyStatusEffect(
+      gameManager,
+      'centralized-telecommunications',
+      gameManager.gameData.player.organizationId,
+    ),
+  };
+};
+
+export const config: ScienceProjectDefinition = {
+  name: 'Centralized Communications',
+  description:
+    'Centralizing our communications will allow us to intercept citizens messages and control the narrative.',
+  indexName: 'centralized-communications',
+  startHandler,
+  completeHandler,
+  science: 20,
+  cost: 1,
+  completionTime: 5,
+  requirements: {
+    completedProjects: [],
+  },
+};

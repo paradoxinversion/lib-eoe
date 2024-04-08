@@ -42,6 +42,7 @@ export interface Skills {
   administration: number;
   leadership: number;
   combat: number;
+  medicine: number;
 }
 
 export type SkillTypes = keyof Skills;
@@ -95,10 +96,11 @@ export interface Person {
   };
   intelAttributes: PersonIntelAttributes;
   skills: Skills;
+  hospitalizedAt: string | null;
 }
 
 export interface AgentData {
-  /** 0 (troop), 1 (administrator), or 2 (scientist) */
+  /** 0 (troop), 1 (administrator), 2 (scientist), 3 (overlord), 4 (doctor) */
   department: number;
   /** the id of the org this Agent works for */
   organizationId: string;
@@ -148,4 +150,9 @@ export interface Building {
   };
   intelAttributes: IntelligenceSubject;
   statusEffects: BuildingStatusEffects[];
+  /**
+   * People iving in the building if an apartment complex,
+   * or people admitted for care if a hospital
+   */
+  inhabitants: string[];
 }

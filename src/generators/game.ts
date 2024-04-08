@@ -187,6 +187,7 @@ const generatePerson = ({
   const administration = initAdministration || randomInt(1, 10);
   const leadership = initLeadership || randomInt(1, 10);
   const security = randomInt(1, 10);
+  const medicine = randomInt(1, 10);
   return {
     id: 'p_' + uuidv4(),
     nationId,
@@ -197,6 +198,7 @@ const generatePerson = ({
     isPersonnel: false,
     isCaptive: false,
     personnelAt: '',
+    hospitalizedAt: null,
     standardAttributes: {
       strength,
       intelligence,
@@ -228,6 +230,7 @@ const generatePerson = ({
       leadership,
       combat,
       security,
+      medicine,
     },
   };
 };
@@ -386,6 +389,7 @@ const generateBuilding = ({
       intelligenceLevel: 25,
     },
     statusEffects: [],
+    inhabitants: [],
   };
 };
 

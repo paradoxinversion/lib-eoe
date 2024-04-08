@@ -33,8 +33,8 @@ import {
   setLoyalty,
   updateLoyalty,
 } from './actions/people';
-import { ScienceManager } from './managers/science';
-import { SCIENCE_PROJECTS } from './managers/scienceProjects';
+import { ScienceManager } from './managers/science/science';
+import { SCIENCE_PROJECTS } from './managers/science/scienceProjects';
 import { getZones } from './actions/zones';
 /**
  * The main Shufflebag for building types
