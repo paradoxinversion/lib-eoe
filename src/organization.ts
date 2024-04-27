@@ -291,14 +291,16 @@ export const applyStatusEffect = (
   statusEffect: GoverningOrgStatusEffects,
   orgId: string,
 ) => {
-  const org = getEvilEmpire();
+  const org = GameManager.getInstance().gameData.governingOrganizations[orgId];
   const updatedGo = { ...org };
   updatedGo.statusEffects = [...updatedGo.statusEffects, statusEffect];
-  return {
+  const ugd = {
     governingOrganizations: {
       [org.id]: updatedGo,
     },
   };
+  GameManager.getInstance().updateGameData(ugd);
+  return ugd;
 };
 
 export const getOrgIncome = () => {

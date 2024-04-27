@@ -6,6 +6,7 @@ import { IntruderAlertEventParams } from './eventFunctions/intruderAlert';
 import { MonthlyReportEventParams } from './eventFunctions/monthlyReport';
 import { OccupationalHazardParams } from './eventFunctions/occupationalHazard';
 import { ProjectCompleteParams } from './eventFunctions/projectComplete';
+import { ProtestEventParams } from './eventFunctions/protest';
 import { ReconZoneEventParams } from './eventFunctions/recon';
 export interface EventData {
   type: string;
@@ -46,7 +47,8 @@ class GameEvent {
     | AttackZoneParams
     | IntruderAlertEventParams
     | OccupationalHazardParams
-    | ProjectCompleteParams;
+    | ProjectCompleteParams
+    | ProtestEventParams;
   type: string;
   /**
    * Create a game event using configuration.

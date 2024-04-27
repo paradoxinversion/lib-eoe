@@ -38,6 +38,7 @@ import { SCIENCE_PROJECTS } from './managers/science/scienceProjects';
 import { getZones } from './actions/zones';
 import Player from './managers/cpu/Player';
 import PlayerManager from './managers/cpu/PlayerManager';
+import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
 /**
  * The main Shufflebag for building types
  */
@@ -79,6 +80,8 @@ export type NewGameOptions = {
 };
 type PlayerOptions = {
   isCPU: boolean;
+  leaderName?: string;
+  organizationEffects: GoverningOrgStatusEffects[];
 };
 
 const createPlayer = (options: PlayerOptions) => {
@@ -101,6 +104,11 @@ const createPlayer = (options: PlayerOptions) => {
   if (!isCPU) {
     nation;
   }
+
+  options.organizationEffects.forEach((effect) => {
+    governOrg.statusEffects.push(effect);
+  });
+
   nation.organizationId = governOrg.id;
   const totalZones = 1;
   const zones: { [key: string]: Zone } = {};
@@ -114,7 +122,7 @@ const createPlayer = (options: PlayerOptions) => {
 
   const leader = generatePerson({
     homeZoneId: zones[Object.keys(zones)[0]].id,
-    name: isCPU ? 'CPU Leader' : 'EVIL Overlord',
+    name: options.leaderName || isCPU ? 'CPU Leader' : 'EVIL Overlord',
     nationId: nation.id,
     initIntelligence: 10,
     initCombat: 10,
@@ -190,7 +198,7 @@ const createPlayer = (options: PlayerOptions) => {
   }
 };
 
-const handleNewGameV2 = () => {
+const handleNewGameV2 = (options: NewGameOptions) => {
   GameManager.getInstance().updateGameData({
     nations: {},
     governingOrganizations: {},
@@ -210,8 +218,19 @@ const handleNewGameV2 = () => {
       events: [],
     },
   });
-  createPlayer({ isCPU: false });
-  createPlayer({ isCPU: true });
+  const organizationEffects = [];
+  if (options.pet) {
+    organizationEffects.push('pet');
+  }
+  if (options.takePrisoners === false) {
+    organizationEffects.push('no-prisoners');
+  }
+  createPlayer({
+    isCPU: false,
+    organizationEffects: organizationEffects as GoverningOrgStatusEffects[],
+    leaderName: options.overlordName,
+  });
+  createPlayer({ isCPU: true, organizationEffects: [] });
   console.debug(GameManager.getInstance().gameData);
 };
 

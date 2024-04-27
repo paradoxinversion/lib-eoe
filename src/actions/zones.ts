@@ -1,6 +1,6 @@
 import { GameManager } from '../GameManager';
 
-interface GetZonesProps {
+interface GetZonesOptions {
   nationId?: string | null;
   organizationId?: string | null;
 }
@@ -8,7 +8,7 @@ interface GetZonesProps {
 export const getZones = ({
   nationId = null,
   organizationId = null,
-}: GetZonesProps = {}) => {
+}: GetZonesOptions = {}) => {
   return Object.values(GameManager.getInstance().gameData.zones).filter(
     (zone) => {
       if (nationId && zone.nationId !== nationId) {
@@ -22,4 +22,9 @@ export const getZones = ({
       return true;
     },
   );
+};
+
+export const getRandomZone = (options: GetZonesOptions) => {
+  const zones = getZones(options);
+  return zones[Math.floor(Math.random() * zones.length)];
 };
