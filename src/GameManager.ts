@@ -9,6 +9,8 @@ import GameEventQueue from './events/GameEventQueue';
 import { ScienceManager } from './managers/science/science';
 import { PlotManager } from './plots/PlotManager';
 import ActivityManager from './activities/ActivityManager';
+import PlayerManager from './managers/cpu/PlayerManager';
+import { SCIENCE_PROJECTS } from './managers/science/scienceProjects';
 
 export interface GameLog {
   /** Logs of actions non-agent citizens have taken */
@@ -58,18 +60,17 @@ export interface GameData {
 }
 
 export class GameManager {
+  private static instance: GameManager;
   initialized: boolean;
   plotManager: PlotManager;
   activityManager: ActivityManager;
   scienceManager: ScienceManager;
   gameData: GameData;
   eventManager: GameEventQueue;
-  constructor(
-    eventManager: GameEventQueue,
-    plotManager: PlotManager,
-    activityManager: ActivityManager,
-    scienceManager: ScienceManager,
-  ) {
+  cpuManager: PlayerManager;
+  constructor() {
+    console.log('Game Manager Initialized');
+
     this.gameData = {
       people: {},
       nations: {},
@@ -89,11 +90,20 @@ export class GameManager {
         events: [],
       },
     };
-    this.eventManager = eventManager;
-    this.plotManager = plotManager;
-    this.activityManager = activityManager;
-    this.scienceManager = scienceManager;
+    this.eventManager = GameEventQueue.getInstance();
+    this.plotManager = PlotManager.getInstance();
+    this.activityManager = ActivityManager.getInstance();
+    this.scienceManager = ScienceManager.getInstance();
     this.initialized = false;
+    this.cpuManager = PlayerManager.getInstance();
+  }
+
+  public static getInstance(): GameManager {
+    if (!GameManager.instance) {
+      GameManager.instance = new GameManager();
+    }
+
+    return GameManager.instance;
   }
 
   setInitialized(initialized: boolean) {

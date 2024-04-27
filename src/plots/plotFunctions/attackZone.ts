@@ -23,15 +23,12 @@ interface PlotAttackZoneOpts {
 /**
  * Attack a zone
  */
-export const attackZone = (
-  gameManager: GameManager,
-  {
-    zone: { id: zoneId, organizationId: zoneOrgId },
-    participants,
-  }: PlotAttackZoneOpts,
-): PlotResult => {
-  const { gameData } = gameManager;
-  const defendingAgents = getPeople(gameManager, {
+export const attackZone = ({
+  zone: { id: zoneId, organizationId: zoneOrgId },
+  participants,
+}: PlotAttackZoneOpts): PlotResult => {
+  const { gameData } = GameManager.getInstance();
+  const defendingAgents = getPeople({
     organizationId: zoneOrgId,
     zoneId,
     agentFilter: { agentsOnly: true },
@@ -60,7 +57,7 @@ export const attackZone = (
     updatedGameData.people[agent.id] = agent;
   });
   if (result.victoryResult === 1) {
-    const zoneTransferUpdate = transferZoneControl(gameManager, {
+    const zoneTransferUpdate = transferZoneControl({
       zoneId,
       nationId: gameData.player.empireId,
       organizationId: gameData.player.organizationId,
@@ -70,7 +67,7 @@ export const attackZone = (
     updatedGameData.buildings = zoneTransferUpdate.buildings!;
   }
 
-  const preupdateEmpire = getEvilEmpire(gameManager);
+  const preupdateEmpire = getEvilEmpire();
   const evilEmpire: GoverningOrganization = {
     ...preupdateEmpire,
     totalEvil: preupdateEmpire.totalEvil + 10,

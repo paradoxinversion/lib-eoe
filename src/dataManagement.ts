@@ -1,11 +1,11 @@
-import { GameManager } from "./GameManager";
+import { GameManager } from './GameManager';
 
 /**
  *
  * @returns
  */
-const serializeGameData = (gameManager: GameManager) => {
-  const { activityManager, plotManager, gameData } = gameManager;
+const serializeGameData = () => {
+  const { activityManager, plotManager, gameData } = GameManager.getInstance();
   const activitiesData = activityManager.serializeActivities();
   const plotData = plotManager.serializePlots();
 
@@ -16,14 +16,12 @@ const serializeGameData = (gameManager: GameManager) => {
       plots: plotData,
     },
     scienceData: {
-      activeProjects: gameManager.scienceManager.activeProjects,
-    }
+      activeProjects: GameManager.getInstance().scienceManager.activeProjects,
+    },
   };
 
   const data = JSON.stringify(saveData);
   return data;
 };
 
-export {
-  serializeGameData,
-};
+export { serializeGameData };

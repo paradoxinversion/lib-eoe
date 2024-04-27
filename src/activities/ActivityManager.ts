@@ -3,10 +3,20 @@ import { Person } from '../types/interfaces/entities';
 import Activity, { ActivityParticipants } from './Activity';
 
 export default class ActivityManager {
+  private static instance: ActivityManager;
   activities: Activity[];
   constructor() {
+    console.info('ActivityManager Initialized');
     // TODO: Make this a map?
     this.activities = [];
+  }
+
+  public static getInstance(): ActivityManager {
+    if (!ActivityManager.instance) {
+      ActivityManager.instance = new ActivityManager();
+    }
+
+    return ActivityManager.instance;
   }
 
   /**
@@ -16,7 +26,7 @@ export default class ActivityManager {
     this.activities = activities;
   }
 
-  executeActivities(gameManager: GameManager) {
+  executeActivities() {
     const activitiesResults = this.activities.reduce<
       {
         activity: string;
@@ -26,7 +36,7 @@ export default class ActivityManager {
         };
       }[]
     >((activityResults, activity) => {
-      const result = activity.executeActivity(gameManager);
+      const result = activity.executeActivity();
       const output = {
         activity: activity.name,
         result,

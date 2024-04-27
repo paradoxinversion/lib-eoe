@@ -296,7 +296,7 @@ const generateGoverningOrg = ({
     nationId,
     evil,
     name,
-    wealth: 100,
+    wealth: 50000,
     science: 0,
     infrastructure: 0,
     totalEvil: 0,
@@ -347,7 +347,7 @@ const generateBuilding = ({
   const schematic = buildingsSchematics[buildingType];
   switch (buildingType) {
     case 'bank':
-      wealthBonus = randomInt(50, 200);
+      wealthBonus = randomInt(10, 25);
       break;
 
     case 'apartment':
@@ -390,6 +390,10 @@ const generateBuilding = ({
     },
     statusEffects: [],
     inhabitants: [],
+    structure: {
+      currentHealth: 50,
+      totalHealth: 50,
+    },
   };
 };
 

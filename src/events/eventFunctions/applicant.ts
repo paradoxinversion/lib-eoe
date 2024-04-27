@@ -25,23 +25,23 @@ export interface EvilApplicantResolveArgs {
 /**
  * Create and return a new EVIL Applicant Game Event
  */
-export const generateEvilApplicantEvent = (gameManager: GameManager) => {
-  const { gameData } = gameManager;
-  const playerZonesArray = getZones(gameManager, {
+export const generateEvilApplicantEvent = () => {
+  const { gameData } = GameManager.getInstance();
+  const playerZonesArray = getZones({
     organizationId: gameData.player.organizationId,
   });
   if (
-    getPeople(gameManager, {
+    getPeople({
       organizationId: gameData.player.organizationId,
       agentFilter: { agentsOnly: true },
-    }).length >= getMaxAgents(gameManager, gameData.player.organizationId)
+    }).length >= getMaxAgents(gameData.player.organizationId)
   ) {
     return null;
   }
 
   const potentialRecruits: Person[] = [];
   playerZonesArray.map((zone) => {
-    getZoneCitizens(gameManager, zone.id, true).forEach((person) => {
+    getZoneCitizens(zone.id, true).forEach((person) => {
       potentialRecruits.push(person);
     });
   });
@@ -79,10 +79,9 @@ export function setEvilApplicantParams(
  */
 export function resolveEvilApplicant(
   this: GameEvent,
-  gameManager: GameManager,
   resolveArgs: EvilApplicantResolveArgs,
 ) {
-  const { gameData } = gameManager;
+  const { gameData } = GameManager.getInstance();
   const updatedGameData: { people: { [x: string]: Person } } = {
     people: {},
   };
@@ -108,7 +107,7 @@ export function resolveEvilApplicant(
     default:
       break;
   }
-  gameManager.updateGameData(updatedGameData);
+  GameManager.getInstance().updateGameData(updatedGameData);
   this.eventData = {
     type: 'recruit',
     resolution: {

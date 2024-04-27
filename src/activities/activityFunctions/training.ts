@@ -7,14 +7,11 @@ import {
 } from '../../types/interfaces/entities';
 import { randomInt } from '../../utilities';
 
-export const executeTrainingActivity = (
-  gameManager: GameManager,
-  participantArray: string[],
-) => {
+export const executeTrainingActivity = (participantArray: string[]) => {
   if (participantArray.length === 0) {
     return null;
   }
-  const { gameData } = gameManager;
+  const { gameData } = GameManager.getInstance();
 
   const updatedAgents: { [x: string]: Person } = participantArray.reduce(
     (participants: { [x: string]: Person }, participantId) => {
@@ -35,6 +32,6 @@ export const executeTrainingActivity = (
     },
     {},
   );
-  updateEvil(gameManager, 1);
+  updateEvil(1);
   return { people: updatedAgents };
 };

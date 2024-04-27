@@ -1,9 +1,11 @@
+import { GameManager } from '../GameManager';
 import GameEvent from './GameEvent';
 
 /**
  * Manages game events
  */
 class GameEventQueue {
+  private static instance: GameEventQueue;
   events: GameEvent[];
   eventIndex: number;
   /**
@@ -17,14 +19,20 @@ class GameEventQueue {
     this.events = events || [];
     this.eventIndex = 0;
   }
+  public static getInstance(): GameEventQueue {
+    if (!GameEventQueue.instance) {
+      GameEventQueue.instance = new GameEventQueue();
+    }
+
+    return GameEventQueue.instance;
+  }
 
   /**
    * Resolve the current game event with player input (resolveArgs)
    */
   //@ts-ignore
-  resolveCurrentEvent(gameManager: GameManager, resolveArgs) {
-    const { gameData } = gameManager;
-    return this.events[this.eventIndex].resolveEvent(gameManager, resolveArgs);
+  resolveCurrentEvent(resolveArgs) {
+    return this.events[this.eventIndex].resolveEvent(resolveArgs);
   }
 
   /**

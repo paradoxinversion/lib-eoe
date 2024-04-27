@@ -9,22 +9,21 @@ import { GoverningOrganization, Person } from '../../types/interfaces/entities';
 import GameEvent from '../GameEvent';
 
 export interface MonthlyReportEventParams {
-  income: number;
-  expenses: number;
+  expenses: {
+    payroll: number;
+    upkeep: number;
+  };
 }
 
-export const generateMonthlyReportEvent = (gameManager: GameManager) => {
-  const { gameData } = gameManager;
+export const generateMonthlyReportEvent = () => {
+  const { gameData } = GameManager.getInstance();
   const { organizationId } = gameData.player;
-  const upkeep = getUpkeep(gameManager, organizationId);
-  const payroll = getPayroll(gameManager, organizationId);
+  const upkeep = getUpkeep(organizationId);
+  const payroll = getPayroll(organizationId);
   return new GameEvent(monthlyReportEventConfig, {
     expenses: {
       payroll,
       upkeep,
-    },
-    income: {
-      buildingWealth: getOrgResources(gameManager, organizationId).wealth,
     },
   });
 };
@@ -33,10 +32,9 @@ export const generateMonthlyReportEvent = (gameManager: GameManager) => {
  */
 function setMonthlyReportParams(
   this: GameEvent,
-  { income, expenses }: MonthlyReportEventParams,
+  { expenses }: MonthlyReportEventParams,
 ) {
   this.params = {
-    income,
     expenses,
   };
 }
@@ -54,18 +52,17 @@ export interface MonthlyReportEventResolveArgs {
 
 function resolveMonthlyReport(
   this: GameEvent,
-  gameManager: GameManager,
   resolveArgs: {
     buildingUpkeep: { [x: string]: number };
     agentPayroll: { [x: string]: number };
   },
 ) {
-  const { gameData } = gameManager;
+  const { gameData } = GameManager.getInstance();
   const {
     gameData: {
       player: { organizationId },
     },
-  } = gameManager;
+  } = GameManager.getInstance();
 
   let updatedGameData: {
     governingOrganizations: { [x: string]: GoverningOrganization };
@@ -92,12 +89,11 @@ function resolveMonthlyReport(
   );
 
   const expensesTotal = upkeepTotal + payrollTotal;
-  const { wealth } = getOrgResources(gameManager, organizationId);
 
-  const netTotal = wealth - expensesTotal;
-  org.wealth += netTotal;
+  // Take the expenses from the organization's wealth
+  org.wealth = org.wealth - expensesTotal;
   updatedGameData.governingOrganizations[org.id] = org;
-  gameManager.updateGameData(updatedGameData);
+  GameManager.getInstance().updateGameData(updatedGameData);
 
   // handle unpaid people and upkeep
   Object.entries(resolveArgs.buildingUpkeep).forEach(
@@ -114,11 +110,8 @@ function resolveMonthlyReport(
         ...updatedGameData,
         people: {
           ...updatedGameData.people,
-          [agentId]: addPersonStatusEffect(
-            gameManager,
-            gameData.people[agentId],
-            'stiffed',
-          ).people![agentId],
+          [agentId]: addPersonStatusEffect(gameData.people[agentId], 'stiffed')
+            .people![agentId],
         },
       };
     } else {
@@ -128,7 +121,6 @@ function resolveMonthlyReport(
           people: {
             ...updatedGameData.people,
             [agentId]: removePersonStatusEffect(
-              gameManager,
               gameData.people[agentId],
               'stiffed',
             ).people![agentId],

@@ -17,15 +17,13 @@ const startHandler = function (laboratoryId: string): ScienceProjectStatus {
 };
 
 const completeHandler = function (
-  gameManager: GameManager,
   status: ScienceProjectStatus,
 ): ScienceProjectResult {
   return {
     indexName: status.indexName,
     updatedGameData: applyStatusEffect(
-      gameManager,
       'miniaturized-locomotion',
-      gameManager.gameData.player.organizationId,
+      GameManager.getInstance().gameData.player.organizationId,
     ),
   };
 };

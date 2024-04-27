@@ -155,4 +155,8 @@ export interface Building {
    * or people admitted for care if a hospital
    */
   inhabitants: string[];
+  structure: {
+    currentHealth: number;
+    totalHealth: number;
+  };
 }

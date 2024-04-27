@@ -22,9 +22,9 @@ export const generateWealthMod = () => {
 /**
  * Resolve a Wealth Modification event
  */
-export function resolveWealthMod(this: GameEvent, gameManager: GameManager) {
+export function resolveWealthMod(this: GameEvent) {
   const params = this.params as WealthModEventParams;
-  const { gameData } = gameManager;
+  const { gameData } = GameManager.getInstance();
   const updatedGameData: {
     governingOrganizations: { [x: string]: GoverningOrganization };
   } = { governingOrganizations: {} };
@@ -36,7 +36,7 @@ export function resolveWealthMod(this: GameEvent, gameManager: GameManager) {
   updatedGameData.governingOrganizations[gameData.player.organizationId] =
     updatedOrg;
   updatedOrg.wealth += params.modAmount;
-  gameManager.updateGameData(updatedGameData);
+  GameManager.getInstance().updateGameData(updatedGameData);
   this.eventData = {
     type: 'cashmod',
     resolution: {

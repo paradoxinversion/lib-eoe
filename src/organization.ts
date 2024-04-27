@@ -1,4 +1,5 @@
 import { GameData, GameManager } from './GameManager';
+import { getInfrastructurePercentage } from './actions/infrastructure';
 import { getPeople, killPerson } from './actions/people';
 import {
   ResourceOutput,
@@ -48,8 +49,8 @@ interface GetAgentsPrams {
 /**
  * Return the max number of agents an organization can support.
  */
-const getMaxAgents = (gameManager: GameManager, organizationId: string) => {
-  const { gameData } = gameManager;
+const getMaxAgents = (organizationId: string) => {
+  const { gameData } = GameManager.getInstance();
   const peopleArray = Object.values(gameData.people);
   return peopleArray.reduce((maxAgentValue, currentAgent) => {
     if (
@@ -63,16 +64,16 @@ const getMaxAgents = (gameManager: GameManager, organizationId: string) => {
   }, 0);
 };
 
-const getAgentSubordinates = (gameManager: GameManager, agent: Person) => {
-  const { gameData } = gameManager;
+const getAgentSubordinates = (agent: Person) => {
+  const { gameData } = GameManager.getInstance();
   const peopleArray = Object.values(gameData.people);
   return peopleArray.filter(
     (person) => person.agent && person.agent.commanderId === agent.id,
   );
 };
 
-const getScience = (gameManager: GameManager, organizationId: string) => {
-  const { gameData } = gameManager;
+const getScience = (organizationId: string) => {
+  const { gameData } = GameManager.getInstance();
   const orgLabs = Object.values(gameData.buildings).filter(
     (building) =>
       building.type === 'laboratory' &&
@@ -89,11 +90,11 @@ const getScience = (gameManager: GameManager, organizationId: string) => {
   }, 0);
 };
 
-const getInfrastructure = (
-  gameManager: GameManager,
-  organizationId: string,
-) => {
-  return getPeople(gameManager, {
+/**
+ *
+ */
+const getInfrastructure = (organizationId: string) => {
+  return getPeople({
     organizationId,
     agentFilter: { agentsOnly: true },
   }).reduce((infrastructure, currentAgent) => {
@@ -108,8 +109,8 @@ const getInfrastructure = (
   }, 0);
 };
 
-const getPayroll = (gameManager: GameManager, organizationId: string) => {
-  return getPeople(gameManager, {
+const getPayroll = (organizationId: string) => {
+  return getPeople({
     organizationId,
     agentFilter: { department: -1, agentsOnly: true },
   }).reduce((payroll, currentAgent) => {
@@ -160,26 +161,24 @@ const terminateAgent = (agent: Person): Partial<GameData> => {
 
 const calculateAgentSalary = (agent: Person) => {
   return (
+    1000 +
     agent.skills.administration +
     agent.standardAttributes.intelligence +
     agent.skills.leadership
   );
 };
 
-const getEvilEmpire = (gameManager: GameManager) => {
-  return gameManager.gameData.governingOrganizations[
-    gameManager.gameData.player.organizationId
+const getEvilEmpire = () => {
+  return GameManager.getInstance().gameData.governingOrganizations[
+    GameManager.getInstance().gameData.player.organizationId
   ];
 };
 
-const getOrgResources = (
-  gameManager: GameManager,
-  orgId: string,
-): ResourceOutput => {
-  const orgBuildings = getBuildings(gameManager, { organizationId: orgId });
+const getOrgResources = (orgId: string): ResourceOutput => {
+  const orgBuildings = getBuildings({ organizationId: orgId });
   const resources = orgBuildings.reduce(
     (prev, curr): ResourceOutput => {
-      const output = getResourceOutput(gameManager, curr);
+      const output = getResourceOutput(curr);
       return {
         housing: prev.housing + output.housing,
         wealth: prev.wealth + output.wealth,
@@ -198,19 +197,15 @@ const getOrgResources = (
   return resources;
 };
 
-const getExpenses = (gameManager: GameManager, orgId: string) => {
+const getExpenses = (orgId: string) => {
   return {
-    payroll: getPayroll(gameManager, orgId),
-    upkeep: getUpkeep(gameManager, orgId),
+    payroll: getPayroll(orgId),
+    upkeep: getUpkeep(orgId),
   };
 };
 
-const takeCaptive = (
-  gameManager: GameManager,
-  orgId: string,
-  captive: Person,
-) => {
-  const org = gameManager.gameData.governingOrganizations[orgId];
+const takeCaptive = (orgId: string, captive: Person) => {
+  const org = GameManager.getInstance().gameData.governingOrganizations[orgId];
   if (org.captives.includes(captive.id)) {
     return {};
   }
@@ -237,12 +232,8 @@ const takeCaptive = (
   return update;
 };
 
-const releaseCaptive = (
-  gameManager: GameManager,
-  orgId: string,
-  captive: Person,
-) => {
-  const org = gameManager.gameData.governingOrganizations[orgId];
+const releaseCaptive = (orgId: string, captive: Person) => {
+  const org = GameManager.getInstance().gameData.governingOrganizations[orgId];
   if (!org.captives.includes(captive.id)) {
     return {};
   }
@@ -269,11 +260,10 @@ const releaseCaptive = (
 };
 
 export const modifyOrgWealth = (
-  gameManager: GameManager,
   orgId: string,
   amount: number,
 ): Partial<GameData> => {
-  const org = gameManager.gameData.governingOrganizations[orgId];
+  const org = GameManager.getInstance().gameData.governingOrganizations[orgId];
   const updatedGo = { ...org };
   updatedGo.wealth += amount;
   return {
@@ -284,11 +274,10 @@ export const modifyOrgWealth = (
 };
 
 export const modifyOrgScience = (
-  gameManager: GameManager,
   orgId: string,
   amount: number,
 ): Partial<GameData> => {
-  const org = gameManager.gameData.governingOrganizations[orgId];
+  const org = GameManager.getInstance().gameData.governingOrganizations[orgId];
   const updatedGo = { ...org };
   updatedGo.science += amount;
   return {
@@ -299,11 +288,10 @@ export const modifyOrgScience = (
 };
 
 export const applyStatusEffect = (
-  gameManager: GameManager,
   statusEffect: GoverningOrgStatusEffects,
   orgId: string,
 ) => {
-  const org = getEvilEmpire(gameManager);
+  const org = getEvilEmpire();
   const updatedGo = { ...org };
   updatedGo.statusEffects = [...updatedGo.statusEffects, statusEffect];
   return {
@@ -311,6 +299,26 @@ export const applyStatusEffect = (
       [org.id]: updatedGo,
     },
   };
+};
+
+export const getOrgIncome = () => {
+  const empireResources = getOrgResources(
+    GameManager.getInstance().gameData.player.organizationId,
+  );
+  const infrastructurePercentage = getInfrastructurePercentage(
+    GameManager.getInstance().gameData.player.organizationId,
+  );
+  return (empireResources.wealth * infrastructurePercentage) / 100;
+};
+
+export const getOrgScienceOutput = () => {
+  const empireResources = getOrgResources(
+    GameManager.getInstance().gameData.player.organizationId,
+  );
+  const infrastructurePercentage = getInfrastructurePercentage(
+    GameManager.getInstance().gameData.player.organizationId,
+  );
+  return (empireResources.science * infrastructurePercentage) / 100;
 };
 
 interface GetOrganizationsOptions {
@@ -331,23 +339,20 @@ const defaultGetOrganizationsOptions: GetOrganizationsOptions = {
   },
 };
 
-export const getOrganizations = (
-  gameManager: GameManager,
-  options: GetOrganizationsOptions,
-) => {
+export const getOrganizations = (options: GetOrganizationsOptions) => {
   const opts = { ...defaultGetOrganizationsOptions, ...options };
 
-  return Object.values(gameManager.gameData.governingOrganizations).filter(
-    (org) => {
-      if (
-        opts.exclude?.player === true &&
-        org.id === gameManager.gameData.player.organizationId
-      ) {
-        return false;
-      }
-      return true;
-    },
-  );
+  return Object.values(
+    GameManager.getInstance().gameData.governingOrganizations,
+  ).filter((org) => {
+    if (
+      opts.exclude?.player === true &&
+      org.id === GameManager.getInstance().gameData.player.organizationId
+    ) {
+      return false;
+    }
+    return true;
+  });
 };
 
 export interface GetRandomOrgOptions {
@@ -355,21 +360,16 @@ export interface GetRandomOrgOptions {
 }
 
 export const getRandomOrg = (
-  gameManager: GameManager,
   options: GetRandomOrgOptions,
 ): GoverningOrganization => {
-  const pool = getOrganizations(gameManager, {
+  const pool = getOrganizations({
     exclude: { player: options.excludePlayer },
   });
   return pool[randomInt(0, pool.length - 1)];
 };
 
-export const updateOrgWealth = (
-  gameManager: GameManager,
-  orgId: string,
-  amt: number,
-) => {
-  const org = gameManager.gameData.governingOrganizations[orgId];
+export const updateOrgWealth = (orgId: string, amt: number) => {
+  const org = GameManager.getInstance().gameData.governingOrganizations[orgId];
   console.log(
     `${amt > 0 ? 'Increaing' : 'Reducing'} wealth for ${org} by ${amt}`,
   );
@@ -381,17 +381,17 @@ export const updateOrgWealth = (
       },
     },
   };
-  gameManager.updateGameData(updatedGameData);
+  GameManager.getInstance().updateGameData(updatedGameData);
   return updatedGameData;
 };
 
-export const updateEvil = (gameManager: GameManager, amount: number) => {
-  const org = getEvilEmpire(gameManager);
+export const updateEvil = (amount: number) => {
+  const org = getEvilEmpire();
   const updatedGo: GoverningOrganization = {
     ...org,
     totalEvil: org.totalEvil + amount,
   };
-  gameManager.updateGameData({
+  GameManager.getInstance().updateGameData({
     governingOrganizations: {
       [org.id]: updatedGo,
     },

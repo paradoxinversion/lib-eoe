@@ -26,7 +26,7 @@ import {
 import GameEventQueue from './events/GameEventQueue';
 import ActivityManager from './activities/ActivityManager';
 import { PlotManager } from './plots/PlotManager';
-import { Person } from './types/interfaces/entities';
+import { Building, Person, Zone } from './types/interfaces/entities';
 import {
   getPeople,
   initializeLoyalty,
@@ -36,14 +36,16 @@ import {
 import { ScienceManager } from './managers/science/science';
 import { SCIENCE_PROJECTS } from './managers/science/scienceProjects';
 import { getZones } from './actions/zones';
+import Player from './managers/cpu/Player';
+import PlayerManager from './managers/cpu/PlayerManager';
 /**
  * The main Shufflebag for building types
  */
 const buildingShufflebag = Shufflebag({
   bank: 2,
   apartment: 1,
-  laboratory: 1,
-  office: 1,
+  laboratory: 2,
+  office: 2,
   hospital: 1,
 });
 
@@ -74,6 +76,143 @@ export type NewGameOptions = {
   pet?: boolean;
   overlordName?: string;
   takePrisoners: boolean;
+};
+type PlayerOptions = {
+  isCPU: boolean;
+};
+
+const createPlayer = (options: PlayerOptions) => {
+  const { isCPU } = options;
+  const playerName = isCPU ? 'CPU Player' : 'Player';
+
+  const nationParams = {
+    name: isCPU ? 'CPU Nation' : 'EVIL Empire',
+    size: randomInt(3, 5),
+  };
+  const nation = generateNation(nationParams);
+
+  const orgParams = {
+    nationId: nation.id,
+    evil: isCPU ? false : true,
+    name: isCPU ? 'CPU Organization' : 'EVIL Empire',
+  };
+
+  const governOrg = generateGoverningOrg(orgParams);
+  if (!isCPU) {
+    nation;
+  }
+  nation.organizationId = governOrg.id;
+  const totalZones = 1;
+  const zones: { [key: string]: Zone } = {};
+  for (let x = 0; x < totalZones; x++) {
+    const z = generateZone({
+      nationId: nation.id,
+      organizationId: governOrg.id,
+    });
+    zones[z.id] = z;
+  }
+
+  const leader = generatePerson({
+    homeZoneId: zones[Object.keys(zones)[0]].id,
+    name: isCPU ? 'CPU Leader' : 'EVIL Overlord',
+    nationId: nation.id,
+    initIntelligence: 10,
+    initCombat: 10,
+    initLeadership: 20,
+    initLoyalty: 100,
+    initAdministration: 10,
+  });
+
+  const people = {
+    [leader.id]: leader,
+  };
+
+  const buildings: { [key: string]: Building } = {};
+
+  Object.values(zones).forEach((zone) => {
+    for (let personIndex = 0; personIndex < zone.size; personIndex++) {
+      const p = generatePerson({
+        nationId: nation.id,
+        homeZoneId: zone.id,
+      });
+      if (!options.isCPU) {
+        p.intelAttributes.intelligenceLevel = 75;
+      }
+
+      people[p.id] = p;
+    }
+
+    const zoneBuildingsAmt = randomInt(10, 15);
+    for (
+      let buildingIndex = 0;
+      buildingIndex < zoneBuildingsAmt;
+      buildingIndex++
+    ) {
+      const buildingType = buildingShufflebag.next();
+      const schematic = buildingsSchematics[buildingType as BuildingType];
+      const b = generateBuilding({
+        zoneId: zone.id,
+        buildingType: schematic.buildingType as BuildingType,
+        infrastructureCost: schematic.infrastructureCost,
+        organizationId: governOrg.id,
+        upkeepCost: schematic.upkeepCost,
+      });
+      buildings[b.id] = b;
+    }
+  });
+  const player = new Player({
+    cpu: isCPU,
+    organizationId: governOrg.id,
+    empireId: nation.id,
+    overlordId: leader.id,
+    name: playerName,
+  });
+  GameManager.getInstance().updateGameData({
+    nations: {
+      [nation.id]: nation,
+    },
+    people: people,
+    zones,
+    buildings,
+    governingOrganizations: {
+      [governOrg.id]: governOrg,
+    },
+  });
+  PlayerManager.getInstance().addPlayer(player);
+  if (!isCPU) {
+    GameManager.getInstance().updateGameData({
+      player: {
+        empireId: nation.id,
+        overlordId: leader.id,
+        organizationId: governOrg.id,
+      },
+    });
+  }
+};
+
+const handleNewGameV2 = () => {
+  GameManager.getInstance().updateGameData({
+    nations: {},
+    governingOrganizations: {},
+    zones: {},
+    people: {},
+    player: {
+      empireId: '',
+      overlordId: '',
+      organizationId: '',
+    },
+    buildings: {},
+    gameDate: new Date('2000-1-1'),
+    gameLog: {
+      simActions: {
+        people: {},
+      },
+      events: [],
+    },
+  });
+  createPlayer({ isCPU: false });
+  createPlayer({ isCPU: true });
+  console.debug(GameManager.getInstance().gameData);
 };
 
 /**
@@ -106,7 +245,9 @@ const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
     name: 'EVIL Empire',
     size: 1,
   });
+
   newGameData.nations[evilEmpireNation.id] = evilEmpireNation;
+
   const evilEmpireOrg = generateGoverningOrg({
     nationId: evilEmpireNation.id,
     evil: true,
@@ -116,7 +257,7 @@ const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
   if (options.pet) {
     evilEmpireOrg.statusEffects.push('pet');
   }
-  console.log(options);
+
   if (options.takePrisoners === false) {
     evilEmpireOrg.statusEffects.push('no-prisoners');
     evilEmpireOrg.totalEvil += 25;
@@ -131,7 +272,9 @@ const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
     size: 50,
     organizationId: evilEmpireOrg.id,
   });
+
   evilZone.intelAttributes.intelligenceLevel = 100;
+
   newGameData.zones[evilZone.id] = evilZone;
 
   const evilOverlord = generatePerson({
@@ -182,7 +325,7 @@ const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
   // For each nation that is not the EOE, create zones
   Object.values(newGameData.nations).forEach((nation) => {
     if (nation.id !== evilEmpireNation.id) {
-      const newZones = generateZones(nation.size);
+      const newZones = generateZones(randomInt(3, 5));
 
       Object.values(newZones).forEach((zone) => {
         zone.name = generateZoneName();
@@ -215,7 +358,7 @@ const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
   // DO create these for the empire
   Object.values(newGameData.zones).forEach((zone) => {
     // determine how many buildings are in this zone
-    const zoneBuildingsAmt = randomInt(5, 10);
+    const zoneBuildingsAmt = randomInt(10, 15);
     for (
       let buildingIndex = 0;
       buildingIndex < zoneBuildingsAmt;
@@ -239,18 +382,18 @@ const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
 /**
  *
  */
-const hireStartingAgents = (gameManager: GameManager) => {
-  const gameData = gameManager.gameData;
+const hireStartingAgents = () => {
+  const gameData = GameManager.getInstance().gameData;
   const updatedGameData = { ...gameData };
 
   const updatedPeople: { [x: string]: Person } = {};
-  const playerData = gameManager.gameData.player;
+  const playerData = gameData.player;
   Object.values(gameData.governingOrganizations).forEach((org) => {
     if (org.id === playerData.organizationId) {
-      const empireZone = getZones(gameManager, {
+      const empireZone = getZones({
         organizationId: playerData.organizationId,
       })[0];
-      const citizens = getPeople(gameManager, { zoneId: empireZone.id });
+      const citizens = getPeople({ zoneId: empireZone.id });
       // Start at 1, 0 is the Overlord
       for (let recruitIndex = 1; recruitIndex < 9; recruitIndex++) {
         const recruit = hireAgent(
@@ -268,7 +411,7 @@ const hireStartingAgents = (gameManager: GameManager) => {
       return;
     }
 
-    const orgZones = getZones(gameManager, { organizationId: org.id });
+    const orgZones = getZones({ organizationId: org.id });
     const leader = generatePerson({
       homeZoneId: orgZones[0].id,
       nationId: org.nationId,
@@ -279,12 +422,13 @@ const hireStartingAgents = (gameManager: GameManager) => {
       initAdministration: 10,
     });
 
-    const leaderAgent = generateAgentData(org.id, 1, 10);
+    const leaderAgent = generateAgentData(org.id, 1, 100);
     leader.agent = leaderAgent;
     updatedPeople[leader.id] = leader;
     orgZones.forEach((zone) => {
-      const zoneCitizens = getZoneCitizens(gameManager, zone.id);
-      for (let recruitIndex = 0; recruitIndex < 3; recruitIndex++) {
+      const zoneCitizens = getZoneCitizens(zone.id);
+      const zoneAgents = Math.floor(zoneCitizens.length * 0.3);
+      for (let recruitIndex = 0; recruitIndex < zoneAgents; recruitIndex++) {
         const recruitType = recruitDepartmentShufflebag.next().toString();
         const recruit = zoneCitizens[recruitIndex];
         const agentUpdate = hireAgent(recruit, org.id, 1, leader.id);
@@ -299,15 +443,15 @@ const hireStartingAgents = (gameManager: GameManager) => {
     ...updatedPeople,
   };
 
-  gameManager.updateGameData(updatedGameData);
-  initializeLoyalties(gameManager);
-  initializePersonnel(gameManager);
+  GameManager.getInstance().updateGameData(updatedGameData);
+  initializeLoyalties();
+  initializePersonnel();
   return updatedGameData;
 };
 
-const initializeLoyalties = (gameManager: GameManager) => {
-  Object.values(gameManager.gameData.people).forEach((person) => {
-    const update = initializeLoyalty(person, gameManager);
+const initializeLoyalties = () => {
+  Object.values(GameManager.getInstance().gameData.people).forEach((person) => {
+    const update = initializeLoyalty(person);
     if (update.people[person.id].agent) {
       update.people[person.id].intelAttributes.loyalties = setLoyalty(
         person,
@@ -315,19 +459,20 @@ const initializeLoyalties = (gameManager: GameManager) => {
         80,
       ).people[person.id].intelAttributes.loyalties;
     }
-    gameManager.updateGameData(update);
+    GameManager.getInstance().updateGameData(update);
   });
 };
 
-const initializePersonnel = (gameManager: GameManager) => {
+const initializePersonnel = () => {
   let updatedGamedata = {
     people: {},
     buildings: {},
   };
-  getBuildings(gameManager, {}).forEach((building) => {
+  getBuildings({}).forEach((building) => {
     // filter out empire buildings
     if (
-      building.organizationId === gameManager.gameData.player.organizationId
+      building.organizationId ===
+      GameManager.getInstance().gameData.player.organizationId
     ) {
       return;
     }
@@ -344,7 +489,7 @@ const initializePersonnel = (gameManager: GameManager) => {
       index < building.basicAttributes.maxPersonnel;
       index++
     ) {
-      const people = getPeople(gameManager, {
+      const people = getPeople({
         excludePersonnel: true,
         zoneId: building.zoneId,
         agentFilter: { excludeAgents: true },
@@ -352,29 +497,31 @@ const initializePersonnel = (gameManager: GameManager) => {
       const p = people[randomInt(0, people.length - 1)];
       employees.push(p);
       const addPersonnelResult = addPersonnel(p, updatedBuilding);
-      const update = gameManager.updateGameData({
-        people: { ...updatedGamedata.people, ...addPersonnelResult!.people },
-        buildings: {
-          ...updatedGamedata.buildings,
-          ...addPersonnelResult!.buildings,
-        },
-      });
-      updatedBuilding = update.buildings[building.id];
-      console.log(updatedBuilding);
-      updatedGamedata = {
-        people: { ...updatedGamedata.people, ...update.people },
-        buildings: { ...updatedGamedata.buildings, ...update.buildings },
-      };
+      console.log('APR', addPersonnelResult);
+      if (addPersonnelResult) {
+        const update = GameManager.getInstance().updateGameData({
+          people: { ...updatedGamedata.people, ...addPersonnelResult!.people },
+          buildings: {
+            ...updatedGamedata.buildings,
+            ...addPersonnelResult!.buildings,
+          },
+        });
+        updatedBuilding = update.buildings[building.id];
+        // console.log(updatedBuilding);
+        updatedGamedata = {
+          people: { ...updatedGamedata.people, ...update.people },
+          buildings: { ...updatedGamedata.buildings, ...update.buildings },
+        };
+      }
     }
   });
 };
 
-const createGameManager = () =>
-  new GameManager(
-    new GameEventQueue(),
-    new PlotManager(),
-    new ActivityManager(),
-    new ScienceManager(SCIENCE_PROJECTS),
-  );
+const createGameManager = () => new GameManager();
 
-export { handleNewGame, hireStartingAgents, createGameManager };
+export {
+  handleNewGame,
+  handleNewGameV2,
+  hireStartingAgents,
+  createGameManager,
+};

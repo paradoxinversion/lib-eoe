@@ -13,7 +13,7 @@ interface SimulatedActivity {
     wealth?: 'low' | 'medium' | 'high' | 'not-broke';
     hasStatusEffect?: PersonStatusEffect;
   };
-  handler?: (gameManager: GameManager, person: Person) => Partial<GameData>;
+  handler?: (person: Person) => Partial<GameData>;
 }
 
 export const simActivities: { [x: string]: SimulatedActivity } = {
@@ -28,7 +28,7 @@ export const simActivities: { [x: string]: SimulatedActivity } = {
     requirements: {
       employedCitizen: true,
     },
-    handler: (gameManager: GameManager, person: Person): Partial<GameData> => {
+    handler: (person: Person): Partial<GameData> => {
       const pay = person.standardAttributes.intelligence;
       // console.info(`${person.name} got paid $${pay}`);
       return {
@@ -59,7 +59,7 @@ export const simActivities: { [x: string]: SimulatedActivity } = {
     requirements: {
       wealth: 'not-broke',
     },
-    handler(gameManager, person) {
+    handler(person) {
       const cost = randomInt(0, 10);
       // console.info(`${person.name} spent $${cost}`);
       return {
@@ -78,9 +78,10 @@ export const simActivities: { [x: string]: SimulatedActivity } = {
     requirements: {
       hasStatusEffect: 'conspiracy-nut',
     },
-    handler(gameManager, person) {
+    handler(person) {
       const orgId =
-        gameManager.gameData.zones[person.homeZoneId].organizationId;
+        GameManager.getInstance().gameData.zones[person.homeZoneId]
+          .organizationId;
       const p = updateLoyalty(person, orgId, -randomInt(0, 3));
       // console.info(`${person.name} lost loyalty`);
       return p;
@@ -92,7 +93,7 @@ export const simActivities: { [x: string]: SimulatedActivity } = {
     requirements: {
       wealth: 'low',
     },
-    handler(gameManager, person) {
+    handler(person) {
       const pay = randomInt(0, 10);
       // console.info(`${person.name} sold art for $${pay}`);
       return {
@@ -111,7 +112,7 @@ export const simActivities: { [x: string]: SimulatedActivity } = {
     requirements: {
       wealth: 'medium',
     },
-    handler(gameManager, person) {
+    handler(person) {
       const cost = randomInt(0, 100);
       // console.info(`${person.name} spent $${cost}`);
       return {
@@ -136,13 +137,9 @@ export const simActivities: { [x: string]: SimulatedActivity } = {
   },
 };
 
-const chooseActivity = (
-  gameManager: GameManager,
-  person: Person,
-  completedActivities: string[],
-) => {
+const chooseActivity = (person: Person, completedActivities: string[]) => {
   const governingOrgId =
-    gameManager.gameData.nations[person.nationId].organizationId;
+    GameManager.getInstance().gameData.nations[person.nationId].organizationId;
   const activityOptions = Object.values(simActivities).filter((simActivity) => {
     // filter out activities that have been done already
     // if (completedActivities.includes(simActivity.name)) {
@@ -196,29 +193,24 @@ export interface SimulatedActivityResolution {
 }
 
 export const simulateActivity = (
-  gameManager: GameManager,
   person: Person,
   completedActivities: string[],
 ): SimulatedActivityResolution | null => {
-  const simActivity = chooseActivity(gameManager, person, completedActivities);
+  const simActivity = chooseActivity(person, completedActivities);
   // console.log(`${person.name} ${simActivity.text}`);\
   // gameManager.updateSimActionLog(person.id, simActivity.name);
   completedActivities.push(simActivity.name);
   if (simActivity.handler) {
     return {
-      updatedGamedata: simActivity.handler(gameManager, person),
+      updatedGamedata: simActivity.handler(person),
       activity: simActivity.name,
     };
   }
   return {};
 };
 
-export const getSkillValue = (
-  gameManager: GameManager,
-  personId: string,
-  skill: SkillTypes,
-) => {
-  const person = gameManager.gameData.people[personId];
+export const getSkillValue = (personId: string, skill: SkillTypes) => {
+  const person = GameManager.getInstance().gameData.people[personId];
   if (person.skills[skill as keyof typeof person.skills]) {
     return person.skills[skill as keyof typeof person.skills];
   }
@@ -226,13 +218,9 @@ export const getSkillValue = (
   return null;
 };
 
-export const getGroupSkillValue = (
-  gameManager: GameManager,
-  personIds: string[],
-  skill: SkillTypes,
-) => {
+export const getGroupSkillValue = (personIds: string[], skill: SkillTypes) => {
   const skillValues = personIds.map((personId) =>
-    getSkillValue(gameManager, personId, skill),
+    getSkillValue(personId, skill),
   );
   return skillValues.reduce((acc, val) => acc! + (val || 0), 0)!;
 };

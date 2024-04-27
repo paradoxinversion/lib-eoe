@@ -3,6 +3,7 @@
  */
 import { GameData, GameLog, GameManager } from '../GameManager';
 import { getActivityParticipants } from '../plots';
+import { PlotManager } from '../plots/PlotManager';
 import { SimulatedActivityResolution, simulateActivity } from '../sim/people';
 import { PersonStatusEffect } from '../statusEffects/person';
 import {
@@ -15,7 +16,15 @@ import { randomInt } from '../utilities';
 
 interface GetPeopleParams {
   zoneId?: string | null;
+  zone?: {
+    zoneId?: string | null;
+    excludeZones?: string[];
+  };
   nationId?: string | null;
+  nation?: {
+    nationId?: string | null;
+    excludeNations?: string[];
+  };
   agentFilter?: {
     excludeAgents?: boolean;
     department?: number;
@@ -41,7 +50,15 @@ interface GetPeopleParams {
 
 const GetPeopleDefaultParams: GetPeopleParams = {
   zoneId: null,
+  zone: {
+    zoneId: null,
+    excludeZones: [],
+  },
   nationId: null,
+  nation: {
+    nationId: null,
+    excludeNations: [],
+  },
   agentFilter: {
     excludeAgents: false,
     department: -1,
@@ -68,10 +85,7 @@ const GetPeopleDefaultParams: GetPeopleParams = {
 /**
  * Get all people in the game that match the given parameters.
  */
-export const getPeople = (
-  gameManager: GameManager,
-  params: GetPeopleParams = {},
-) => {
+export const getPeople = (params: GetPeopleParams = {}) => {
   const options: GetPeopleParams = {
     ...GetPeopleDefaultParams,
     ...params,
@@ -84,116 +98,133 @@ export const getPeople = (
       ...params.captive,
     },
   };
-  return Object.values(gameManager.gameData.people).filter((person) => {
-    let capturingOrg = null;
-    if (options.captive?.capturedBy) {
-      capturingOrg =
-        gameManager.gameData.governingOrganizations[options.captive.capturedBy];
-    }
-    if (options.captive?.captiveOnly && !person.isCaptive) {
-      return false;
-    }
+  return Object.values(GameManager.getInstance().gameData.people).filter(
+    (person) => {
+      let capturingOrg = null;
+      if (options.captive?.capturedBy) {
+        capturingOrg =
+          GameManager.getInstance().gameData.governingOrganizations[
+            options.captive.capturedBy
+          ];
+      }
+      if (options.captive?.captiveOnly && !person.isCaptive) {
+        return false;
+      }
 
-    if (
-      options.captive?.capturedBy &&
-      !capturingOrg?.captives.includes(person.id)
-    ) {
-      return false;
-    }
+      if (
+        options.captive?.capturedBy &&
+        !capturingOrg?.captives.includes(person.id)
+      ) {
+        return false;
+      }
 
-    if (options.excludeCaptured && person.isCaptive) {
-      return false;
-    }
+      if (options.excludeCaptured && person.isCaptive) {
+        return false;
+      }
 
-    if (options.capturedOnly && !person.isCaptive) {
-      return false;
-    }
+      if (options.capturedOnly && !person.isCaptive) {
+        return false;
+      }
 
-    if (
-      (options.agentFilter?.excludeParticipants &&
-        getActivityParticipants(gameManager).some(
-          (p) => p.participant.id === person.id,
-        )) ||
-      gameManager.plotManager.plotQueue.some((p) =>
-        p.standardParams.participants.some((p) => p === person.id),
-      )
-    ) {
-      return false;
-    }
+      if (
+        (options.agentFilter?.excludeParticipants &&
+          getActivityParticipants().some(
+            (p) => p.participant.id === person.id,
+          )) ||
+        PlotManager.getInstance().plotQueue.some((p) =>
+          p.standardParams.participants.some((p) => p === person.id),
+        )
+      ) {
+        return false;
+      }
 
-    if (options.agentFilter?.agentsOnly && person.agent === null) {
-      return false;
-    }
+      if (options.agentFilter?.agentsOnly && person.agent === null) {
+        return false;
+      }
 
-    if (options.agentFilter?.excludeAgents && person.agent) {
-      return false;
-    }
-    if (
-      options.agentFilter?.excludeDepartments &&
-      options.agentFilter?.excludeDepartments.includes(
-        person.agent?.department!,
-      )
-    ) {
-      return false;
-    }
-    if (
-      options.agentFilter?.commander &&
-      person.agent?.commanderId !== options.agentFilter?.commander
-    ) {
-      return false;
-    }
+      if (options.agentFilter?.excludeAgents && person.agent) {
+        return false;
+      }
+      if (
+        options.agentFilter?.excludeDepartments &&
+        options.agentFilter?.excludeDepartments.includes(
+          person.agent?.department!,
+        )
+      ) {
+        return false;
+      }
+      if (
+        options.agentFilter?.commander &&
+        person.agent?.commanderId !== options.agentFilter?.commander
+      ) {
+        return false;
+      }
 
-    if (
-      options.agentFilter?.department !== -1 &&
-      person.agent?.department !== options.agentFilter?.department
-    ) {
-      return false;
-    }
-    if (options.zoneId && person.homeZoneId !== options.zoneId) {
-      return false;
-    }
+      if (
+        options.agentFilter?.department !== -1 &&
+        person.agent?.department !== options.agentFilter?.department
+      ) {
+        return false;
+      }
+      if (options.zoneId && person.homeZoneId !== options.zoneId) {
+        return false;
+      }
 
-    if (options.nationId && person.nationId !== options.nationId) {
-      return false;
-    }
+      if (options.nationId && person.nationId !== options.nationId) {
+        return false;
+      }
+      if (
+        options.nation?.nationId &&
+        person.nationId !== options.nation.nationId
+      ) {
+        return false;
+      }
 
-    if (options.excludePersonnel && person.isPersonnel) {
-      return false;
-    }
+      if (
+        options.nation?.excludeNations &&
+        options.nation.excludeNations.includes(person.nationId)
+      ) {
+        return false;
+      }
 
-    if (
-      options.organizationId &&
-      person.agent?.organizationId !== options.organizationId
-    ) {
-      return false;
-    }
+      if (options.excludePersonnel && person.isPersonnel) {
+        return false;
+      }
 
-    if (options.deceasedOnly && !person.dead) {
-      return false;
-    }
+      if (
+        options.organizationId &&
+        person.agent?.organizationId !== options.organizationId
+      ) {
+        return false;
+      }
 
-    if (options.excludeDeceased && person.dead) {
-      return false;
-    }
+      if (options.deceasedOnly && !person.dead) {
+        return false;
+      }
 
-    if (
-      options.injuredOnly &&
-      person.derivedAttributes.health.currentHealth ===
-        person.derivedAttributes.health.totalHealth
-    ) {
-      return false;
-    }
+      if (options.excludeDeceased && person.dead) {
+        return false;
+      }
 
-    if (options.hospitalizedOnly && !person.hospitalizedAt) {
-      return false;
-    }
+      if (
+        options.injuredOnly &&
+        person.derivedAttributes.health.currentHealth ===
+          person.derivedAttributes.health.totalHealth
+      ) {
+        return false;
+      }
 
-    if (options.noHospitalized && person.hospitalizedAt) {
-      return false;
-    }
+      if (options.hospitalizedOnly && !person.hospitalizedAt) {
+        return false;
+      }
 
-    return true;
-  });
+      if (options.noHospitalized && person.hospitalizedAt) {
+        return false;
+      }
+
+      return true;
+    },
+  );
 };
 
 export const getAgentDepartment = (agentData: AgentData) => {
@@ -327,12 +358,16 @@ export const setLoyalty = (person: Person, orgId: string, amt: number) => {
   };
 };
 
-export const initializeLoyalty = (person: Person, gameManager: GameManager) => {
-  const homeZone = gameManager.gameData.zones[person.homeZoneId];
+export const initializeLoyalty = (person: Person) => {
+  const homeZone = GameManager.getInstance().gameData.zones[person.homeZoneId];
   const zoneOwner =
-    gameManager.gameData.governingOrganizations[homeZone.organizationId];
+    GameManager.getInstance().gameData.governingOrganizations[
+      homeZone.organizationId
+    ];
   const loyalties: { [x: string]: number } = {};
-  Object.values(gameManager.gameData.governingOrganizations).forEach((go) => {
+  Object.values(
+    GameManager.getInstance().gameData.governingOrganizations,
+  ).forEach((go) => {
     if (go.id === zoneOwner.id) {
       loyalties[go.id] = 20 + randomInt(0, 80);
     } else {
@@ -374,7 +409,6 @@ export const updateCurrentHealth = (person: Person, modAmt: number) => {
 };
 
 export const addPersonStatusEffect = (
-  gameManager: GameManager,
   person: Person,
   statusEffect: PersonStatusEffect,
   duration: number = -1,
@@ -387,7 +421,7 @@ export const addPersonStatusEffect = (
     },
   };
 
-  gameManager.updateGameData({
+  GameManager.getInstance().updateGameData({
     people: {
       [updatedPerson.id]: updatedPerson,
     },
@@ -401,7 +435,6 @@ export const addPersonStatusEffect = (
 };
 
 export const removePersonStatusEffect = (
-  gameManager: GameManager,
   person: Person,
   statusEffect: PersonStatusEffect,
 ) => {
@@ -413,7 +446,7 @@ export const removePersonStatusEffect = (
   };
   delete updatedPerson.statusEffects[statusEffect];
 
-  gameManager.updateGameData({
+  GameManager.getInstance().updateGameData({
     people: {
       [updatedPerson.id]: updatedPerson,
     },
@@ -429,11 +462,11 @@ export const removePersonStatusEffect = (
 /**
  * Simulate the the person does on a given day.
  */
-export const simulateDay = (gameManager: GameManager, person: Person) => {
+export const simulateDay = (person: Person) => {
   const completedActivities: string[] = [];
   const updates: SimulatedActivityResolution[] = [];
   for (let index = 0; index < 4; index++) {
-    updates.push(simulateActivity(gameManager, person, completedActivities)!);
+    updates.push(simulateActivity(person, completedActivities)!);
   }
   const update = updates.reduce<Partial<GameData>>(
     (ugd, curr) => {
@@ -457,12 +490,8 @@ export const simulateDay = (gameManager: GameManager, person: Person) => {
   return { updatedGameData: update, updatedLog: activityNames };
 };
 
-export const setCodename = (
-  gameManager: GameManager,
-  personId: string,
-  codename: string,
-) => {
-  const person = gameManager.gameData.people[personId];
+export const setCodename = (personId: string, codename: string) => {
+  const person = GameManager.getInstance().gameData.people[personId];
   const updatedPerson = {
     ...person,
     agent: {
@@ -471,7 +500,7 @@ export const setCodename = (
     },
   };
 
-  gameManager.updateGameData({
+  GameManager.getInstance().updateGameData({
     people: {
       [updatedPerson.id]: updatedPerson,
     },

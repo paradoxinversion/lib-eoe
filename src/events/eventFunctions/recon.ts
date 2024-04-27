@@ -22,10 +22,10 @@ export const generateReconZoneEvent = (plot: Plot) => {
 /**
  *
  */
-function resolveReconZone(this: GameEvent, gameManager: GameManager) {
+function resolveReconZone(this: GameEvent) {
   const params = this.params as ReconZoneEventParams;
   const resolution = params.plot.resolution as PlotResult;
-  gameManager.updateGameData(resolution.updatedGameData);
+  GameManager.getInstance().updateGameData(resolution.updatedGameData);
   this.eventData = {
     type: 'recon-zone',
     resolution: {

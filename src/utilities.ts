@@ -63,8 +63,8 @@ const Shufflebag = (
 /**
  *
  */
-const checkGameOverState = (gameManager: GameManager) => {
-  const { gameData } = gameManager;
+const checkGameOverState = () => {
+  const { gameData } = GameManager.getInstance();
   if (
     gameData.people[gameData.player.overlordId]?.derivedAttributes.health
       .currentHealth <= 0
@@ -81,9 +81,9 @@ const checkGameOverState = (gameManager: GameManager) => {
  *
  * @param {GameManager} gameManager
  */
-const checkVictoryState = (gameManager: GameManager) => {
-  const { gameData } = gameManager;
-  const playerZones = getZones(gameManager, {
+const checkVictoryState = () => {
+  const { gameData } = GameManager.getInstance();
+  const playerZones = getZones({
     organizationId: gameData.player.organizationId,
   });
   if (playerZones.length === Object.keys(gameData.zones).length) {

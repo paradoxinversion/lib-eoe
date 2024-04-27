@@ -26,11 +26,11 @@ function setAttackZoneParams(this: GameEvent, { plot }: AttackZoneParams) {
 /**
  * Resolve an attack zone event.
  */
-function resolveAttackZone(this: GameEvent, gameManager: GameManager) {
+function resolveAttackZone(this: GameEvent) {
   const params = this.params as AttackZoneParams;
   const result = params.plot.resolution as PlotResult;
 
-  gameManager.updateGameData(result.updatedGameData);
+  GameManager.getInstance().updateGameData(result.updatedGameData);
 
   this.eventData = {
     type: 'attack-zone',

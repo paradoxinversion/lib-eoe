@@ -24,10 +24,9 @@ function setProjectCompleteParams(
   };
 }
 
-function resolveProjectComplete(this: GameEvent, gameManager: GameManager) {
-  const { gameData } = gameManager;
+function resolveProjectComplete(this: GameEvent) {
   const params = this.params as ProjectCompleteParams;
-  gameManager.updateGameData(params.empireUpdate);
+  GameManager.getInstance().updateGameData(params.empireUpdate);
   this.eventData = {
     type: 'project-complete',
     resolution: {

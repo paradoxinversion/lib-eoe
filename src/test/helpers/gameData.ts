@@ -7,12 +7,7 @@ import { SCIENCE_PROJECTS } from '../../managers/science/scienceProjects';
 import { PlotManager } from '../../plots/PlotManager';
 
 export const createTestGameManager = () => {
-  const gameManager = new GameManager(
-    new GameEventQueue(),
-    new PlotManager(),
-    new ActivityManager(),
-    new ScienceManager(SCIENCE_PROJECTS),
-  );
+  const gameManager = new GameManager();
   handleNewGame(gameManager, {});
   hireStartingAgents(gameManager);
   return gameManager;

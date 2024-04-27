@@ -81,8 +81,8 @@ const eventShufflebag = Shufflebag({
 /**
  * Add a set of random events to the event queue
  */
-const prepareRandomEvents = (gameManager: GameManager) => {
-  const { gameData } = gameManager;
+const prepareRandomEvents = () => {
+  const { gameData } = GameManager.getInstance();
   const events: GameEvent[] = [];
   for (let potentialEvents = 0; potentialEvents < 1; potentialEvents++) {
     const eventType = eventShufflebag.next();
@@ -91,7 +91,7 @@ const prepareRandomEvents = (gameManager: GameManager) => {
     switch (eventType) {
       case 'EvilApplicantEvent':
         try {
-          event = generateEvilApplicantEvent(gameManager);
+          event = generateEvilApplicantEvent();
 
           events.push(event!);
         } catch (e) {
@@ -105,17 +105,17 @@ const prepareRandomEvents = (gameManager: GameManager) => {
         events.push(event);
         break;
       case 'OccupationalHazard':
-        event = generateOccupationalHazardEvent(gameManager);
+        event = generateOccupationalHazardEvent();
         events.push(event);
         break;
       case 'IntruderAlert':
-        event = generateIntruderAlertEvent(gameManager);
+        event = generateIntruderAlertEvent();
         events.push(event);
         break;
       case 'AngryAdminEvent':
         if (
-          getPeople(gameManager, {
-            organizationId: getEvilEmpire(gameManager).id,
+          getPeople({
+            organizationId: getEvilEmpire().id,
             agentFilter: {
               agentsOnly: true,
               department: 1,
@@ -128,8 +128,8 @@ const prepareRandomEvents = (gameManager: GameManager) => {
         break;
 
       case 'PetEvent':
-        if (getEvilEmpire(gameManager).statusEffects.includes('pet')) {
-          event = generatePetEvent(gameManager);
+        if (getEvilEmpire().statusEffects.includes('pet')) {
+          event = generatePetEvent();
           events.push(event);
         }
         break;
@@ -152,7 +152,7 @@ const prepareRandomEvents = (gameManager: GameManager) => {
   const day = gd.getDate();
 
   if (monthEnd.getDate() === day) {
-    events.push(generateMonthlyReportEvent(gameManager));
+    events.push(generateMonthlyReportEvent());
   }
 
   return events;

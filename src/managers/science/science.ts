@@ -1,4 +1,5 @@
 import { GameData, GameManager } from '../../GameManager';
+import { SCIENCE_PROJECTS } from './scienceProjects';
 import {
   ScienceProject,
   ScienceProjectMap,
@@ -7,6 +8,7 @@ import {
 
 /** The manager for all science projects in the game */
 export class ScienceManager {
+  private static instance: ScienceManager;
   /** The list of available science projects in the game */
   PROJECT_DEFINITIONS: ScienceProjectMap;
   /** The list of projects that have been started */
@@ -19,35 +21,37 @@ export class ScienceManager {
     /** The list of projects that have been started */
     activeProjects: ScienceProjectStatus[] = [],
   ) {
+    console.info('Science Manager Initialized');
     this.PROJECT_DEFINITIONS = projects;
     activeProjects = activeProjects;
   }
 
+  public static getInstance(): ScienceManager {
+    if (!ScienceManager.instance) {
+      ScienceManager.instance = new ScienceManager(SCIENCE_PROJECTS);
+    }
+
+    return ScienceManager.instance;
+  }
+
   /** Start a science project */
-  startProject(
-    gameManager: GameManager,
-    projectIndex: ScienceProject,
-    laboratoryId: string,
-  ) {
+  startProject(projectIndex: ScienceProject, laboratoryId: string) {
     const project = this.PROJECT_DEFINITIONS[projectIndex];
     if (project === undefined) {
       throw new Error(`Project ${projectIndex} does not exist`);
     }
 
-    const status: ScienceProjectStatus = project.startHandler(
-      laboratoryId,
-      gameManager,
-    );
+    const status: ScienceProjectStatus = project.startHandler(laboratoryId);
     this.activeProjects = [...this.activeProjects, status];
   }
 
   /** Complete a science project */
-  completeProject(gameManager: GameManager, projectName: ScienceProject) {
+  completeProject(projectName: ScienceProject) {
     const projectConstant = this.PROJECT_DEFINITIONS[projectName];
     const project = this.activeProjects.find(
       (p) => p.indexName === projectName,
     )!;
-    const result = projectConstant.completeHandler(gameManager, project);
+    const result = projectConstant.completeHandler(project);
     this.activeProjects = this.activeProjects.filter(
       (p) => p.indexName !== projectName,
     );
@@ -73,17 +77,14 @@ export class ScienceManager {
     );
   }
 
-  handleProjectProgress(
-    gameManager: GameManager,
-    status: ScienceProjectStatus,
-  ): ScienceProjectStatus {
+  handleProjectProgress(status: ScienceProjectStatus): ScienceProjectStatus {
     const project =
-      gameManager.scienceManager.PROJECT_DEFINITIONS[
+      GameManager.getInstance().scienceManager.PROJECT_DEFINITIONS[
         status.indexName as ScienceProject
       ];
     const empireUpdate =
-      gameManager.gameData.governingOrganizations[
-        gameManager.gameData.player.organizationId
+      GameManager.getInstance().gameData.governingOrganizations[
+        GameManager.getInstance().gameData.player.organizationId
       ];
     const contribution = Math.min(
       empireUpdate.science,
@@ -94,10 +95,10 @@ export class ScienceManager {
     // science, but the empire's science is not being
     // reduced, and this event never completes.
     if (contribution > 0) {
-      gameManager.updateGameData({
+      GameManager.getInstance().updateGameData({
         governingOrganizations: {
-          ...gameManager.gameData.governingOrganizations,
-          [gameManager.gameData.player.organizationId]: {
+          ...GameManager.getInstance().gameData.governingOrganizations,
+          [GameManager.getInstance().gameData.player.organizationId]: {
             ...empireUpdate,
             science: empireUpdate.science - contribution,
           },

@@ -5,8 +5,8 @@ import { Zone } from './types/interfaces/entities';
 /**
  *
  */
-const getZones = (gameManager: GameManager, nationId: string) => {
-  const { gameData } = gameManager;
+const getZones = (nationId: string) => {
+  const { gameData } = GameManager.getInstance();
   const zoneArray = Object.values(gameData.zones);
   if (nationId) {
     return zoneArray.filter((zone) => zone.nationId === nationId);
@@ -17,8 +17,8 @@ const getZones = (gameManager: GameManager, nationId: string) => {
 /**
  *
  */
-const getZoneWealth = (gameManager: GameManager, zone: Zone) => {
-  const { gameData } = gameManager;
+const getZoneWealth = (zone: Zone) => {
+  const { gameData } = GameManager.getInstance();
   const peopleArray = Object.values(gameData.people);
   peopleArray
     .filter((person) => person.homeZoneId === zone.id)
@@ -30,8 +30,8 @@ const getZoneWealth = (gameManager: GameManager, zone: Zone) => {
 /**
  *
  */
-const getZonesWealth = (gameManager: GameManager, zones: Zone[]) => {
-  const { gameData } = gameManager;
+const getZonesWealth = (zones: Zone[]) => {
+  const { gameData } = GameManager.getInstance();
   const peopleArray = Object.values(gameData.people);
   return zones.reduce((total, zone) => {
     return (total += peopleArray
@@ -52,12 +52,11 @@ const getZonesInfrastructureCost = (zones: Zone[]) => {
  *
  */
 const getZoneCitizens = (
-  gameManager: GameManager,
   zoneId: string,
   excludeAgents?: boolean,
   excludeDead?: boolean,
 ) => {
-  const { gameData } = gameManager;
+  const { gameData } = GameManager.getInstance();
   const peopleArray = Object.values(gameData.people);
   const citizens = peopleArray.filter((person) => {
     if (excludeAgents && person.agent) {
@@ -79,18 +78,19 @@ interface TransferZoneControlParams {
   nationId: string;
 }
 
-const transferZoneControl = (
-  gameManager: GameManager,
-  { zoneId, organizationId, nationId }: TransferZoneControlParams,
-): Partial<GameData> => {
+const transferZoneControl = ({
+  zoneId,
+  organizationId,
+  nationId,
+}: TransferZoneControlParams): Partial<GameData> => {
   const {
     gameData: { zones },
-  } = gameManager;
+  } = GameManager.getInstance();
   const zone = { ...zones[zoneId] };
   zone.organizationId = organizationId;
   zone.nationId = nationId || zone.nationId;
 
-  const updatedZoneBuildings = getBuildings(gameManager, {
+  const updatedZoneBuildings = getBuildings({
     zoneId,
   }).reduce((prev, building) => {
     return {
@@ -102,7 +102,7 @@ const transferZoneControl = (
     };
   }, {});
 
-  const updatedPeople = getPeople(gameManager, {
+  const updatedPeople = getPeople({
     zoneId,
   }).reduce((prev, person) => {
     return {

@@ -25,8 +25,8 @@ const getNationOrganization = (
   return orgArray.find((org) => org.nationId === nationId) || null;
 };
 
-const getNationCitizens = (gameManager: GameManager, nationId: string) => {
-  const { gameData } = gameManager;
+const getNationCitizens = (nationId: string) => {
+  const { gameData } = GameManager.getInstance();
   const peopleArray = Object.values(gameData.people);
   return peopleArray.filter((person) => person.nationId === nationId);
 };
@@ -35,11 +35,8 @@ interface GetNationsParams {
   isEvilEmpire?: boolean;
 }
 
-const getNations = (
-  gameManager: GameManager,
-  { isEvilEmpire = false }: GetNationsParams,
-) => {
-  const { gameData } = gameManager;
+const getNations = ({ isEvilEmpire = false }: GetNationsParams) => {
+  const { gameData } = GameManager.getInstance();
   return Object.values(gameData.nations).filter((nation) => {
     if (isEvilEmpire && nation.id !== gameData.player.empireId) {
       return false;

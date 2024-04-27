@@ -43,8 +43,8 @@ export default class Plot {
   /**
    * Execute a plot, returning the plot's ResolutionValue.
    */
-  executePlot(gameManager: GameManager) {
-    const result = plotConfig[this.plotType].fn(gameManager, {
+  executePlot() {
+    const result = plotConfig[this.plotType].fn({
       ...this.standardParams,
       ...this.plotParams,
     });

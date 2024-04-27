@@ -4,14 +4,11 @@ import { updateEvil } from '../../organization';
 import { Person } from '../../types/interfaces/entities';
 import { randomInt } from '../../utilities';
 
-export const education = (
-  gameManager: GameManager,
-  participantArray: string[],
-) => {
+export const education = (participantArray: string[]) => {
   if (participantArray.length === 0) {
     return null;
   }
-  const { gameData } = gameManager;
+  const { gameData } = GameManager.getInstance();
   const updatedAgents: { [x: string]: Person } = participantArray.reduce(
     (participants: { [x: string]: Person }, participant) => {
       const updatedParticipant: Person = {
@@ -29,6 +26,6 @@ export const education = (
     },
     {},
   );
-  updateEvil(gameManager, 1);
+  updateEvil(1);
   return { people: updatedAgents };
 };

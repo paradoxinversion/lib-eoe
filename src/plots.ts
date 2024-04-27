@@ -18,8 +18,8 @@ export interface ActivityResult {
 /**
  *
  */
-const populateActivities = (gameManager: GameManager) => {
-  const { activityManager } = gameManager;
+const populateActivities = () => {
+  const { activityManager } = GameManager.getInstance();
   const activities = [];
   for (
     let activityParamIndex = 0;
@@ -40,8 +40,8 @@ const populateActivities = (gameManager: GameManager) => {
   activityManager.setActivities(activities);
 };
 
-const populatePlots = (gameManager: GameManager) => {
-  const { plotManager } = gameManager;
+const populatePlots = () => {
+  const { plotManager } = GameManager.getInstance();
   const plots = [];
   const plotConfigArray = Object.values(plotConfig);
   for (let plotIndex = 0; plotIndex < plotConfigArray.length; plotIndex++) {
@@ -51,8 +51,8 @@ const populatePlots = (gameManager: GameManager) => {
   plotManager.setPlots(plots);
 };
 
-const getActivityParticipants = (gameManager: GameManager) => {
-  const { activityManager, gameData } = gameManager;
+const getActivityParticipants = () => {
+  const { activityManager, gameData } = GameManager.getInstance();
   const p = activityManager.activities.reduce(
     (participants, currentActivity) => {
       currentActivity.agents.forEach((agent) => {

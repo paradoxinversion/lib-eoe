@@ -49,10 +49,7 @@ export interface ScienceProjectDefinition {
    * The function to call to finish the project
    * The handler should also modify status effects as necessary
    */
-  completeHandler: (
-    gameManager: GameManager,
-    status: ScienceProjectStatus,
-  ) => ScienceProjectResult;
+  completeHandler: (status: ScienceProjectStatus) => ScienceProjectResult;
   /** The amount of science required to complete the project */
   science: number;
   /** The amount of money required to start the project */

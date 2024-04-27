@@ -14,12 +14,12 @@ export type OccupationalHazardParams = {
   lethalPotential: boolean;
 };
 
-export const generateOccupationalHazardEvent = (gameManager: GameManager) => {
+export const generateOccupationalHazardEvent = () => {
   // for flavor, this may be limited to people working in certain buildings
 
   // Select a random empire agent
-  const agents = getPeople(gameManager, {
-    organizationId: gameManager.gameData.player.organizationId,
+  const agents = getPeople({
+    organizationId: GameManager.getInstance().gameData.player.organizationId,
     agentFilter: { agentsOnly: true, excludeDepartments: [3] },
     excludeDeceased: true,
   });
@@ -38,26 +38,23 @@ export const generateOccupationalHazardEvent = (gameManager: GameManager) => {
   });
 };
 
-export function resolveOccupationalHazardEvent(
-  this: GameEvent,
-  gameManager: GameManager,
-) {
+export function resolveOccupationalHazardEvent(this: GameEvent) {
   const params = this.params as OccupationalHazardParams;
-  const agent = gameManager.gameData.people[params.agent];
+  const agent = GameManager.getInstance().gameData.people[params.agent];
 
   // Reduce the agent's health
-  const updatedAgent: Person = gameManager.updateGameData(
+  const updatedAgent: Person = GameManager.getInstance().updateGameData(
     updateCurrentHealth(agent, -params.damage),
   ).people[agent.id];
 
   if (agent.derivedAttributes.health.currentHealth <= 0) {
     // Agent has died
-    gameManager.updateGameData(killPerson(agent));
+    GameManager.getInstance().updateGameData(killPerson(agent));
   }
   this.eventData = {
     type: 'occupational-hazard',
     resolution: {
-      updatedGameData: gameManager.gameData,
+      updatedGameData: GameManager.getInstance().gameData,
     },
   };
 

@@ -24,15 +24,13 @@ const startHandler = function (
 };
 
 const completeHandler = function (
-  gameManager: GameManager,
   status: ScienceProjectStatus,
 ): ScienceProjectResult {
   return {
     indexName: status.indexName,
     updatedGameData: applyStatusEffect(
-      gameManager,
       'micro-flight-control',
-      gameManager.gameData.player.organizationId,
+      GameManager.getInstance().gameData.player.organizationId,
     ),
   };
 };

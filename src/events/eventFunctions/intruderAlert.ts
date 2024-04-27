@@ -8,13 +8,13 @@ export interface IntruderAlertEventParams {
   intruderId: string;
 }
 
-export const generateIntruderAlertEvent = (gameManager: GameManager) => {
+export const generateIntruderAlertEvent = () => {
   // Determine which nation this intruder is from
   const possibleNations = Object.values(
-    gameManager.gameData.governingOrganizations,
+    GameManager.getInstance().gameData.governingOrganizations,
   ).filter((org) => !org.evil);
   const org = possibleNations[randomInt(0, possibleNations.length - 1)];
-  const orgAgents = getPeople(gameManager, {
+  const orgAgents = getPeople({
     organizationId: org.id,
     agentFilter: {
       department: -1,
@@ -37,15 +37,14 @@ function setIntruderAlertParams(
   };
 }
 
-function resolveIntruderAlert(this: GameEvent, gameManager: GameManager) {
-  const { gameData } = gameManager;
+function resolveIntruderAlert(this: GameEvent) {
+  const { gameData } = GameManager.getInstance();
   const params = this.params as IntruderAlertEventParams;
   const updatedGameData = takeCaptive(
-    gameManager,
     gameData.player.organizationId,
     gameData.people[params.intruderId!],
   );
-  gameManager.updateGameData(updatedGameData);
+  GameManager.getInstance().updateGameData(updatedGameData);
   this.eventData = {
     type: 'intruder-alert',
     resolution: {

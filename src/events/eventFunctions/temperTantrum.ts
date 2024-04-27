@@ -17,9 +17,9 @@ function setTemperTantrumParams(this: GameEvent) {
   };
 }
 
-function resolveTemperTantrum(this: GameEvent, gameManager: GameManager) {
-  const pool = getPeople(gameManager, {
-    organizationId: getEvilEmpire(gameManager).id,
+function resolveTemperTantrum(this: GameEvent) {
+  const pool = getPeople({
+    organizationId: getEvilEmpire().id,
     agentFilter: {
       department: 1,
       agentsOnly: true,
@@ -30,18 +30,18 @@ function resolveTemperTantrum(this: GameEvent, gameManager: GameManager) {
   if (admin.personnelAt) {
     const update = removePersonnel(
       admin,
-      gameManager.gameData.buildings[admin.personnelAt],
+      GameManager.getInstance().gameData.buildings[admin.personnelAt],
     );
 
-    gameManager.updateGameData(update);
+    GameManager.getInstance().updateGameData(update);
   }
   admin.agent = null;
-  gameManager.updateGameData({
+  GameManager.getInstance().updateGameData({
     people: {
       [admin.id]: admin,
     },
   });
-  return gameManager.gameData;
+  return GameManager.getInstance().gameData;
 }
 
 export const temperTantrumEventConfig = {

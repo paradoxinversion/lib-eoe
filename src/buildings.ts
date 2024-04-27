@@ -2,6 +2,7 @@ import { GameData, GameManager } from './GameManager';
 import { Building, Person } from './types/interfaces/entities';
 import { getInfrastructure } from './organization';
 import { BuildingStatusEffects } from './statusEffects/building';
+import { getInfrastructurePercentage } from './actions/infrastructure';
 
 interface BuildingSchematic {
   buildingType: string;
@@ -14,33 +15,33 @@ interface BuildingSchematic {
 const buildingsSchematics = {
   bank: {
     buildingType: 'bank',
-    infrastructureCost: 2,
-    upkeepCost: 2,
+    infrastructureCost: 8,
+    upkeepCost: 1000,
     maxBeds: 0,
   },
   apartment: {
     buildingType: 'apartment',
-    infrastructureCost: 1,
-    upkeepCost: 1,
+    infrastructureCost: 6,
+    upkeepCost: 600,
     housingCapacity: 10,
     maxBeds: 0,
   },
   laboratory: {
     buildingType: 'laboratory',
-    infrastructureCost: 3,
-    upkeepCost: 3,
+    infrastructureCost: 10,
+    upkeepCost: 1500,
     maxBeds: 0,
   },
   office: {
     buildingType: 'office',
     infrastructureCost: 4,
-    upkeepCost: 4,
+    upkeepCost: 600,
     maxBeds: 0,
   },
   hospital: {
     buildingType: 'hospital',
-    infrastructureCost: 5,
-    upkeepCost: 5,
+    infrastructureCost: 10,
+    upkeepCost: 1200,
     maxBeds: 10,
   },
 };
@@ -50,11 +51,8 @@ type BuildingSchematics = { [key in BuildingType]: BuildingSchematic };
  * Get the infrastructure load of all buildings
  * controlled by the org.
  */
-const getInfrastructureLoad = (
-  gameManager: GameManager,
-  organizationId: string,
-) => {
-  const gameData = gameManager.gameData;
+const getInfrastructureLoad = (organizationId: string) => {
+  const gameData = GameManager.getInstance().gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalLoad, building) => {
     if (building.organizationId === organizationId) {
@@ -68,8 +66,8 @@ const getInfrastructureLoad = (
  * Get the infrastructure load of all buildings
  * controlled by the org.
  */
-const getUpkeep = (gameManager: GameManager, organizationId: string) => {
-  const { gameData } = gameManager;
+const getUpkeep = (organizationId: string) => {
+  const { gameData } = GameManager.getInstance();
 
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalUpkeep, building) => {
@@ -83,11 +81,8 @@ const getUpkeep = (gameManager: GameManager, organizationId: string) => {
  * Get the housing capacity total of all buildings
  * controlled by the org.
  */
-const getHousingCapacity = (
-  gameManager: GameManager,
-  organizationId: string,
-) => {
-  const gameData = gameManager.gameData;
+const getHousingCapacity = (organizationId: string) => {
+  const gameData = GameManager.getInstance().gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.reduce((totalCapacity, building) => {
     if (building.organizationId === organizationId) {
@@ -101,10 +96,10 @@ const getHousingCapacity = (
  * Get the wealth total of all buildings
  * controlled by the org.
  */
-const getWealthBonuses = (gameManager: GameManager, organizationId: string) => {
-  const gameData = gameManager.gameData;
-  const maxInfrastructure = getInfrastructure(gameManager, organizationId);
-  const infrastructureLoad = getInfrastructureLoad(gameManager, organizationId);
+const getWealthBonuses = (organizationId: string) => {
+  const gameData = GameManager.getInstance().gameData;
+  const maxInfrastructure = getInfrastructure(organizationId);
+  const infrastructureLoad = getInfrastructureLoad(organizationId);
   const overloadPercentage = (100 * infrastructureLoad) / maxInfrastructure;
 
   const buildingsArray = Object.values(gameData.buildings);
@@ -127,8 +122,8 @@ const getWealthBonuses = (gameManager: GameManager, organizationId: string) => {
  * Get the wealth total of all buildings
  * controlled by the org.
  */
-const getOrgLabs = (gameManager: GameManager, organizationId: string) => {
-  const gameData = gameManager.gameData;
+const getOrgLabs = (organizationId: string) => {
+  const gameData = GameManager.getInstance().gameData;
   const buildingsArray = Object.values(gameData.buildings);
   return buildingsArray.filter(
     (building) =>
@@ -137,10 +132,7 @@ const getOrgLabs = (gameManager: GameManager, organizationId: string) => {
   );
 };
 
-export const getScienceOutput = (
-  gameManager: GameManager,
-  building: Building,
-) => {
+export const getScienceOutput = (building: Building) => {
   // Science requires working scientists
   if (building.type !== 'laboratory' || building.personnel.length === 0) {
     return 0;
@@ -151,34 +143,31 @@ export const getScienceOutput = (
   const scientistBonuses = building.personnel.reduce((total, personId) => {
     return (total =
       total +
-      gameManager.gameData.people[personId].standardAttributes.intelligence);
+      GameManager.getInstance().gameData.people[personId].standardAttributes
+        .intelligence);
   }, 0);
 
   return base + scientistBonuses;
 };
 
-export const getWealthOutput = (
-  gameManager: GameManager,
-  building: Building,
-) => {
+export const getWealthOutput = (building: Building) => {
   if (building.type !== 'bank' || building.personnel.length === 0) {
     return 0;
   }
 
   const base = building.resourceAttributes.wealthBonus;
-
-  const personnelBonuses = building.personnel.reduce((total, personId) => {
+  const efficiency =
+    building.personnel.length / building.basicAttributes.maxPersonnel;
+  const personnelBonusesBase = building.personnel.reduce((total, personId) => {
     return (total =
-      total + gameManager.gameData.people[personId].skills.administration);
+      total +
+      GameManager.getInstance().gameData.people[personId].skills
+        .administration);
   }, 0);
-
-  return base + personnelBonuses;
+  return (base + personnelBonusesBase / 4) * efficiency;
 };
 
-export const getHousingOutput = (
-  gameManager: GameManager,
-  building: Building,
-) => {
+export const getHousingOutput = (building: Building) => {
   if (building.type !== 'apartment' || building.personnel.length === 0) {
     return 0;
   }
@@ -188,10 +177,7 @@ export const getHousingOutput = (
   return base;
 };
 
-export const getInfrastructureOutput = (
-  gameManager: GameManager,
-  building: Building,
-) => {
+export const getInfrastructureOutput = (building: Building) => {
   if (building.type !== 'office' || building.personnel.length === 0) {
     return 0;
   }
@@ -200,7 +186,9 @@ export const getInfrastructureOutput = (
 
   const personnelBonuses = building.personnel.reduce((total, personId) => {
     return (total =
-      total + gameManager.gameData.people[personId].skills.administration);
+      total +
+      GameManager.getInstance().gameData.people[personId].skills
+        .administration);
   }, 0);
 
   return base + personnelBonuses;
@@ -213,15 +201,12 @@ export interface ResourceOutput {
   infrastructure: number;
 }
 
-export const getResourceOutput = (
-  gameManager: GameManager,
-  building: Building,
-): ResourceOutput => {
+export const getResourceOutput = (building: Building): ResourceOutput => {
   return {
-    science: getScienceOutput(gameManager, building),
-    wealth: getWealthOutput(gameManager, building),
-    housing: getHousingOutput(gameManager, building),
-    infrastructure: getInfrastructureOutput(gameManager, building),
+    science: getScienceOutput(building),
+    wealth: getWealthOutput(building),
+    housing: getHousingOutput(building),
+    infrastructure: getInfrastructureOutput(building),
   };
 };
 
@@ -236,8 +221,10 @@ const addPersonnel = (person: Person, building: Building) => {
     people: {},
     buildings: {},
   };
-
-  if (building.personnel.includes(person.id)) {
+  if (!person) {
+    return;
+  }
+  if (building.personnel.includes(person?.id)) {
     return;
   }
 
@@ -297,6 +284,7 @@ const removePersonnel = (person: Person, building: Building) => {
   const personnelIndex = building.personnel.findIndex(
     (personnel) => personnel === person.id,
   );
+
   const updatedGameData: Partial<GameData> = {
     people: { [updatedPerson.id]: updatedPerson },
     buildings: {},
@@ -326,68 +314,66 @@ interface GetBuildingsParams {
 /**
  *
  */
-const getBuildings = (
-  gameManager: GameManager,
-  {
-    zoneId = null,
-    organizationId = null,
-    type = null,
-  }: GetBuildingsParams = {},
-) => {
-  return Object.values(gameManager.gameData.buildings).filter((building) => {
-    if (zoneId && building.zoneId !== zoneId) {
-      return false;
-    }
+const getBuildings = ({
+  zoneId = null,
+  organizationId = null,
+  type = null,
+}: GetBuildingsParams = {}) => {
+  return Object.values(GameManager.getInstance().gameData.buildings).filter(
+    (building) => {
+      if (zoneId && building.zoneId !== zoneId) {
+        return false;
+      }
 
-    if (organizationId && building.organizationId !== organizationId) {
-      return false;
-    }
+      if (organizationId && building.organizationId !== organizationId) {
+        return false;
+      }
 
-    if (type && building.type !== type) {
-      return false;
-    }
+      if (type && building.type !== type) {
+        return false;
+      }
 
-    return true;
-  });
+      return true;
+    },
+  );
 };
 
 export const addBuildingStatusEffect = (
-  gameManager: GameManager,
   buildingId: string,
   statusEffect: BuildingStatusEffects,
 ) => {
-  const building = { ...gameManager.gameData.buildings[buildingId] };
+  const building = {
+    ...GameManager.getInstance().gameData.buildings[buildingId],
+  };
   if (!building.statusEffects.includes(statusEffect)) {
     building.statusEffects = [...building.statusEffects, statusEffect];
   }
   const updatedGameData = { buildings: { [buildingId]: building } };
-  gameManager.updateGameData(updatedGameData);
+  GameManager.getInstance().updateGameData(updatedGameData);
 
   return updatedGameData;
 };
 
 export const removeBuildingStatusEffect = (
-  gameManager: GameManager,
   buildingId: string,
   statusEffect: BuildingStatusEffects,
 ) => {
-  const building = gameManager.gameData.buildings[buildingId];
+  const building = GameManager.getInstance().gameData.buildings[buildingId];
   if (building.statusEffects.includes(statusEffect)) {
     building.statusEffects = building.statusEffects.filter(
       (effect) => effect !== statusEffect,
     );
   }
-  gameManager.updateGameData({ buildings: { [buildingId]: building } });
+  GameManager.getInstance().updateGameData({
+    buildings: { [buildingId]: building },
+  });
   return building;
 };
 
-export const admitHospitalPatient = (
-  gameManager: GameManager,
-  hospital: string,
-  person: string,
-) => {
-  const hospitalBuilding = gameManager.gameData.buildings[hospital];
-  const personData = gameManager.gameData.people[person];
+export const admitHospitalPatient = (hospital: string, person: string) => {
+  const hospitalBuilding =
+    GameManager.getInstance().gameData.buildings[hospital];
+  const personData = GameManager.getInstance().gameData.people[person];
   if (hospitalBuilding.type !== 'hospital') {
     return;
   }
@@ -403,26 +389,33 @@ export const admitHospitalPatient = (
     ...hospitalBuilding,
     inhabitants: [...hospitalBuilding.inhabitants, person],
   };
-  gameManager.updateGameData({
+  GameManager.getInstance().updateGameData({
     buildings: { [hospital]: updatedHospital },
     people: { [person]: { ...personData, hospitalizedAt: hospital } },
   });
 };
 
-export const handleHospitalOperations = (gameManager: GameManager) => {
+export const handleHospitalOperations = () => {
   // All hospitals handle their operations at once
-  const hospitals = getBuildings(gameManager, { type: 'hospital' });
-  hospitals.forEach((hospital) => {
-    if (hospital.personnel.length === 0) {
-      return;
-    }
+  const hospitals = getBuildings({ type: 'hospital' });
+  const updatedPeople: {
+    [x: string]: {
+      derivedAttributes: {
+        health: {
+          currentHealth: number;
+        };
+      };
+    };
+  } = {};
 
+  hospitals.forEach((hospital) => {
     if (hospital.inhabitants.length === 0) {
       return;
     }
 
     hospital.inhabitants.forEach((inhabitantId) => {
-      const inhabitant = gameManager.gameData.people[inhabitantId];
+      const inhabitant =
+        GameManager.getInstance().gameData.people[inhabitantId];
       const {
         derivedAttributes: {
           health: { currentHealth, totalHealth },
@@ -431,39 +424,40 @@ export const handleHospitalOperations = (gameManager: GameManager) => {
 
       if (currentHealth === totalHealth) {
         // direct discharge
-        dischargeHospitalPatient(gameManager, hospital.id, inhabitantId);
+        dischargeHospitalPatient(hospital.id, inhabitantId);
       }
+      const healthGain = 1 * hospital.personnel.length || 1;
+      const updatedInhabitant = {
+        derivedAttributes: {
+          health: {
+            currentHealth:
+              (
+                healthGain + inhabitant.derivedAttributes.health.currentHealth >
+                totalHealth
+              ) ?
+                totalHealth
+              : healthGain + inhabitant.derivedAttributes.health.currentHealth,
+          },
+        },
+      };
 
-      if (inhabitant.derivedAttributes.health.currentHealth < currentHealth) {
-        const updatedInhabitant = {
-          ...inhabitant,
-          health:
-            inhabitant.derivedAttributes.health.currentHealth +
-            1 * hospital.personnel.length,
-        };
-
-        gameManager.updateGameData({
-          people: { [inhabitantId]: updatedInhabitant },
-        });
-        if (
-          updatedInhabitant.derivedAttributes.health.currentHealth ===
-          totalHealth
-        ) {
-          // direct discharge
-          dischargeHospitalPatient(gameManager, hospital.id, inhabitantId);
-        }
+      updatedPeople[inhabitantId] = updatedInhabitant;
+      if (
+        updatedInhabitant.derivedAttributes.health.currentHealth === totalHealth
+      ) {
+        // direct discharge
+        // dischargeHospitalPatient(gameManager, hospital.id, inhabitantId);
       }
     });
   });
+
+  return updatedPeople;
 };
 
-export const dischargeHospitalPatient = (
-  gameManager: GameManager,
-  hospital: string,
-  person: string,
-) => {
-  const hospitalBuilding = gameManager.gameData.buildings[hospital];
-  const personData = gameManager.gameData.people[person];
+export const dischargeHospitalPatient = (hospital: string, person: string) => {
+  const hospitalBuilding =
+    GameManager.getInstance().gameData.buildings[hospital];
+  const personData = GameManager.getInstance().gameData.people[person];
   const updatedHospital = {
     ...hospitalBuilding,
     inhabitants: hospitalBuilding.inhabitants.filter(
@@ -476,7 +470,7 @@ export const dischargeHospitalPatient = (
     hospitalizedAt: null,
   };
 
-  gameManager.updateGameData({
+  GameManager.getInstance().updateGameData({
     buildings: { [hospitalBuilding.id]: updatedHospital },
     people: { [personData.id]: updatedPerson },
   });

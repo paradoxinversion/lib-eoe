@@ -24,11 +24,10 @@ export interface ReconPlotData {
 }
 
 export const executeReconPlot = (
-  gameManager: GameManager,
   params: PlotParamsStandard & PlotReconParams,
 ): PlotResult => {
   const { participants, targetZone, surrender } = params;
-  const { gameData } = gameManager;
+  const { gameData } = GameManager.getInstance();
   const zone = gameData.zones[targetZone!];
   /** Final intelligence modifier for the zone. May be negative
    * if the plot is failed
@@ -42,7 +41,7 @@ export const executeReconPlot = (
     // This is a placeholder for now
     intelMod = 10;
   } else {
-    enemyZoneAgents = getPeople(gameManager, {
+    enemyZoneAgents = getPeople({
       organizationId: zone.organizationId,
       zoneId: zone.id,
       agentFilter: { agentsOnly: true },
@@ -122,7 +121,7 @@ export const executeReconPlot = (
 
   // updatedZone.intelAttributes.intelligenceLevel += intelMod;
   updatedGameData.zones[updatedZone.id] = updatedZone;
-  const preupdateEmpire = getEvilEmpire(gameManager);
+  const preupdateEmpire = getEvilEmpire();
   const evilEmpire: GoverningOrganization = {
     ...preupdateEmpire,
     totalEvil: preupdateEmpire.totalEvil + 10,
@@ -131,7 +130,6 @@ export const executeReconPlot = (
   if (capturedAgentIds) {
     capturedAgentIds.forEach((agent) => {
       updatedGameData.people[agent] = takeCaptive(
-        gameManager,
         updatedZone.organizationId,
         gameData.people[agent],
       ).people![agent];

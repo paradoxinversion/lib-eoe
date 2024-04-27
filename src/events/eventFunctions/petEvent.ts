@@ -38,7 +38,7 @@ const petEventShufflebag = Shufflebag({
   boostMorale: 1,
 });
 
-export const generatePetEvent = (gameManager: GameManager) => {
+export const generatePetEvent = () => {
   // pets can...
   // - trash their kennels
   // - maul people
@@ -58,22 +58,21 @@ export const generatePetEvent = (gameManager: GameManager) => {
   switch (petEvent) {
     case 'detectIntruder':
       // get an intruder
-      const intruderOrg = getRandomOrg(gameManager, {
+      const intruderOrg = getRandomOrg({
         excludePlayer: true,
       });
 
       // Update this to be random
-      const intrudingAgent = getPeople(gameManager, {
+      const intrudingAgent = getPeople({
         organizationId: intruderOrg.id,
         agentFilter: { agentsOnly: true },
         excludeDeceased: true,
       })[0];
 
       targetId = intrudingAgent.id;
-      gameManager.updateGameData(
+      GameManager.getInstance().updateGameData(
         takeCaptive(
-          gameManager,
-          gameManager.gameData.player.organizationId,
+          GameManager.getInstance().gameData.player.organizationId,
           intrudingAgent,
         ),
       );
@@ -83,35 +82,38 @@ export const generatePetEvent = (gameManager: GameManager) => {
       break;
     case 'maul': {
       // Select an empire agent
-      const agentPool = getPeople(gameManager, {
-        organizationId: gameManager.gameData.player.organizationId,
+      const agentPool = getPeople({
+        organizationId:
+          GameManager.getInstance().gameData.player.organizationId,
         agentFilter: { agentsOnly: true, excludeDepartments: [3] },
         excludeDeceased: true,
       });
       const agent = agentPool[randomInt(0, agentPool.length - 1)];
       targetId = agent.id;
       updatedGameData = updateCurrentHealth(agent, -randomInt(1, 10));
-      gameManager.updateGameData(updatedGameData);
+      GameManager.getInstance().updateGameData(updatedGameData);
       message = `Your pet has mauled ${agent.name}`;
       break;
     }
     case 'trashKennel':
-      const buildings = getBuildings(gameManager, {
+      const buildings = getBuildings({
         zoneId:
-          gameManager.gameData.people[gameManager.gameData.player.overlordId]
-            .homeZoneId,
+          GameManager.getInstance().gameData.people[
+            GameManager.getInstance().gameData.player.overlordId
+          ].homeZoneId,
       });
       const selectedBuilding = buildings[randomInt(0, buildings.length - 1)];
       updatedGameData = {
         ...updatedGameData,
-        ...addBuildingStatusEffect(gameManager, selectedBuilding.id, 'trashed'),
+        ...addBuildingStatusEffect(selectedBuilding.id, 'trashed'),
       };
-      gameManager.updateGameData(updatedGameData);
+      GameManager.getInstance().updateGameData(updatedGameData);
       message = `Your pet has trashed ${selectedBuilding.name}`;
       break;
     case 'boostMorale':
-      const agents = getPeople(gameManager, {
-        organizationId: gameManager.gameData.player.organizationId,
+      const agents = getPeople({
+        organizationId:
+          GameManager.getInstance().gameData.player.organizationId,
         agentFilter: { agentsOnly: true },
         excludeDeceased: true,
       });
@@ -119,10 +121,10 @@ export const generatePetEvent = (gameManager: GameManager) => {
       agents.forEach((agent) => {
         // boost morale
 
-        gameManager.updateGameData(
+        GameManager.getInstance().updateGameData(
           updateLoyalty(
             agent,
-            gameManager.gameData.player.organizationId,
+            GameManager.getInstance().gameData.player.organizationId,
             randomInt(1, 3),
           ),
         );
@@ -137,7 +139,7 @@ export const generatePetEvent = (gameManager: GameManager) => {
           people: {},
         },
       );
-      gameManager.updateGameData(updatedGameData);
+      GameManager.getInstance().updateGameData(updatedGameData);
       message = `Your pet has boosted the morale of your agents`;
       break;
     default:
@@ -156,7 +158,7 @@ export function setPetEventParams(this: GameEvent, params: PetEventParams) {
   this.params = params;
 }
 
-export function resolvePetEvent(this: GameEvent, gameManager: GameManager) {
+export function resolvePetEvent(this: GameEvent) {
   const params = this.params as PetEventParams;
 
   this.eventData = {

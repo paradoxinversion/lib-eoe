@@ -4,18 +4,15 @@ import { updateIntelAttribute } from '../../actions/people';
 import { Person } from '../../types/interfaces/entities';
 import { randomInt } from '../../utilities';
 
-export const peacePatrol = (
-  gameManager: GameManager,
-  participantArray: string[],
-) => {
+export const peacePatrol = (participantArray: string[]) => {
   const updatedGameData: { people: { [x: string]: Person } } = {
     people: {},
   };
   participantArray.forEach((participant) => {
-    const agent = gameManager.gameData.people[participant];
-    const agentHomeZone = gameManager.gameData.zones[agent.homeZoneId];
+    const agent = GameManager.getInstance().gameData.people[participant];
+    const agentHomeZone =
+      GameManager.getInstance().gameData.zones[agent.homeZoneId];
     const homeZoneCitizens = zones.getZoneCitizens(
-      gameManager,
       agentHomeZone.id,
       true,
       true,

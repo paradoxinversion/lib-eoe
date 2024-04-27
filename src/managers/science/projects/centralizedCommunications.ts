@@ -25,16 +25,15 @@ const startHandler = function (
 };
 
 const progressHandler = function (
-  gameManager: GameManager,
   status: ScienceProjectStatus,
 ): ScienceProjectStatus {
   const project =
-    gameManager.scienceManager.PROJECT_DEFINITIONS[
+    GameManager.getInstance().scienceManager.PROJECT_DEFINITIONS[
       status.indexName as ScienceProject
     ];
   const empireUpdate =
-    gameManager.gameData.governingOrganizations[
-      gameManager.gameData.player.organizationId
+    GameManager.getInstance().gameData.governingOrganizations[
+      GameManager.getInstance().gameData.player.organizationId
     ];
   const contribution = Math.min(
     empireUpdate.science,
@@ -45,10 +44,10 @@ const progressHandler = function (
   // science, but the empire's science is not being
   // reduced, and this event never completes.
   if (contribution > 0) {
-    gameManager.updateGameData({
+    GameManager.getInstance().updateGameData({
       governingOrganizations: {
-        ...gameManager.gameData.governingOrganizations,
-        [gameManager.gameData.player.organizationId]: {
+        ...GameManager.getInstance().gameData.governingOrganizations,
+        [GameManager.getInstance().gameData.player.organizationId]: {
           ...empireUpdate,
           science: empireUpdate.science - contribution,
         },
@@ -65,15 +64,13 @@ const progressHandler = function (
 };
 
 const completeHandler = function (
-  gameManager: GameManager,
   status: ScienceProjectStatus,
 ): ScienceProjectResult {
   return {
     indexName: status.indexName,
     updatedGameData: applyStatusEffect(
-      gameManager,
       'centralized-telecommunications',
-      gameManager.gameData.player.organizationId,
+      GameManager.getInstance().gameData.player.organizationId,
     ),
   };
 };

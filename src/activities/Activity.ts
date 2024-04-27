@@ -45,8 +45,8 @@ export default class Activity {
   /**
    * Add an agent to the activity
    */
-  addAgent(gameManager: GameManager, agent: string) {
-    const { gameData } = gameManager;
+  addAgent(agent: string) {
+    const { gameData } = GameManager.getInstance();
     let updatedGameData: { people: { [x: string]: Person } } = {
       people: {},
     };
@@ -63,8 +63,8 @@ export default class Activity {
   /**
    * Remove an agent from the activity
    */
-  removeAgent(gameManager: GameManager, agentId: string) {
-    const { gameData } = gameManager;
+  removeAgent(agentId: string) {
+    const { gameData } = GameManager.getInstance();
     let updatedGameData: { people: { [x: string]: Person } } = {
       people: {},
     };
@@ -84,8 +84,8 @@ export default class Activity {
   /**
    * Execute this activity
    */
-  executeActivity(gameManager: GameManager) {
-    const result = this.fn(gameManager, this.agents);
+  executeActivity() {
+    const result = this.fn(this.agents);
 
     const updatedGameData: { people: { [x: string]: Person } } = {
       people: {},
@@ -94,8 +94,7 @@ export default class Activity {
     if (result) {
       // Update empire wealth
       updateOrgWealth(
-        gameManager,
-        gameManager.gameData.player.organizationId,
+        GameManager.getInstance().gameData.player.organizationId,
         -this.costPerParticipant * this.agents.length,
       );
       Object.values<Person>(result.people).forEach((person: Person) => {

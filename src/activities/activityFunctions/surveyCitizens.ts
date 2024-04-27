@@ -4,10 +4,7 @@ import { updateEvil } from '../../organization';
 import { Person } from '../../types/interfaces/entities';
 import { randomInt } from '../../utilities';
 
-export const surveyCitizens = (
-  gameManager: GameManager,
-  participantArray: string[],
-) => {
+export const surveyCitizens = (participantArray: string[]) => {
   if (participantArray.length === 0) {
     return null;
   }
@@ -15,9 +12,10 @@ export const surveyCitizens = (
     people: {},
   };
   participantArray.forEach((participant) => {
-    const agent = gameManager.gameData.people[participant];
-    const agentHomeZone = gameManager.gameData.zones[agent.homeZoneId];
-    const homeZoneCitizens = getPeople(gameManager, {
+    const agent = GameManager.getInstance().gameData.people[participant];
+    const agentHomeZone =
+      GameManager.getInstance().gameData.zones[agent.homeZoneId];
+    const homeZoneCitizens = getPeople({
       zoneId: agentHomeZone.id,
     });
 
@@ -35,7 +33,7 @@ export const surveyCitizens = (
     };
   });
 
-  updateEvil(gameManager, 1);
+  updateEvil(1);
 
   return updatedGameData;
 };

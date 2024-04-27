@@ -6,11 +6,13 @@ export interface PlotResolution {
   resolution: any;
 }
 export class PlotManager {
+  private static instance: PlotManager;
   plotQueue: Plot[];
   currentPlot: number;
   plots: ActivityConfig[];
   plotResolutions: PlotResolution[];
   constructor() {
+    console.log('Plot Manager Initialized');
     /**
      * @type {Plot[]}
      */
@@ -18,6 +20,13 @@ export class PlotManager {
     this.currentPlot = 0;
     this.plots = [];
     this.plotResolutions = [];
+  }
+  public static getInstance(): PlotManager {
+    if (!PlotManager.instance) {
+      PlotManager.instance = new PlotManager();
+    }
+
+    return PlotManager.instance;
   }
 
   /**
@@ -65,8 +74,8 @@ export class PlotManager {
   /**
    * Execute a plot, returning...
    */
-  executePlot(plot: Plot, gameManager: GameManager): PlotResolution {
-    return plot.executePlot(gameManager);
+  executePlot(plot: Plot): PlotResolution {
+    return plot.executePlot();
   }
 
   /**
@@ -74,11 +83,11 @@ export class PlotManager {
    * to the plot's `plotResolutions` property. Returns
    * the resolutions.
    */
-  executePlots(gameManager: GameManager): PlotResolution[] {
+  executePlots(): PlotResolution[] {
     this.plotQueue.forEach((plot) => {
       this.plotResolutions.push({
         plot,
-        resolution: this.executePlot(plot, gameManager),
+        resolution: this.executePlot(plot),
       });
     });
     return this.plotResolutions;
