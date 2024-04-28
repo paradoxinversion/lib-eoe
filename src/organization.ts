@@ -61,7 +61,7 @@ const getMaxAgents = (organizationId: string) => {
       currentAgent.agent &&
       currentAgent.agent.organizationId === organizationId
     ) {
-      return maxAgentValue + currentAgent.skills.leadership;
+      return maxAgentValue + Math.floor(currentAgent.skills.leadership / 2);
     }
 
     return maxAgentValue;
