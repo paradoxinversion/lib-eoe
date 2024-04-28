@@ -531,3 +531,41 @@ export const setCodename = (personId: string, codename: string) => {
     },
   };
 };
+
+export const relocatePerson = (person: Person, zoneId: string) => {
+  console.debug('Relocating person', person.id, 'to zone', zoneId);
+  const residence =
+    person.residentAt ?
+      GameManager.getInstance().gameData.buildings[person.residentAt]
+    : null;
+  const updatedPerson = {
+    ...person,
+    homeZoneId: zoneId,
+    residentAt: null,
+  };
+
+  if (residence) {
+    const building = GameManager.getInstance().gameData.buildings[residence.id];
+    const updatedBuilding = {
+      ...building,
+      residents: building.inhabitants.filter((r) => r !== person.id),
+    };
+    GameManager.getInstance().updateGameData({
+      buildings: {
+        [updatedBuilding.id]: updatedBuilding,
+      },
+    });
+  }
+
+  GameManager.getInstance().updateGameData({
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  });
+
+  return {
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  };
+};
