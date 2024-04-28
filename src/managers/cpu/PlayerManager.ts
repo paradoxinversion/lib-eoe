@@ -1,5 +1,5 @@
 import Player from './Player';
-
+import { PlayerData } from '../../types/player';
 class PlayerManager {
   private static instance: PlayerManager;
   players: { [key: string]: Player };
@@ -19,13 +19,24 @@ class PlayerManager {
   public addPlayer(player: Player) {
     this.players[player.player.name] = player;
   }
-
+  public setPlayers(players: Player[]) {
+    players.forEach((player) => {
+      this.players[player.player.name] = player;
+    });
+  }
   public takeTurns() {
     Object.values(this.players).forEach((player) => {
       if (!player.player.cpu) return;
 
       player.play();
     });
+  }
+
+  public serializedPlayers() {
+    const players = Object.values(this.players).map((player) =>
+      player.serialize(),
+    );
+    return players;
   }
 }
 

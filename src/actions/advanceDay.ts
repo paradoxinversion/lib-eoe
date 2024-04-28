@@ -129,8 +129,29 @@ export const advanceDay = () => {
   gameDate.setDate(gameDate.getDate() + 1);
   updatedGameData.gameDate = gameDate;
 
+  // Everyone who is alive should regain 1 hp
+  getPeople({
+    excludeDeceased: true,
+  }).forEach((person) => {
+    GameManager.getInstance().updateGameData({
+      people: {
+        [person.id]: {
+          ...person,
+          derivedAttributes: {
+            ...person.derivedAttributes,
+            health: {
+              ...person.derivedAttributes.health,
+              currentHealth: person.derivedAttributes.health.currentHealth++,
+            },
+          },
+        },
+      },
+    });
+  });
+
   // Finalize the updates
   GameManager.getInstance().updateGameData(updatedGameData);
+
   return {
     updatedGameData,
     gameEventQueue,

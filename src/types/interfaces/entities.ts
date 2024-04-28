@@ -80,6 +80,7 @@ export interface Person {
   agent: AgentData | null;
   /** Whether or not the person is working in a building */
   isPersonnel: boolean;
+  residentAt: string | null;
   personnelAt: string | null;
   dead: boolean;
   wealth: number;

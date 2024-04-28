@@ -13,6 +13,7 @@ import { generateCompanyName, generateName } from '../generators/names';
 import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
 import { PersonStatusEffect } from '../statusEffects/person';
 import { BuildingType, buildingsSchematics } from '../buildings';
+import settings from '../config';
 const { v4: uuidv4 } = require('uuid');
 
 interface GenerateNationOpts {
@@ -102,16 +103,22 @@ const generateNations = (
 const generateZone = ({
   nationId = 'UNSET',
   name = 'Unnamed Zone',
-  size = 50,
+  size = randomInt(
+    settings.worldGen.zones.minSize,
+    settings.worldGen.zones.maxSize,
+  ),
   organizationId = 'UNSET',
-  intelligenceLevel = 25,
+  intelligenceLevel = settings.worldGen.zones.defaultIntelligenceLevel,
 }: GenerateZoneOpts): Zone => {
   return {
     id: 'z_' + uuidv4(),
     nationId,
     name,
     size,
-    wealth: randomInt(1, 5),
+    wealth: randomInt(
+      settings.worldGen.zones.minWealth,
+      settings.worldGen.zones.maxWealth,
+    ),
     organizationId,
     intelligenceLevel,
     intelAttributes: {
@@ -144,16 +151,30 @@ const generatePerson = ({
   initAdministration,
   initLeadership,
   initLoyalty,
-  intelligenceLevel = 25,
+  intelligenceLevel = settings.worldGen.people.defaultIntelligenceLevel,
 }: GeneratePersonOpts): Person => {
   if (name === 'Unnamed Person') {
     name = generateName();
   }
   // Standard Attributes
-  const strength = randomInt(1, 10);
-  const constitution = randomInt(1, 10);
-  const agility = randomInt(1, 10);
-  const intelligence = initIntelligence || randomInt(1, 10);
+  const strength = randomInt(
+    settings.worldGen.people.attributeMin,
+    settings.worldGen.people.attributeMax,
+  );
+  const constitution = randomInt(
+    settings.worldGen.people.attributeMin,
+    settings.worldGen.people.attributeMax,
+  );
+  const agility = randomInt(
+    settings.worldGen.people.attributeMin,
+    settings.worldGen.people.attributeMax,
+  );
+  const intelligence =
+    initIntelligence ||
+    randomInt(
+      settings.worldGen.people.attributeMin,
+      settings.worldGen.people.attributeMax,
+    );
 
   const loyalty = initLoyalty || randomInt(1, 100);
   const combat = initCombat || randomInt(1, 10);
@@ -182,13 +203,45 @@ const generatePerson = ({
   }
 
   // Skills
-  const espionage = randomInt(1, 10);
-  const disguise = randomInt(1, 10);
-  const science = randomInt(1, 10);
-  const administration = initAdministration || randomInt(1, 10);
-  const leadership = initLeadership || randomInt(1, 10);
-  const security = randomInt(1, 10);
-  const medicine = randomInt(1, 10);
+  const espionage = randomInt(
+    settings.worldGen.people.minSkill,
+    settings.worldGen.people.maxSkill,
+  );
+
+  const disguise = randomInt(
+    settings.worldGen.people.minSkill,
+    settings.worldGen.people.maxSkill,
+  );
+
+  const science = randomInt(
+    settings.worldGen.people.minSkill,
+    settings.worldGen.people.maxSkill,
+  );
+
+  const administration =
+    initAdministration ||
+    randomInt(
+      settings.worldGen.people.minSkill,
+      settings.worldGen.people.maxSkill,
+    );
+
+  const leadership =
+    initLeadership ||
+    randomInt(
+      settings.worldGen.people.minSkill,
+      settings.worldGen.people.maxSkill,
+    );
+
+  const security = randomInt(
+    settings.worldGen.people.minSkill,
+    settings.worldGen.people.maxSkill,
+  );
+
+  const medicine = randomInt(
+    settings.worldGen.people.minSkill,
+    settings.worldGen.people.maxSkill,
+  );
+
   return {
     id: 'p_' + uuidv4(),
     nationId,
@@ -233,6 +286,7 @@ const generatePerson = ({
       security,
       medicine,
     },
+    residentAt: null,
   };
 };
 
@@ -348,21 +402,36 @@ const generateBuilding = ({
   const schematic = buildingsSchematics[buildingType];
   switch (buildingType) {
     case 'bank':
-      wealthBonus = randomInt(10, 25);
+      wealthBonus = randomInt(
+        settings.worldGen.buildings.minWealthBonus,
+        settings.worldGen.buildings.maxWealthBonus,
+      );
       break;
 
     case 'apartment':
-      housingCapacity = randomInt(10, 20);
+      housingCapacity = randomInt(
+        settings.worldGen.buildings.minHousingCapacity,
+        settings.worldGen.buildings.maxHousingCapacity,
+      );
       break;
 
     case 'laboratory':
-      maxPersonnel = randomInt(1, 5);
+      maxPersonnel = randomInt(
+        settings.worldGen.buildings.minSize,
+        settings.worldGen.buildings.maxSize,
+      );
       break;
     case 'office':
-      infrastructureBonus = randomInt(15, 30);
+      infrastructureBonus = randomInt(
+        settings.worldGen.buildings.minInfrastuctureBonus,
+        settings.worldGen.buildings.maxInfrastuctureBonus,
+      );
       break;
     case 'hospital':
-      beds = randomInt(schematic.maxBeds / 2, schematic.maxBeds);
+      beds = randomInt(
+        settings.worldGen.buildings.minHospitalBeds,
+        settings.worldGen.buildings.maxHospitalBeds,
+      );
       break;
     default:
       break;

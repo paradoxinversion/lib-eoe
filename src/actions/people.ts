@@ -16,6 +16,7 @@ import {
 import { randomInt } from '../utilities';
 
 interface GetPeopleParams {
+  limit?: number;
   zoneId?: string | null;
   zone?: {
     zoneId?: string | null;
@@ -43,6 +44,7 @@ interface GetPeopleParams {
   injuredOnly?: boolean;
   hospitalizedOnly?: boolean;
   noHospitalized?: boolean;
+  residentAt?: string;
   captive?: {
     captiveOnly?: boolean;
     capturedBy?: string;
@@ -50,6 +52,7 @@ interface GetPeopleParams {
 }
 
 const GetPeopleDefaultParams: GetPeopleParams = {
+  limit: 0,
   zoneId: null,
   zone: {
     zoneId: null,
@@ -77,6 +80,7 @@ const GetPeopleDefaultParams: GetPeopleParams = {
   injuredOnly: false,
   hospitalizedOnly: false,
   noHospitalized: false,
+  residentAt: '',
   captive: {
     captiveOnly: false,
     capturedBy: '',
@@ -100,7 +104,10 @@ export const getPeople = (params: GetPeopleParams = {}) => {
     },
   };
   return Object.values(GameManager.getInstance().gameData.people).filter(
-    (person) => {
+    (person, index) => {
+      // if (options.limit && options.limit > 0 && index >= options.limit) {
+      //   return false;
+      // }
       let capturingOrg = null;
       if (options.captive?.capturedBy) {
         capturingOrg =
@@ -220,6 +227,10 @@ export const getPeople = (params: GetPeopleParams = {}) => {
       }
 
       if (options.noHospitalized && person.hospitalizedAt) {
+        return false;
+      }
+
+      if (options.residentAt && person.residentAt !== options.residentAt) {
         return false;
       }
 

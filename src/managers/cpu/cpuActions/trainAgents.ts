@@ -15,7 +15,7 @@ const trainAgents = (player: Player) => {
     const skillsPool = Object.keys(agent.skills);
     const skill = skillsPool[randomInt(0, skillsPool.length - 1)];
     const skillIncrease = randomInt(0, 1);
-    agent.skills[skill as SkillTypes] += skillIncrease;
+    // agent.skills[skill as SkillTypes] += skillIncrease;
   });
 };
 export default trainAgents;

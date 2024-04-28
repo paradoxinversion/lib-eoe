@@ -1,4 +1,4 @@
-import { Player as IPlayer } from '../../types/player';
+import { PlayerData as IPlayer } from '../../types/player';
 import cpuActionNothing from './cpuActions/nothing';
 import trainAgents from './cpuActions/trainAgents';
 import { Shufflebag } from '../../utilities';
@@ -30,6 +30,10 @@ class Player {
         cpuActionNothing(this);
         break;
     }
+  }
+
+  serialize() {
+    return this.player;
   }
 }
 

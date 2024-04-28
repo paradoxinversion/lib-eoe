@@ -1,4 +1,4 @@
-export type Player = {
+export type PlayerData = {
   cpu: boolean;
   name: string;
   empireId: string;

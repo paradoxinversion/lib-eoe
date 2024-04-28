@@ -477,6 +477,20 @@ export const dischargeHospitalPatient = (hospital: string, person: string) => {
 
   return updatedHospital;
 };
+
+export const addInhabitant = (buildingId: string, personId: string) => {
+  const building = GameManager.getInstance().gameData.buildings[buildingId];
+  const updatedBuilding = {
+    ...building,
+    inhabitants: [...building.inhabitants, personId],
+  };
+
+  GameManager.getInstance().updateGameData({
+    buildings: { [buildingId]: updatedBuilding },
+  });
+
+  return updatedBuilding;
+};
 export {
   buildingsSchematics,
   getInfrastructureLoad,
