@@ -20,7 +20,7 @@ export const generateOccupationalHazardEvent = () => {
   // Select a random empire agent
   const agents = getPeople({
     organizationId: GameManager.getInstance().gameData.player.organizationId,
-    agentFilter: { agentsOnly: true, excludeDepartments: [3] },
+    agentFilter: { agentsOnly: true, excludeDepartments: ['overlord'] },
     excludeDeceased: true,
   });
 

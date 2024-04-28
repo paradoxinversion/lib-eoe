@@ -3,14 +3,14 @@ import { getPeople } from '../../actions/people';
 import { getZones } from '../../actions/zones';
 import { generateAgentData } from '../../generators/game';
 import { calculateAgentSalary, getMaxAgents } from '../../organization';
-import { Person } from '../../types/interfaces/entities';
+import { AgentDepartment, Person } from '../../types/interfaces/entities';
 import { randomInt } from '../../utilities';
 import { getZoneCitizens } from '../../zones';
 import GameEvent, { EventConfig } from '../GameEvent';
 
 export interface EvilApplicantParams {
   recruit: Person;
-  department: number;
+  department: AgentDepartment;
   organizationId: string;
 }
 
@@ -89,8 +89,7 @@ export function resolveEvilApplicant(
 
   switch (resolveArgs.resolutionValue) {
     case 1:
-      const department = parseInt(resolveArgs.data.department);
-      params.department = parseInt(resolveArgs.data.department);
+      params.department = resolveArgs.data.department as AgentDepartment;
 
       const updatedAgent: Person = { ...gameData.people[params.recruit?.id!] };
       const salary = calculateAgentSalary(updatedAgent);

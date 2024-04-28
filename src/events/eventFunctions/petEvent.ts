@@ -85,7 +85,7 @@ export const generatePetEvent = () => {
       const agentPool = getPeople({
         organizationId:
           GameManager.getInstance().gameData.player.organizationId,
-        agentFilter: { agentsOnly: true, excludeDepartments: [3] },
+        agentFilter: { agentsOnly: true, excludeDepartments: ['overlord'] },
         excludeDeceased: true,
       });
       const agent = agentPool[randomInt(0, agentPool.length - 1)];

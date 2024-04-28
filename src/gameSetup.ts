@@ -235,170 +235,6 @@ const handleNewGameV2 = (options: NewGameOptions) => {
 };
 
 /**
- * Sets up a new EOE game, spawning Nations, Orgs,
- * Zones, and People, including the EVIL Empire.
- */
-const handleNewGame = (gameManager: GameManager, options: NewGameOptions) => {
-  const newGameData: GameData = {
-    nations: {},
-    governingOrganizations: {},
-    zones: {},
-    people: {},
-    player: {
-      empireId: '',
-      overlordId: '',
-      organizationId: '',
-    },
-    buildings: {},
-    gameDate: new Date('2000-1-1'),
-    gameLog: {
-      simActions: {
-        people: {},
-      },
-      events: [],
-    },
-  };
-
-  // Create the EVIL Empire nation
-  const evilEmpireNation = generateNation({
-    name: 'EVIL Empire',
-    size: 1,
-  });
-
-  newGameData.nations[evilEmpireNation.id] = evilEmpireNation;
-
-  const evilEmpireOrg = generateGoverningOrg({
-    nationId: evilEmpireNation.id,
-    evil: true,
-    name: 'EVIL Empire',
-  });
-
-  if (options.pet) {
-    evilEmpireOrg.statusEffects.push('pet');
-  }
-
-  if (options.takePrisoners === false) {
-    evilEmpireOrg.statusEffects.push('no-prisoners');
-    evilEmpireOrg.totalEvil += 25;
-  }
-
-  newGameData.governingOrganizations[evilEmpireOrg.id] = evilEmpireOrg;
-
-  evilEmpireNation.organizationId = evilEmpireOrg.id;
-  const evilZone = generateZone({
-    nationId: evilEmpireNation.id,
-    name: 'Evil HQ',
-    size: 50,
-    organizationId: evilEmpireOrg.id,
-  });
-
-  evilZone.intelAttributes.intelligenceLevel = 100;
-
-  newGameData.zones[evilZone.id] = evilZone;
-
-  const evilOverlord = generatePerson({
-    nationId: evilEmpireNation.id,
-    homeZoneId: evilZone.id,
-    name: options.overlordName || 'EVIL Overlord',
-    initIntelligence: 10,
-    initCombat: 10,
-    initLeadership: 20,
-    initLoyalty: 100,
-    initAdministration: 10,
-  });
-
-  evilOverlord.intelAttributes.loyalties = setLoyalty(
-    evilOverlord,
-    evilEmpireOrg.id,
-    100,
-  ).people[evilOverlord.id].intelAttributes.loyalties;
-
-  evilOverlord.intelAttributes.intelligenceLevel = 100;
-
-  evilOverlord.agent = generateAgentData(evilEmpireOrg.id, 3, 0);
-
-  newGameData.people[evilOverlord.id] = evilOverlord;
-
-  newGameData.player.empireId = evilEmpireNation.id;
-  newGameData.player.overlordId = evilOverlord.id;
-  newGameData.player.organizationId = evilEmpireOrg.id;
-
-  // Generate initial nations
-  newGameData.nations = {
-    ...newGameData.nations,
-    ...generateNations(settings.NATIONS_AMT, 1, 10),
-  };
-
-  // For each nation that is not the EOE, create a gov org and name
-  Object.values(newGameData.nations).forEach((nation) => {
-    if (nation.id !== evilEmpireNation.id) {
-      nation.name = nationNameShuffleBag.next();
-      const newOrg = generateGoverningOrg({
-        nationId: nation.id,
-      });
-      nation.organizationId = newOrg.id;
-      newGameData.governingOrganizations[newOrg.id] = newOrg;
-    }
-  });
-
-  // For each nation that is not the EOE, create zones
-  Object.values(newGameData.nations).forEach((nation) => {
-    if (nation.id !== evilEmpireNation.id) {
-      const newZones = generateZones(randomInt(3, 5));
-
-      Object.values(newZones).forEach((zone) => {
-        zone.name = generateZoneName();
-        newGameData.zones[zone.id] = {
-          ...zone,
-          nationId: nation.id,
-          organizationId: nation.organizationId,
-        };
-      });
-    }
-  });
-
-  // For each zone, create people
-  Object.values(newGameData.zones).forEach((zone) => {
-    for (let personIndex = 0; personIndex < zone.size; personIndex++) {
-      const p = generatePerson({
-        nationId: zone.nationId,
-        homeZoneId: zone.id,
-      });
-
-      if (zone.id === evilZone.id) {
-        p.intelAttributes.intelligenceLevel = 75;
-      }
-
-      newGameData.people[p.id] = p;
-    }
-  });
-
-  // For each zone, create Buildings
-  // DO create these for the empire
-  Object.values(newGameData.zones).forEach((zone) => {
-    // determine how many buildings are in this zone
-    const zoneBuildingsAmt = randomInt(10, 15);
-    for (
-      let buildingIndex = 0;
-      buildingIndex < zoneBuildingsAmt;
-      buildingIndex++
-    ) {
-      const buildingType = buildingShufflebag.next();
-      const schematic = buildingsSchematics[buildingType as BuildingType];
-      const b = generateBuilding({
-        zoneId: zone.id,
-        buildingType: schematic.buildingType as BuildingType,
-        infrastructureCost: schematic.infrastructureCost,
-        organizationId: newGameData.nations[zone.nationId].organizationId,
-        upkeepCost: schematic.upkeepCost,
-      });
-      newGameData.buildings[b.id] = b;
-    }
-  });
-  gameManager.updateGameData(newGameData);
-};
-
-/**
  *
  */
 const hireStartingAgents = () => {
@@ -418,7 +254,7 @@ const hireStartingAgents = () => {
         const recruit = hireAgent(
           citizens[recruitIndex],
           playerData.organizationId,
-          0,
+          'troop',
           playerData.overlordId,
         );
         recruit!.intelAttributes.intelligenceLevel = 100;
@@ -441,16 +277,13 @@ const hireStartingAgents = () => {
       initAdministration: 10,
     });
 
-    const leaderAgent = generateAgentData(org.id, 1, 100);
-    leader.agent = leaderAgent;
-    updatedPeople[leader.id] = leader;
     orgZones.forEach((zone) => {
       const zoneCitizens = getZoneCitizens(zone.id);
       const zoneAgents = Math.floor(zoneCitizens.length * 0.3);
       for (let recruitIndex = 0; recruitIndex < zoneAgents; recruitIndex++) {
         const recruitType = recruitDepartmentShufflebag.next().toString();
         const recruit = zoneCitizens[recruitIndex];
-        const agentUpdate = hireAgent(recruit, org.id, 1, leader.id);
+        const agentUpdate = hireAgent(recruit, org.id, 'troop', leader.id);
         if (agentUpdate !== null) {
           updatedPeople[recruit.id] = agentUpdate;
         }
@@ -538,9 +371,4 @@ const initializePersonnel = () => {
 
 const createGameManager = () => new GameManager();
 
-export {
-  handleNewGame,
-  handleNewGameV2,
-  hireStartingAgents,
-  createGameManager,
-};
+export { handleNewGameV2, hireStartingAgents, createGameManager };

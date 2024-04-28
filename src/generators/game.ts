@@ -1,5 +1,6 @@
 import {
   AgentData,
+  AgentDepartment,
   Building,
   GoverningOrganization,
   Nation,
@@ -254,7 +255,7 @@ const generateAgentData = (
   /** The ID of the organization this agent will be associated with */
   organizationId: string,
   /** 0 (troop), 1 (administrator), 2 (scientist), or 3 (governing org leader) */
-  department: number,
+  department: AgentDepartment,
   /** The id of the Agent that is directly superior to this one */
   /** the agent's monthly pay */
   salary: number,

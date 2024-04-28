@@ -10,7 +10,11 @@ import {
 import { generateAgentData } from './generators/game';
 import { getCodeName } from './generators/names';
 import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
-import { GoverningOrganization, Person } from './types/interfaces/entities';
+import {
+  AgentDepartment,
+  GoverningOrganization,
+  Person,
+} from './types/interfaces/entities';
 import { randomInt, throwErrorFromArray } from './utilities';
 
 /**
@@ -99,8 +103,8 @@ const getInfrastructure = (organizationId: string) => {
     agentFilter: { agentsOnly: true },
   }).reduce((infrastructure, currentAgent) => {
     if (
-      currentAgent?.agent?.department === 1 ||
-      currentAgent?.agent?.department === 3
+      currentAgent?.agent?.department === 'administrator' ||
+      currentAgent?.agent?.department === 'overlord'
     ) {
       return infrastructure + currentAgent.skills.administration;
     }
@@ -112,7 +116,7 @@ const getInfrastructure = (organizationId: string) => {
 const getPayroll = (organizationId: string) => {
   return getPeople({
     organizationId,
-    agentFilter: { department: -1, agentsOnly: true },
+    agentFilter: { agentsOnly: true },
   }).reduce((payroll, currentAgent) => {
     return payroll + (currentAgent?.agent?.salary || 0);
   }, 0);
@@ -121,7 +125,7 @@ const getPayroll = (organizationId: string) => {
 const hireAgent = (
   newAgent: Person,
   organizationId: string,
-  department: number,
+  department: AgentDepartment,
   commanderId: string,
   salary?: number,
 ) => {

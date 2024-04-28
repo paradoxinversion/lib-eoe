@@ -21,7 +21,7 @@ function resolveTemperTantrum(this: GameEvent) {
   const pool = getPeople({
     organizationId: getEvilEmpire().id,
     agentFilter: {
-      department: 1,
+      department: 'administrator',
       agentsOnly: true,
     },
   });

@@ -118,7 +118,7 @@ const prepareRandomEvents = () => {
             organizationId: getEvilEmpire().id,
             agentFilter: {
               agentsOnly: true,
-              department: 1,
+              department: 'administrator',
             },
           }).length > 0
         ) {

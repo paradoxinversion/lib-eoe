@@ -11,6 +11,7 @@ import {
   Person,
   PersonStandardAttributes,
   PersonIntelAttributes,
+  AgentDepartment,
 } from '../types/interfaces/entities';
 import { randomInt } from '../utilities';
 
@@ -27,11 +28,11 @@ interface GetPeopleParams {
   };
   agentFilter?: {
     excludeAgents?: boolean;
-    department?: number;
+    department?: AgentDepartment | 'any';
     agentsOnly?: boolean;
     commander?: string;
     excludeParticipants?: boolean;
-    excludeDepartments?: number[];
+    excludeDepartments?: AgentDepartment[];
   };
   excludeDeceased?: boolean;
   excludePersonnel?: boolean;
@@ -61,7 +62,7 @@ const GetPeopleDefaultParams: GetPeopleParams = {
   },
   agentFilter: {
     excludeAgents: false,
-    department: -1,
+    department: 'any',
     agentsOnly: false,
     commander: '',
     excludeParticipants: false,
@@ -161,7 +162,7 @@ export const getPeople = (params: GetPeopleParams = {}) => {
       }
 
       if (
-        options.agentFilter?.department !== -1 &&
+        options.agentFilter?.department !== 'any' &&
         person.agent?.department !== options.agentFilter?.department
       ) {
         return false;
@@ -228,20 +229,22 @@ export const getPeople = (params: GetPeopleParams = {}) => {
 };
 
 export const getAgentDepartment = (agentData: AgentData) => {
-  if (agentData.department === 0) {
+  if (agentData.department === 'troop') {
     return 'Henchman';
-  } else if (agentData.department === 1) {
+  } else if (agentData.department === 'administrator') {
     return 'Administrator';
-  } else if (agentData.department === 2) {
+  } else if (agentData.department === 'scientist') {
     return 'Scientist';
-  } else if (agentData.department === 3) {
+  } else if (agentData.department === 'overlord') {
     return 'Chief Commander';
+  } else {
+    return 'Doctor';
   }
 };
 
 export const changeAgentDepartment = (
   theAgent: Person,
-  department: number,
+  department: AgentDepartment,
 ): Partial<GameData> => {
   const updatedPerson: Person = {
     ...theAgent,
@@ -250,6 +253,11 @@ export const changeAgentDepartment = (
       department,
     },
   };
+  GameManager.getInstance().updateGameData({
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  });
 
   return {
     people: {

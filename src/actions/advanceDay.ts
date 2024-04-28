@@ -33,7 +33,7 @@ export const advanceDay = () => {
   // Run actions for people
   getPeople({
     excludeDeceased: true,
-    agentFilter: { excludeDepartments: [3] },
+    agentFilter: { excludeDepartments: ['overlord'] },
   }).forEach((person) => {
     const simResults = simulateDay(person);
     GameManager.getInstance().updateGameData(simResults.updatedGameData);

@@ -17,7 +17,6 @@ export const generateIntruderAlertEvent = () => {
   const orgAgents = getPeople({
     organizationId: org.id,
     agentFilter: {
-      department: -1,
       agentsOnly: true,
     },
   });
