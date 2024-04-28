@@ -68,6 +68,9 @@ export type GameConfig = {
       };
     };
   };
+  agents: {
+    leadershipCommandMultiplier: number;
+  };
 };
 
 const configDefaults: GameConfig = {
@@ -118,6 +121,9 @@ const configDefaults: GameConfig = {
         hospital: 1,
       },
     },
+  },
+  agents: {
+    leadershipCommandMultiplier: 0.3,
   },
 };
 const settings = (() => {

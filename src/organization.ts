@@ -7,6 +7,7 @@ import {
   getResourceOutput,
   getUpkeep,
 } from './buildings';
+import settings from './config';
 import { generateAgentData } from './generators/game';
 import { getCodeName } from './generators/names';
 import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
@@ -61,7 +62,13 @@ const getMaxAgents = (organizationId: string) => {
       currentAgent.agent &&
       currentAgent.agent.organizationId === organizationId
     ) {
-      return maxAgentValue + Math.floor(currentAgent.skills.leadership / 2);
+      return (
+        maxAgentValue +
+        Math.floor(
+          currentAgent.skills.leadership *
+            settings.agents.leadershipCommandMultiplier,
+        )
+      );
     }
 
     return maxAgentValue;
