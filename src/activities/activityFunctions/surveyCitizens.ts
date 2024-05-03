@@ -16,7 +16,9 @@ export const surveyCitizens = (participantArray: string[]) => {
     const agentHomeZone =
       GameManager.getInstance().gameData.zones[agent.homeZoneId];
     const homeZoneCitizens = getPeople({
-      zoneId: agentHomeZone.id,
+      zone: {
+        zoneId: agentHomeZone.id,
+      },
     });
 
     const intelGain = randomInt(0, agent.skills.security);

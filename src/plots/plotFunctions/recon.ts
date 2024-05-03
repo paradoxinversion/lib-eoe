@@ -42,8 +42,12 @@ export const executeReconPlot = (
     intelMod = 10;
   } else {
     enemyZoneAgents = getPeople({
-      organizationId: zone.organizationId,
-      zoneId: zone.id,
+      personFilter: {
+        organizationId: zone.organizationId,
+      },
+      zone: {
+        zoneId: zone.id,
+      },
       agentFilter: { agentsOnly: true },
     });
 

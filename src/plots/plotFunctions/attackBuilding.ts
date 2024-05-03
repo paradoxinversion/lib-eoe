@@ -18,8 +18,12 @@ export const attackBuilding = (opts: PlotAttackBuildingOpts): PlotResult => {
     (personId) => gameData.people[personId],
   );
   const zoneAgents = getPeople({
-    organizationId: building.organizationId,
-    zoneId: building.zoneId,
+    personFilter: {
+      organizationId: building.organizationId,
+    },
+    zone: {
+      zoneId: building.zoneId,
+    },
     agentFilter: { agentsOnly: true },
   });
   const possibleDefenders = buildingPersonnel.concat(zoneAgents);

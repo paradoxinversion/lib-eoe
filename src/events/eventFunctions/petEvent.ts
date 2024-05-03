@@ -64,9 +64,11 @@ export const generatePetEvent = () => {
 
       // Update this to be random
       const intrudingAgent = getPeople({
-        organizationId: intruderOrg.id,
+        personFilter: {
+          organizationId: intruderOrg.id,
+          excludeDeceased: true,
+        },
         agentFilter: { agentsOnly: true },
-        excludeDeceased: true,
       })[0];
 
       targetId = intrudingAgent.id;
@@ -83,10 +85,12 @@ export const generatePetEvent = () => {
     case 'maul': {
       // Select an empire agent
       const agentPool = getPeople({
-        organizationId:
-          GameManager.getInstance().gameData.player.organizationId,
+        personFilter: {
+          organizationId:
+            GameManager.getInstance().gameData.player.organizationId,
+          excludeDeceased: true,
+        },
         agentFilter: { agentsOnly: true, excludeDepartments: ['overlord'] },
-        excludeDeceased: true,
       });
       const agent = agentPool[randomInt(0, agentPool.length - 1)];
       targetId = agent.id;
@@ -112,10 +116,12 @@ export const generatePetEvent = () => {
       break;
     case 'boostMorale':
       const agents = getPeople({
-        organizationId:
-          GameManager.getInstance().gameData.player.organizationId,
+        personFilter: {
+          organizationId:
+            GameManager.getInstance().gameData.player.organizationId,
+          excludeDeceased: true,
+        },
         agentFilter: { agentsOnly: true },
-        excludeDeceased: true,
       });
 
       agents.forEach((agent) => {

@@ -5,7 +5,9 @@ import Player from '../Player';
 
 const trainAgents = (player: Player) => {
   const agents = getPeople({
-    organizationId: player.player.organizationId,
+    personFilter: {
+      organizationId: player.player.organizationId,
+    },
     agentFilter: {
       agentsOnly: true,
     },

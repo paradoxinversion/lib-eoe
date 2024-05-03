@@ -32,7 +32,9 @@ export const advanceDay = () => {
   const updatedGameData = { ...gameData };
   // Run actions for people
   getPeople({
-    excludeDeceased: true,
+    personFilter: {
+      excludeDeceased: true,
+    },
     agentFilter: { excludeDepartments: ['overlord'] },
   }).forEach((person) => {
     const simResults = simulateDay(person);
@@ -131,7 +133,9 @@ export const advanceDay = () => {
 
   // Everyone who is alive should regain 1 hp
   getPeople({
-    excludeDeceased: true,
+    personFilter: {
+      excludeDeceased: true,
+    },
   }).forEach((person) => {
     GameManager.getInstance().updateGameData({
       people: {
@@ -141,7 +145,7 @@ export const advanceDay = () => {
             ...person.derivedAttributes,
             health: {
               ...person.derivedAttributes.health,
-              currentHealth: person.derivedAttributes.health.currentHealth++,
+              currentHealth: person.derivedAttributes.health.currentHealth + 1,
             },
           },
         },

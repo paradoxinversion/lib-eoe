@@ -10,8 +10,8 @@ const siphonGlobalAccounts = (participantArray: string[]) => {
   participantArray.forEach((participant) => {
     // Choose a citizen in the nation
     const citizens = getPeople({
-      nationId: GameManager.getInstance().gameData.player.empireId,
       nation: {
+        nationId: GameManager.getInstance().gameData.player.empireId,
         excludeNations: [GameManager.getInstance().gameData.player.empireId],
       },
       agentFilter: {

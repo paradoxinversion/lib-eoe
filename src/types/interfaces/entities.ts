@@ -117,6 +117,7 @@ export interface AgentData {
   /** the id of the agent commanding this one */
   commanderId: string;
   codename: string;
+  embeddedAt: string | null;
 }
 
 export interface GoverningOrganization {

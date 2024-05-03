@@ -106,7 +106,9 @@ const getScience = (organizationId: string) => {
  */
 const getInfrastructure = (organizationId: string) => {
   return getPeople({
-    organizationId,
+    personFilter: {
+      organizationId,
+    },
     agentFilter: { agentsOnly: true },
   }).reduce((infrastructure, currentAgent) => {
     if (
@@ -122,7 +124,9 @@ const getInfrastructure = (organizationId: string) => {
 
 const getPayroll = (organizationId: string) => {
   return getPeople({
-    organizationId,
+    personFilter: {
+      organizationId,
+    },
     agentFilter: { agentsOnly: true },
   }).reduce((payroll, currentAgent) => {
     return payroll + (currentAgent?.agent?.salary || 0);

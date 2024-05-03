@@ -14,6 +14,9 @@ export type SaveData = {
     };
     plots: Plot[];
   };
+  scienceData: {
+    activeProjects: any;
+  };
   // scienceData: {
   //   activeProjects: GameManager.getInstance().scienceManager.activeProjects,
   // },

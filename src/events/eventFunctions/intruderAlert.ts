@@ -15,7 +15,9 @@ export const generateIntruderAlertEvent = () => {
   ).filter((org) => !org.evil);
   const org = possibleNations[randomInt(0, possibleNations.length - 1)];
   const orgAgents = getPeople({
-    organizationId: org.id,
+    personFilter: {
+      organizationId: org.id,
+    },
     agentFilter: {
       agentsOnly: true,
     },

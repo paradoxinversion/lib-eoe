@@ -19,7 +19,9 @@ function setTemperTantrumParams(this: GameEvent) {
 
 function resolveTemperTantrum(this: GameEvent) {
   const pool = getPeople({
-    organizationId: getEvilEmpire().id,
+    personFilter: {
+      organizationId: getEvilEmpire().id,
+    },
     agentFilter: {
       department: 'administrator',
       agentsOnly: true,

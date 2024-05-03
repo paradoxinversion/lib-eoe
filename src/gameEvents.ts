@@ -17,6 +17,8 @@ import { generateWealthMod } from './events/eventFunctions/wealthMod';
 import { generateTemperTantrumEvent } from './events/eventFunctions/temperTantrum';
 import { generateMonthlyReportEvent } from './events/eventFunctions/monthlyReport';
 import { generatePetEvent } from './events/eventFunctions/petEvent';
+import { generateEmbedAgentsEvent } from './events/eventFunctions/embedAgents';
+import { generateRecallEmbeddedAgentsEvent } from './events/eventFunctions/recallEmbeddedAgents';
 
 export interface EventRequirements {
   personnel?: {
@@ -57,6 +59,12 @@ const addPlotResolutions = (
       case 'recon-zone':
         resolutionEvent = generateReconZoneEvent(plotResolution.plot);
         break;
+      case 'embed-agents':
+        resolutionEvent = generateEmbedAgentsEvent(plotResolution.plot);
+      case 'recall-embedded-agents':
+        resolutionEvent = generateRecallEmbeddedAgentsEvent(
+          plotResolution.plot,
+        );
 
       default:
         break;
@@ -115,7 +123,9 @@ const prepareRandomEvents = () => {
       case 'AngryAdminEvent':
         if (
           getPeople({
-            organizationId: getEvilEmpire().id,
+            personFilter: {
+              organizationId: getEvilEmpire().id,
+            },
             agentFilter: {
               agentsOnly: true,
               department: 'administrator',

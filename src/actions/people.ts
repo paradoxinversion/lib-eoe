@@ -17,12 +17,10 @@ import { randomInt } from '../utilities';
 
 interface GetPeopleParams {
   limit?: number;
-  zoneId?: string | null;
   zone?: {
     zoneId?: string | null;
     excludeZones?: string[];
   };
-  nationId?: string | null;
   nation?: {
     nationId?: string | null;
     excludeNations?: string[];
@@ -34,17 +32,24 @@ interface GetPeopleParams {
     commander?: string;
     excludeParticipants?: boolean;
     excludeDepartments?: AgentDepartment[];
+    embeddedOnly?: boolean;
+    excludeEmbedded?: boolean;
   };
-  excludeDeceased?: boolean;
-  excludePersonnel?: boolean;
-  organizationId?: string | null;
-  deceasedOnly?: boolean;
-  excludeCaptured?: boolean;
-  capturedOnly?: boolean;
-  injuredOnly?: boolean;
-  hospitalizedOnly?: boolean;
-  noHospitalized?: boolean;
-  residentAt?: string;
+  personFilter?: {
+    excludeDeceased?: boolean;
+    excludePersonnel?: boolean;
+    deceasedOnly?: boolean;
+    organizationId?: string | null;
+    excludeCaptured?: boolean;
+    capturedOnly?: boolean;
+    injuredOnly?: boolean;
+    hospitalizedOnly?: boolean;
+    noHospitalized?: boolean;
+    residentAt?: string;
+    excludeResidents?: boolean;
+    residentsOnly?: boolean;
+  };
+
   captive?: {
     captiveOnly?: boolean;
     capturedBy?: string;
@@ -53,12 +58,10 @@ interface GetPeopleParams {
 
 const GetPeopleDefaultParams: GetPeopleParams = {
   limit: 0,
-  zoneId: null,
   zone: {
     zoneId: null,
     excludeZones: [],
   },
-  nationId: null,
   nation: {
     nationId: null,
     excludeNations: [],
@@ -70,17 +73,23 @@ const GetPeopleDefaultParams: GetPeopleParams = {
     commander: '',
     excludeParticipants: false,
     excludeDepartments: [],
+    embeddedOnly: false,
+    excludeEmbedded: false,
   },
-  excludeDeceased: false,
-  excludePersonnel: false,
-  organizationId: null,
-  deceasedOnly: false,
-  excludeCaptured: false,
-  capturedOnly: false,
-  injuredOnly: false,
-  hospitalizedOnly: false,
-  noHospitalized: false,
-  residentAt: '',
+  personFilter: {
+    excludeDeceased: false,
+    excludePersonnel: false,
+    organizationId: null,
+    deceasedOnly: false,
+    excludeCaptured: false,
+    capturedOnly: false,
+    injuredOnly: false,
+    hospitalizedOnly: false,
+    noHospitalized: false,
+    residentAt: '',
+    excludeResidents: false,
+    residentsOnly: false,
+  },
   captive: {
     captiveOnly: false,
     capturedBy: '',
@@ -126,11 +135,15 @@ export const getPeople = (params: GetPeopleParams = {}) => {
         return false;
       }
 
-      if (options.excludeCaptured && person.isCaptive) {
+      if (options.personFilter?.excludeCaptured && person.isCaptive) {
         return false;
       }
 
-      if (options.capturedOnly && !person.isCaptive) {
+      if (options.personFilter?.capturedOnly && !person.isCaptive) {
+        return false;
+      }
+
+      if (options.personFilter?.excludeResidents && person.residentAt) {
         return false;
       }
 
@@ -174,13 +187,19 @@ export const getPeople = (params: GetPeopleParams = {}) => {
       ) {
         return false;
       }
-      if (options.zoneId && person.homeZoneId !== options.zoneId) {
+
+      if (options.agentFilter?.embeddedOnly && !person.agent?.embeddedAt) {
         return false;
       }
 
-      if (options.nationId && person.nationId !== options.nationId) {
+      if (options.agentFilter?.excludeEmbedded && person.agent?.embeddedAt) {
         return false;
       }
+
+      if (options.zone?.zoneId && person.homeZoneId !== options.zone.zoneId) {
+        return false;
+      }
+
       if (
         options.nation?.nationId &&
         person.nationId !== options.nation.nationId
@@ -195,42 +214,49 @@ export const getPeople = (params: GetPeopleParams = {}) => {
         return false;
       }
 
-      if (options.excludePersonnel && person.isPersonnel) {
+      if (options.personFilter?.excludePersonnel && person.isPersonnel) {
         return false;
       }
 
       if (
-        options.organizationId &&
-        person.agent?.organizationId !== options.organizationId
+        options.personFilter?.organizationId &&
+        person.agent?.organizationId !== options.personFilter?.organizationId
       ) {
         return false;
       }
 
-      if (options.deceasedOnly && !person.dead) {
+      if (options.personFilter?.deceasedOnly && !person.dead) {
         return false;
       }
 
-      if (options.excludeDeceased && person.dead) {
+      if (options.personFilter?.excludeDeceased && person.dead) {
         return false;
       }
 
       if (
-        options.injuredOnly &&
+        options.personFilter?.injuredOnly &&
         person.derivedAttributes.health.currentHealth ===
           person.derivedAttributes.health.totalHealth
       ) {
         return false;
       }
 
-      if (options.hospitalizedOnly && !person.hospitalizedAt) {
+      if (options.personFilter?.hospitalizedOnly && !person.hospitalizedAt) {
         return false;
       }
 
-      if (options.noHospitalized && person.hospitalizedAt) {
+      if (options.personFilter?.noHospitalized && person.hospitalizedAt) {
         return false;
       }
 
-      if (options.residentAt && person.residentAt !== options.residentAt) {
+      if (
+        options.personFilter?.residentAt &&
+        person.residentAt !== options.personFilter?.residentAt
+      ) {
+        return false;
+      }
+
+      if (options.personFilter?.residentsOnly && person.residentAt === null) {
         return false;
       }
 

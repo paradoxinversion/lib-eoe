@@ -119,6 +119,27 @@ const skillCheck = () => {
   // to implement
 };
 
+export const skillLevelStr = (amount: number) => {
+  const skillPercentage = (amount / 100) * 100;
+  return (
+    skillPercentage === 100 ? 'Peak'
+    : skillPercentage > 75 ? 'Phenomenal'
+    : skillPercentage > 50 ? 'Above Average'
+    : skillPercentage > 25 ? 'Average'
+    : 'Below Average'
+  );
+};
+
+export const attributeLevelStr = (amount: number) => {
+  const attributePercentage = (amount / 10) * 100;
+  return (
+    attributePercentage === 10 ? 'Peak'
+    : attributePercentage > 8 ? 'Above Average'
+    : attributePercentage > 6 ? 'Average'
+    : attributePercentage > 4 ? 'Below Average'
+    : 'Terrible'
+  );
+};
 export {
   throwErrorFromArray,
   randomInt,

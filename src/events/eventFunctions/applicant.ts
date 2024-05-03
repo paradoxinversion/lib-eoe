@@ -32,7 +32,9 @@ export const generateEvilApplicantEvent = () => {
   });
   if (
     getPeople({
-      organizationId: gameData.player.organizationId,
+      personFilter: {
+        organizationId: gameData.player.organizationId,
+      },
       agentFilter: { agentsOnly: true },
     }).length >= getMaxAgents(gameData.player.organizationId)
   ) {

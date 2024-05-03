@@ -1,6 +1,7 @@
 import { GameManager } from '../GameManager';
 import { ActivityConfig } from '../activities/activityConfig';
 import Plot from './Plot';
+import { PlotConfig } from './plotConfig';
 export interface PlotResolution {
   plot: Plot;
   resolution: any;
@@ -9,7 +10,7 @@ export class PlotManager {
   private static instance: PlotManager;
   plotQueue: Plot[];
   currentPlot: number;
-  plots: ActivityConfig[];
+  plots: PlotConfig[];
   plotResolutions: PlotResolution[];
   constructor() {
     console.log('Plot Manager Initialized');
@@ -32,7 +33,7 @@ export class PlotManager {
   /**
    * Set the game plots (not individual playerp lots)
    */
-  setPlots(plots: ActivityConfig[]) {
+  setPlots(plots: PlotConfig[]) {
     this.plots = plots;
   }
 
@@ -75,6 +76,7 @@ export class PlotManager {
    * Execute a plot, returning...
    */
   executePlot(plot: Plot): PlotResolution {
+    debugger;
     return plot.executePlot();
   }
 

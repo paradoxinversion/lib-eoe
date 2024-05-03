@@ -11,6 +11,8 @@ import { temperTantrumEventConfig } from './eventFunctions/temperTantrum';
 import { wealthModEventConfig } from './eventFunctions/wealthMod';
 import { occupationalHazardEventConfig } from './eventFunctions/occupationalHazard';
 import { petEventConfig } from './eventFunctions/petEvent';
+import { embedAgentsConfig } from './eventFunctions/embedAgents';
+import { recallEmbeddedAgentsConfig } from './eventFunctions/recallEmbeddedAgents';
 /**
  * Sets `event.params` to an empty object. Should be used for
  * events that take no parameters.
@@ -37,6 +39,8 @@ const eventConfig: EventConfigMap = {
   temperTantrum: temperTantrumEventConfig,
   occupationalHazard: occupationalHazardEventConfig,
   petEvent: petEventConfig,
+  embedAgents: embedAgentsConfig,
+  recallEmbeddedAgents: recallEmbeddedAgentsConfig,
 };
 
 export default eventConfig;

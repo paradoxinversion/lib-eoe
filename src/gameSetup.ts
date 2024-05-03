@@ -17,6 +17,7 @@ import {
   BuildingType,
   addInhabitant,
   addPersonnel,
+  addResident,
   buildingsSchematics,
   getBuildings,
 } from './buildings';
@@ -26,6 +27,7 @@ import { getZones } from './actions/zones';
 import Player from './managers/cpu/Player';
 import PlayerManager from './managers/cpu/PlayerManager';
 import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
+import { nations } from '..';
 /**
  * The main Shufflebag for building types
  */
@@ -68,12 +70,17 @@ const populateResidences = (orgId: string, nationId: string) => {
     .filter((building) => building.type === 'apartment')
     .forEach((apartment) => {
       for (let i = 0; i < apartment.resourceAttributes.housingCapacity; i++) {
-        // const person = {...Object.values(people)[housedPeople]};
-        addInhabitant(
-          apartment.id,
-          Object.values(orgCitizens)[housedPeople].id,
-        );
-        housedPeople++;
+        const person = Object.values(orgCitizens)[housedPeople];
+        if (person) {
+          addResident(
+            apartment.id,
+            Object.values(orgCitizens)[housedPeople].id,
+          );
+          housedPeople++;
+        } else {
+          console.log('No more people to house');
+          break;
+        }
       }
     });
   console.debug('Populated residences', housedPeople);
@@ -109,7 +116,8 @@ const createPlayer = (options: PlayerOptions) => {
 
   nation.organizationId = governOrg.id;
   const zones: { [key: string]: Zone } = {};
-  for (let x = 0; x < nation.size; x++) {
+  const nationSize = isCPU ? nation.size : 1;
+  for (let x = 0; x < nationSize; x++) {
     const z = generateZone({
       name: generateZoneName(),
       nationId: nation.id,
@@ -142,6 +150,13 @@ const createPlayer = (options: PlayerOptions) => {
   };
   const buildings: { [key: string]: Building } = {};
   // In the first zone, create one of each basic building type
+  const bank = generateBuilding({
+    zoneId: Object.values(zones)[0].id,
+    buildingType: 'bank',
+    infrastructureCost: buildingsSchematics['bank'].infrastructureCost,
+    organizationId: governOrg.id,
+    upkeepCost: buildingsSchematics['bank'].infrastructureCost,
+  });
   const hospital = generateBuilding({
     zoneId: Object.values(zones)[0].id,
     buildingType: 'hospital',
@@ -174,6 +189,7 @@ const createPlayer = (options: PlayerOptions) => {
   buildings[laboratory.id] = laboratory;
   buildings[office.id] = office;
   buildings[apartment.id] = apartment;
+  buildings[bank.id] = bank;
 
   let peopleTotal = 0;
   Object.values(zones).forEach((zone) => {
@@ -299,7 +315,7 @@ const hireStartingAgents = () => {
       const empireZone = getZones({
         organizationId: playerData.organizationId,
       })[0];
-      const citizens = getPeople({ zoneId: empireZone.id });
+      const citizens = getPeople({ zone: { zoneId: empireZone.id } });
       // Start at 1, 0 is the Overlord
       for (let recruitIndex = 1; recruitIndex < 9; recruitIndex++) {
         const recruit = hireAgent(
@@ -393,14 +409,17 @@ const initializePersonnel = () => {
       index++
     ) {
       const people = getPeople({
-        excludePersonnel: true,
-        zoneId: building.zoneId,
+        personFilter: {
+          excludePersonnel: true,
+        },
+        zone: {
+          zoneId: building.zoneId,
+        },
         agentFilter: { excludeAgents: true },
       });
       const p = people[randomInt(0, people.length - 1)];
       employees.push(p);
       const addPersonnelResult = addPersonnel(p, updatedBuilding);
-      console.log('APR', addPersonnelResult);
       if (addPersonnelResult) {
         const update = GameManager.getInstance().updateGameData({
           people: { ...updatedGamedata.people, ...addPersonnelResult!.people },

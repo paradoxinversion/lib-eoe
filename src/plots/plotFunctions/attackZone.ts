@@ -29,8 +29,12 @@ export const attackZone = ({
 }: PlotAttackZoneOpts): PlotResult => {
   const { gameData } = GameManager.getInstance();
   const defendingAgents = getPeople({
-    organizationId: zoneOrgId,
-    zoneId,
+    personFilter: {
+      organizationId: zoneOrgId,
+    },
+    zone: {
+      zoneId,
+    },
     agentFilter: { agentsOnly: true },
   });
   const attackingAgents = participants.map((agent) => gameData.people[agent]);

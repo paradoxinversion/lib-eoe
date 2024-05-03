@@ -322,6 +322,7 @@ const generateAgentData = (
     salary,
     commanderId: commanderId || '',
     codename: codeName || '',
+    embeddedAt: null,
   };
 };
 

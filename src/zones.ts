@@ -103,7 +103,9 @@ const transferZoneControl = ({
   }, {});
 
   const updatedPeople = getPeople({
-    zoneId,
+    zone: {
+      zoneId,
+    },
   }).reduce((prev, person) => {
     return {
       ...prev,

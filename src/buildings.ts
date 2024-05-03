@@ -491,6 +491,47 @@ export const addInhabitant = (buildingId: string, personId: string) => {
 
   return updatedBuilding;
 };
+
+export const removeInhabitant = (buildingId: string, personId: string) => {
+  const building = GameManager.getInstance().gameData.buildings[buildingId];
+  const updatedBuilding = {
+    ...building,
+    inhabitants: building.inhabitants.filter(
+      (inhabitant) => inhabitant !== personId,
+    ),
+  };
+
+  GameManager.getInstance().updateGameData({
+    buildings: { [buildingId]: updatedBuilding },
+  });
+
+  return updatedBuilding;
+};
+
+export const addResident = (buildingId: string, personId: string) => {
+  addInhabitant(buildingId, personId);
+  const person = GameManager.getInstance().gameData.people[personId];
+  const updatedPerson: Person = {
+    ...person,
+    residentAt: buildingId,
+  };
+  GameManager.getInstance().updateGameData({
+    people: { [personId]: updatedPerson },
+  });
+};
+
+export const removeResident = (buildingId: string, personId: string) => {
+  removeInhabitant(buildingId, personId);
+  const person = GameManager.getInstance().gameData.people[personId];
+  const updatedPerson: Person = {
+    ...person,
+    residentAt: null,
+  };
+
+  GameManager.getInstance().updateGameData({
+    people: { [personId]: updatedPerson },
+  });
+};
 export {
   buildingsSchematics,
   getInfrastructureLoad,

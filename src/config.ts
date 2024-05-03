@@ -42,6 +42,7 @@ export type GameConfig = {
       maxWealth: number;
     };
     governingOrganization: {
+      /** The default starting wealth of a governing organization */
       defaultStartWealth: number;
     };
     buildings: {
@@ -92,7 +93,7 @@ const configDefaults: GameConfig = {
       attributeMin: 1,
       attributeMax: 10,
       minSkill: 1,
-      maxSkill: 50,
+      maxSkill: 60,
       minWealth: 50,
       maxWealth: 500,
     },
@@ -100,11 +101,11 @@ const configDefaults: GameConfig = {
       defaultStartWealth: 50000,
     },
     buildings: {
-      buildingPopulationMultiplier: 0.025,
-      minWealthBonus: 10,
-      maxWealthBonus: 25,
-      minHousingCapacity: 10,
-      maxHousingCapacity: 20,
+      buildingPopulationMultiplier: 0.02,
+      minWealthBonus: 100,
+      maxWealthBonus: 250,
+      minHousingCapacity: 30,
+      maxHousingCapacity: 50,
       minInfrastuctureBonus: 15,
       maxInfrastuctureBonus: 30,
       minHospitalBeds: 10,

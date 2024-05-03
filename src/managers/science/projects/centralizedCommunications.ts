@@ -7,13 +7,10 @@ import {
   ScienceProjectStatus,
 } from '../types';
 
-const startHandler = function (
-  laboratoryId: string,
-  gameManager?: GameManager,
-): ScienceProjectStatus {
+const startHandler = function (laboratoryId: string): ScienceProjectStatus {
   const currentScience =
-    gameManager!.gameData.governingOrganizations[
-      gameManager!.gameData.player.organizationId
+    GameManager.getInstance().gameData.governingOrganizations[
+      GameManager.getInstance().gameData.player.organizationId
     ].science;
   return {
     indexName: config.indexName,

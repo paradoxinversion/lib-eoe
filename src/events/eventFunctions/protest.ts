@@ -57,7 +57,10 @@ function resolveProtest(this: GameEvent, resolveArgs: ProtestEventResolveArgs) {
   if (resolveArgs.stopWithForce) {
     // select 10% of the empire agents
     const agents = getPeople({
-      organizationId: GameManager.getInstance().gameData.player.organizationId,
+      personFilter: {
+        organizationId:
+          GameManager.getInstance().gameData.player.organizationId,
+      },
       agentFilter: {
         agentsOnly: true,
       },
