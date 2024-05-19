@@ -2,6 +2,7 @@
  * advanceDay.ts
  *
  */
+import ActivityManager from '../activities/ActivityManager';
 import { getBuildings, handleHospitalOperations } from '../buildings';
 import { generateProjectCompleteEvent } from '../events/eventFunctions/projectComplete';
 import {
@@ -11,13 +12,51 @@ import {
 } from '../gameEvents';
 import { GameManager } from '../GameManager';
 import PlayerManager from '../managers/cpu/PlayerManager';
+import { ScienceManager } from '../managers/science/science';
 import { ScienceProject } from '../managers/science/types';
 import {
   getOrgIncome,
   getOrgResources,
   modifyOrgScience,
 } from '../organization';
-import { getPeople, simulateDay } from './people';
+import { Person } from '../types/interfaces/entities';
+import { getPeople, simulateDay, SimulateDayResolution } from './people';
+
+const handleSimActions = () => {
+  console.debug('Handling sim actions');
+  let actions: { [personId: string]: SimulateDayResolution } = {};
+  getPeople({
+    personFilter: {
+      excludeDeceased: true,
+    },
+    agentFilter: { excludeDepartments: ['overlord'] },
+  }).forEach((person) => {
+    const simResults = simulateDay(person);
+    actions[person.id] = {
+      ...actions,
+      ...simResults,
+    };
+  });
+  console.debug('Sim actions:', actions);
+};
+
+const handleActivities = () => {
+  const activities = ActivityManager.getInstance().executeActivities();
+  const updatedGameData: { people: { [personId: string]: Person } } = {
+    people: {},
+  };
+  activities.forEach((activity) => {
+    if (activity.result.updatedGameData) {
+      updatedGameData.people = {
+        ...updatedGameData.people,
+        ...activity.result.updatedGameData.people,
+      };
+    }
+  });
+
+  return activities;
+};
+
 /**
  * Determines what events happen at end of turn and returns
  * updated gamedata with those events.
@@ -30,33 +69,24 @@ export const advanceDay = () => {
     plotManager,
   } = GameManager.getInstance();
   const updatedGameData = { ...gameData };
-  // Run actions for people
-  getPeople({
-    personFilter: {
-      excludeDeceased: true,
-    },
-    agentFilter: { excludeDepartments: ['overlord'] },
-  }).forEach((person) => {
-    const simResults = simulateDay(person);
-    GameManager.getInstance().updateGameData(simResults.updatedGameData);
-    GameManager.getInstance().updateSimActionLog(
-      person.id,
-      simResults.updatedLog,
-    );
-    // console.log(simResults.updatedLog);
-  });
+  // Execute daily actions for People
+  // getPeople({
+  //   personFilter: {
+  //     excludeDeceased: true,
+  //   },
+  //   agentFilter: { excludeDepartments: ['overlord'] },
+  // }).forEach((person) => {
+  //   const simResults = simulateDay(person);
+  //   GameManager.getInstance().updateGameData(simResults.updatedGameData);
+  //   GameManager.getInstance().updateSimActionLog(
+  //     person.id,
+  //     simResults.updatedLog,
+  //   );
+  // });
+  handleSimActions();
 
-  // Response with events
-  const events = prepareRandomEvents();
-
+  // Activities may spawn events, so we need to handle them first
   const activities = activityManager.executeActivities();
-  gameEventQueue.setEvents(events);
-  const plotResolutions = plotManager.executePlots();
-  const plotEvents = addPlotResolutions(plotResolutions, gameEventQueue);
-  plotManager.clearPlotQueue();
-
-  gameEventQueue.addEvents(plotEvents);
-
   activities.forEach((activity) => {
     if (activity.result.updatedGameData) {
       updatedGameData.people = {
@@ -66,6 +96,15 @@ export const advanceDay = () => {
     }
   });
 
+  const plotResolutions = plotManager.executePlots();
+
+  // Setup Events
+  const randomEvents = prepareRandomEvents();
+  gameEventQueue.addEvents(randomEvents);
+  const plotEvents = addPlotResolutions(plotResolutions);
+  gameEventQueue.addEvents(plotEvents);
+
+  plotManager.clearPlotQueue();
   // handle healing in hospitals
   const hospitalUpdates = handleHospitalOperations();
   Object.entries(hospitalUpdates).forEach(([personId, person]) => {
@@ -84,27 +123,19 @@ export const advanceDay = () => {
   const scienceProjectStatuses = [
     ...GameManager.getInstance().scienceManager.activeProjects,
   ];
-
   scienceProjectStatuses.forEach((projectStatus) => {
-    const project =
-      GameManager.getInstance().scienceManager.PROJECT_DEFINITIONS[
-        projectStatus.indexName as ScienceProject
-      ];
     const result =
-      GameManager.getInstance().scienceManager.handleProjectProgress(
-        projectStatus,
-      );
+      ScienceManager.getInstance().handleProjectProgress(projectStatus);
 
-    GameManager.getInstance().scienceManager.updateActiveProject(
+    ScienceManager.getInstance().updateActiveProject(
       result,
       projectStatus.indexName as ScienceProject,
     );
 
     if (result.complete && result.daysRemaining === 0) {
-      const completeResult =
-        GameManager.getInstance().scienceManager.completeProject(
-          projectStatus.indexName as ScienceProject,
-        );
+      const completeResult = ScienceManager.getInstance().completeProject(
+        projectStatus.indexName as ScienceProject,
+      );
 
       gameEventQueue.addEvent(generateProjectCompleteEvent(completeResult));
     }
@@ -165,6 +196,9 @@ export const advanceDay = () => {
   };
 };
 
+/**
+ * Advance multiple days until a stop event is reached
+ */
 export const advanceDays = (days: number) => {
   for (let i = 0; i < days; i++) {
     const { updatedGameData, gameEventQueue, stop } = advanceDay();

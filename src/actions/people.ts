@@ -14,7 +14,7 @@ import {
   AgentDepartment,
 } from '../types/interfaces/entities';
 import { randomInt } from '../utilities';
-
+export type ComparisonTypes = 'greater' | 'less' | 'equal';
 interface GetPeopleParams {
   limit?: number;
   zone?: {
@@ -48,6 +48,11 @@ interface GetPeopleParams {
     residentAt?: string;
     excludeResidents?: boolean;
     residentsOnly?: boolean;
+    loyaltyFilter?: {
+      comparison: ComparisonTypes;
+      organizationId: string;
+      value: number;
+    };
   };
 
   captive?: {
@@ -258,6 +263,35 @@ export const getPeople = (params: GetPeopleParams = {}) => {
 
       if (options.personFilter?.residentsOnly && person.residentAt === null) {
         return false;
+      }
+
+      if (options.personFilter?.loyaltyFilter) {
+        if (
+          options.personFilter.loyaltyFilter.comparison === 'greater' &&
+          person.intelAttributes.loyalties[
+            options.personFilter.loyaltyFilter.organizationId
+          ] < options.personFilter.loyaltyFilter.value
+        ) {
+          return false;
+        }
+
+        if (
+          options.personFilter.loyaltyFilter.comparison === 'less' &&
+          person.intelAttributes.loyalties[
+            options.personFilter.loyaltyFilter.organizationId
+          ] > options.personFilter.loyaltyFilter.value
+        ) {
+          return false;
+        }
+
+        if (
+          options.personFilter.loyaltyFilter.comparison === 'equal' &&
+          person.intelAttributes.loyalties[
+            options.personFilter.loyaltyFilter.organizationId
+          ] !== options.personFilter.loyaltyFilter.value
+        ) {
+          return false;
+        }
       }
 
       return true;
@@ -509,31 +543,33 @@ export const removePersonStatusEffect = (
  */
 export const simulateDay = (person: Person) => {
   const completedActivities: string[] = [];
-  const updates: SimulatedActivityResolution[] = [];
+  const activityResolutions: SimulatedActivityResolution[] = [];
   for (let index = 0; index < 4; index++) {
-    updates.push(simulateActivity(person, completedActivities)!);
+    activityResolutions.push(simulateActivity(person, completedActivities)!);
   }
-  const update = updates.reduce<Partial<GameData>>(
-    (ugd, curr) => {
-      if (curr) {
-        return {
-          people: {
-            ...ugd.people,
-            ...curr.updatedGamedata?.people,
-          },
-        };
-      }
-      return ugd;
-    },
-    {
-      people: {},
-    },
-  );
+  // const update = updates.reduce<Partial<GameData>>(
+  //   (ugd, curr) => {
+  //     if (curr) {
+  //       return {
+  //         people: {
+  //           ...ugd.people,
+  //           ...curr.updatedGamedata?.people,
+  //         },
+  //       };
+  //     }
+  //     return ugd;
+  //   },
+  //   {
+  //     people: {},
+  //   },
+  // );
 
   const activityNames = completedActivities.map((activity) => activity);
 
-  return { updatedGameData: update, updatedLog: activityNames };
+  return { activityResolutions, updatedLog: activityNames };
 };
+
+export type SimulateDayResolution = ReturnType<typeof simulateDay>;
 
 export const setCodename = (personId: string, codename: string) => {
   const person = GameManager.getInstance().gameData.people[personId];

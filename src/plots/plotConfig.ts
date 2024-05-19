@@ -3,6 +3,7 @@ import { executeReconPlot } from './plotFunctions/recon';
 import { ActivityConfig } from '../activities/activityConfig';
 import { executeEmbedAgentsPlot } from './plotFunctions/embedAgents';
 import { executeRecallEmbeddedAgentsPlot } from './plotFunctions/recallEmbeddedAgents';
+import { executeInciteProtestPlot } from './plotFunctions/inciteProtest';
 export type PlotRequirements = {
   personnel?: {
     embeddedAgents?: boolean;
@@ -48,6 +49,17 @@ const plotConfig: { [x: string]: PlotConfig } = {
     name: 'Recall Embedded Agents',
     type: 'recall-embedded-agents',
     fn: executeRecallEmbeddedAgentsPlot,
+    costPerParticipant: 0,
+    requirements: {
+      personnel: {
+        embeddedAgents: true,
+      },
+    },
+  },
+  'incite-protest': {
+    name: 'Incite Protest',
+    type: 'incite-protest',
+    fn: executeInciteProtestPlot,
     costPerParticipant: 0,
     requirements: {
       personnel: {

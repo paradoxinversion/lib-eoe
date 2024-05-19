@@ -6,6 +6,7 @@ export type GameConfig = {
   cpuPlayers: number;
   /** World Generation Options */
   worldGen: {
+    startDate: string;
     /** Options for nation generation */
     nations: {
       /** Maximum size of a nation */
@@ -68,15 +69,24 @@ export type GameConfig = {
         hospital: number;
       };
     };
+    startingAgents: {
+      defaultStartAmount: number;
+    };
   };
   agents: {
     leadershipCommandMultiplier: number;
+  };
+  shufflebags: {
+    [bagName: string]: {
+      [bagValue: string]: number;
+    };
   };
 };
 
 const configDefaults: GameConfig = {
   cpuPlayers: 1,
   worldGen: {
+    startDate: '1/1/2000',
     nations: {
       maxSize: 5,
       minSize: 3,
@@ -122,11 +132,40 @@ const configDefaults: GameConfig = {
         hospital: 1,
       },
     },
+    startingAgents: {
+      defaultStartAmount: 10,
+    },
   },
   agents: {
     leadershipCommandMultiplier: 0.3,
   },
+  shufflebags: {
+    eventShufflebag: {
+      EvilApplicantEvent: 1,
+      WealthModEvent: 1,
+      nothing: 30,
+      IntruderAlert: 1,
+      AngryAdminEvent: 1,
+      OccupationalHazard: 1,
+      PetEvent: 1,
+    },
+    skillBaseShufflebag: {
+      Expert: 1,
+      Professional: 3,
+      Skilled: 8,
+      Novice: 12,
+      Amateur: 18,
+    },
+    attributeBaseShufflebag: {
+      'Very High': 2,
+      High: 4,
+      Average: 12,
+      Low: 18,
+      'Very Low': 8,
+    },
+  },
 };
+
 const settings = (() => {
   return configDefaults;
 })();

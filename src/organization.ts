@@ -420,6 +420,28 @@ export const updateEvil = (amount: number) => {
   };
 };
 
+export const setOrgOpinion = (
+  orgId: string,
+  targetOrgId: string,
+  opinion: number,
+) => {
+  const org = GameManager.getInstance().gameData.governingOrganizations[orgId];
+  const updatedGo = { ...org };
+  updatedGo.opinions[targetOrgId] = opinion;
+
+  GameManager.getInstance().updateGameData({
+    governingOrganizations: {
+      [org.id]: updatedGo,
+    },
+  });
+
+  return {
+    governingOrganizations: {
+      [org.id]: updatedGo,
+    },
+  };
+};
+
 export {
   recruitAgent,
   getMaxAgents,

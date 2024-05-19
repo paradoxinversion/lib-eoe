@@ -113,4 +113,10 @@ export class ScienceManager {
       daysRemaining: status.daysRemaining - 1,
     };
   }
+
+  cancelProject(projectName: ScienceProject) {
+    this.activeProjects = this.activeProjects.filter(
+      (p) => p.indexName !== projectName,
+    );
+  }
 }

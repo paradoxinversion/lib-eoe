@@ -2,7 +2,9 @@ import { ScienceProject } from '../managers/science/types';
 import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
 import authorPropaganda from './activityFunctions/authorPropaganda';
 import { education } from './activityFunctions/education';
+import harassNuns from './activityFunctions/harassNuns';
 import { peacePatrol } from './activityFunctions/peacePatrol';
+import recruitAgents from './activityFunctions/recruitAgents';
 import siphonDomesticAccounts from './activityFunctions/siphonDomesticAccounts';
 import siphonGlobalAccounts from './activityFunctions/siphonGlobalAccounts';
 import { surveyCitizens } from './activityFunctions/surveyCitizens';
@@ -40,7 +42,7 @@ const activityConfig: ActivityConfig[] = [
   {
     name: 'Recruit Agents',
     type: 'recruit-agents',
-    fn: () => {},
+    fn: recruitAgents,
     costPerParticipant: 5,
     description: 'Seek out recruits for the EVIL Empire',
     requirements: {
@@ -50,7 +52,7 @@ const activityConfig: ActivityConfig[] = [
   {
     name: 'Harass Nuns',
     type: 'harass-nuns',
-    fn: executeTrainingActivity,
+    fn: harassNuns,
     costPerParticipant: 0,
     description: "Harass some nuns. Why? It's EVIL!",
     requirements: {

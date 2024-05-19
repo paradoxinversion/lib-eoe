@@ -239,6 +239,7 @@ const addPersonnel = (person: Person, building: Building) => {
   updatedPerson.isPersonnel = true;
   updatedGameData.buildings[building.id] = updatedBuilding;
   updatedGameData.people[person.id] = updatedPerson;
+  // GameManager.getInstance().updateGameData(updatedGameData);
   return updatedGameData;
 };
 
@@ -247,7 +248,7 @@ export const addMultiplePersonnel = (people: Person[], building: Building) => {
     people: {},
     buildings: {},
   };
-
+  let employees: string[] = [];
   people.forEach((person) => {
     if (building.personnel.includes(person.id)) {
       return;
@@ -256,9 +257,10 @@ export const addMultiplePersonnel = (people: Person[], building: Building) => {
     if (building.personnel.length === building.basicAttributes.maxPersonnel) {
       return;
     }
+    employees = [...employees, person.id];
     const updatedBuilding: Building = {
       ...building,
-      personnel: [...building.personnel, person.id],
+      personnel: employees,
     };
 
     const updatedPerson: Person = {
@@ -426,7 +428,17 @@ export const handleHospitalOperations = () => {
         // direct discharge
         dischargeHospitalPatient(hospital.id, inhabitantId);
       }
-      const healthGain = 1 * hospital.personnel.length || 1;
+
+      const maxGain = Math.floor(
+        inhabitant.derivedAttributes.health.totalHealth * 0.1,
+      );
+
+      // get the hospital efficiency
+      const efficiency =
+        (hospital.personnel.length / hospital.basicAttributes.maxPersonnel) *
+        100;
+
+      const healthGain = maxGain * efficiency;
       const updatedInhabitant = {
         derivedAttributes: {
           health: {

@@ -1,4 +1,4 @@
-import { GameData, GameManager } from './GameManager';
+import { GameManager } from './GameManager';
 import { hireAgent } from './organization';
 import { getZoneCitizens } from './zones';
 import {
@@ -15,7 +15,7 @@ import { Shufflebag, randomInt } from './utilities';
 import settings from './config';
 import {
   BuildingType,
-  addInhabitant,
+  addMultiplePersonnel,
   addPersonnel,
   addResident,
   buildingsSchematics,
@@ -27,7 +27,8 @@ import { getZones } from './actions/zones';
 import Player from './managers/cpu/Player';
 import PlayerManager from './managers/cpu/PlayerManager';
 import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
-import { nations } from '..';
+import { populateActivities, populatePlots } from './plots';
+import ShufflebagManager from './shufflebag/shufflebagManager';
 /**
  * The main Shufflebag for building types
  */
@@ -39,26 +40,21 @@ const buildingShufflebag = Shufflebag({
   hospital: settings.worldGen.buildings.generationFrequency.hospital,
 });
 
-/**
- * The main Shufflebag for recruit departments.
- * This is used to determine what recruits are
- * enlisted by none EOE nations.
- */
-const recruitDepartmentShufflebag = Shufflebag({
-  0: 1,
-  1: 1,
-  2: 1,
-});
-
 export type NewGameOptions = {
   pet?: boolean;
   overlordName?: string;
   takePrisoners: boolean;
+  /**
+   * If true, staff buildings with empire agents.
+   * */
+  startWithFullStaff: boolean;
 };
+
 type PlayerOptions = {
   isCPU: boolean;
   leaderName?: string;
   organizationEffects: GoverningOrgStatusEffects[];
+  fullStaff: boolean;
 };
 
 const populateResidences = (orgId: string, nationId: string) => {
@@ -84,6 +80,88 @@ const populateResidences = (orgId: string, nationId: string) => {
       }
     });
   console.debug('Populated residences', housedPeople);
+};
+
+const prepareBuildingPersonnel = (options: HireStartingAgentsOptions) => {
+  const buildings = getBuildings();
+  const updatedBuildings: { [index: string]: Building } = {};
+  if (options.fullStaffDetail) {
+    // If we're fully staffing, loop over every building except apartments
+    for (let i = 0; i < buildings.length; i++) {
+      const building =
+        GameManager.getInstance().gameData.buildings[buildings[i].id];
+      // const building = buildings[i];
+      if (building.type !== 'apartment') {
+        // We want the 'freshest' version of the building
+        const employees = [];
+        for (let i = 0; i < building.basicAttributes.maxPersonnel; i++) {
+          // Make sure we're excluding agents that have already been hired
+          const agents = getPeople({
+            personFilter: {
+              excludePersonnel: true,
+            },
+            zone: {
+              zoneId: building.zoneId,
+            },
+            agentFilter: { agentsOnly: true, excludeDepartments: ['overlord'] },
+          });
+          const newPersonnel = agents[i];
+          if (newPersonnel) {
+            // If we have a valid agent, we need to set them to the appropriate dep't
+            // NOTE: This makes no attempt to match agent skill with position
+            switch (building.type) {
+              case 'office':
+              case 'bank':
+                newPersonnel.agent!.department = 'administrator';
+                break;
+              case 'hospital':
+                newPersonnel.agent!.department = 'doctor';
+                break;
+              case 'laboratory':
+                newPersonnel.agent!.department = 'scientist';
+                break;
+              default:
+                break;
+            }
+            employees.push(newPersonnel);
+          }
+        }
+
+        console.log('Building personnel', employees);
+        const result = addMultiplePersonnel(employees, building);
+        console.log('Added personnel', result);
+        GameManager.getInstance().updateGameData(result);
+      }
+    }
+    console.log('Updated buildings', updatedBuildings);
+  } else {
+    for (
+      let buildingIndex = 0;
+      buildingIndex < buildings.length;
+      buildingIndex++
+    ) {
+      const building = buildings[buildingIndex];
+      const employees = [];
+      const citizens = getPeople({
+        zone: { zoneId: building.zoneId },
+        agentFilter: { excludeAgents: true },
+        personFilter: { excludePersonnel: true },
+      });
+      for (
+        let personnelIndex = 0;
+        personnelIndex < building.basicAttributes.maxPersonnel;
+        personnelIndex++
+      ) {
+        const p = citizens[randomInt(0, citizens.length - 1)];
+        if (p) {
+          employees.push(p);
+        }
+      }
+      const result = addMultiplePersonnel(employees, building);
+      console.log('Added personnel', result);
+      GameManager.getInstance().updateGameData(result);
+    }
+  }
 };
 
 const createPlayer = (options: PlayerOptions) => {
@@ -126,9 +204,12 @@ const createPlayer = (options: PlayerOptions) => {
     zones[z.id] = z;
   }
 
+  const leaderName =
+    options.leaderName || (isCPU ? 'CPU Leader' : 'EVIL Overlord');
+
   const leader = generatePerson({
     homeZoneId: zones[Object.keys(zones)[0]].id,
-    name: options.leaderName || isCPU ? 'CPU Leader' : 'EVIL Overlord',
+    name: leaderName,
     nationId: nation.id,
     initIntelligence: 10,
     initCombat: 10,
@@ -263,9 +344,18 @@ const createPlayer = (options: PlayerOptions) => {
   }
 
   populateResidences(governOrg.id, nation.id);
+  hireOrganizationAgents({
+    fullStaffDetail: options.fullStaff,
+    orgId: governOrg.id,
+    staffIsOrg: options.fullStaff, // CPU Nations are staffed by citizens
+  });
+  prepareBuildingPersonnel({
+    fullStaffDetail: options.fullStaff,
+  });
 };
 
-const handleNewGameV2 = (options: NewGameOptions) => {
+const handleNewGame = (options: NewGameOptions) => {
+  console.debug('Starting new game');
   GameManager.getInstance().updateGameData({
     nations: {},
     governingOrganizations: {},
@@ -296,15 +386,120 @@ const handleNewGameV2 = (options: NewGameOptions) => {
     isCPU: false,
     organizationEffects: organizationEffects as GoverningOrgStatusEffects[],
     leaderName: options.overlordName,
+    fullStaff: options.startWithFullStaff,
   });
-  createPlayer({ isCPU: true, organizationEffects: [] });
+
+  createPlayer({ isCPU: true, organizationEffects: [], fullStaff: false });
   console.debug(GameManager.getInstance().gameData);
+  initializeOrgOpinions();
+};
+
+type HireOrganizationAgentsOptions = {
+  orgId: string;
+  fullStaffDetail: boolean;
+  /**
+   * Agents of the organization will staff all possible building
+   * positions if true.
+   */
+  staffIsOrg: boolean;
+};
+
+const hireOrganizationAgents = (options: HireOrganizationAgentsOptions) => {
+  const hireInitial = (recruit: Person, leader: Person) => {
+    const agent = hireAgent(
+      recruit,
+      leader.agent?.organizationId!,
+      'troop',
+      leader.id,
+    );
+    recruit!.intelAttributes.intelligenceLevel = 100;
+    recruit!.intelAttributes.loyalty = 80;
+    if (agent !== null) {
+      console.debug('Hired agent', { agent, recruit });
+      GameManager.getInstance().updateGameData({
+        people: {
+          [recruit.id]: recruit,
+        },
+      });
+    }
+  };
+  console.debug('Hiring organization agents');
+  const { orgId } = options;
+
+  // If fullStaffDetail, the total agents should be the same available jobs
+  let targetAgents = 0;
+
+  if (options.fullStaffDetail) {
+    targetAgents = getBuildings({
+      organizationId: orgId,
+    }).reduce((total, building) => {
+      // All buildings except for apartments have personnel
+      if (building.type !== 'apartment') {
+        return total + building.basicAttributes.maxPersonnel;
+      }
+      return total;
+    }, 0);
+  } else {
+    targetAgents = settings.worldGen.startingAgents.defaultStartAmount;
+  }
+  console.debug('Target agents', targetAgents);
+
+  // Now we have our target agents, we need to hire them
+  // Get the leader of the organization
+  // We'll need to assign them as the commander of the agents
+  const leader = getPeople({
+    personFilter: { organizationId: orgId },
+    agentFilter: { department: 'overlord' },
+  })[0];
+
+  // NOTE: The getPeople invocations below should ensure we don't get people who are
+  // already agents at the cost of a performance hit... it's worth it for now
+  if (options.fullStaffDetail) {
+    // If we're doing full staff detail, we need to hire agents for all buildings
+    // They'll be assigned to *some* building later on
+    getBuildings({
+      organizationId: orgId,
+    }).forEach((building) => {
+      // Make sure we're not hiring for apartments
+      if (building.type !== 'apartment') {
+        for (let i = 0; i < building.basicAttributes.maxPersonnel; i++) {
+          const citizens = getPeople({
+            zone: { zoneId: building.zoneId },
+            agentFilter: { excludeAgents: true },
+          });
+          if (citizens[i]) {
+            hireInitial(citizens[i], leader);
+          }
+        }
+      }
+    });
+  } else {
+    // If we're not doing full staff detail, we'll just hire the target amount from
+    // entire nation pool
+    for (let i = 0; i < targetAgents; i++) {
+      const citizens = getPeople({
+        nation: {
+          nationId: leader.nationId,
+        },
+        agentFilter: { excludeAgents: true },
+      });
+      if (citizens[i]) {
+        hireInitial(citizens[i], leader);
+      }
+    }
+  }
+
+  console.debug('Done hiring organization agents');
+};
+
+type HireStartingAgentsOptions = {
+  fullStaffDetail: boolean;
 };
 
 /**
- *
+ * Hires starting agents for the EoE
  */
-const hireStartingAgents = () => {
+const hireStartingAgents = (options: HireStartingAgentsOptions) => {
   const gameData = GameManager.getInstance().gameData;
   const updatedGameData = { ...gameData };
 
@@ -312,10 +507,14 @@ const hireStartingAgents = () => {
   const playerData = gameData.player;
   Object.values(gameData.governingOrganizations).forEach((org) => {
     if (org.id === playerData.organizationId) {
+      // Get the empire zone
       const empireZone = getZones({
         organizationId: playerData.organizationId,
       })[0];
+
+      // Get the citizens of the empire
       const citizens = getPeople({ zone: { zoneId: empireZone.id } });
+
       // Start at 1, 0 is the Overlord
       for (let recruitIndex = 1; recruitIndex < 9; recruitIndex++) {
         const recruit = hireAgent(
@@ -348,7 +547,6 @@ const hireStartingAgents = () => {
       const zoneCitizens = getZoneCitizens(zone.id);
       const zoneAgents = Math.floor(zoneCitizens.length * 0.3);
       for (let recruitIndex = 0; recruitIndex < zoneAgents; recruitIndex++) {
-        const recruitType = recruitDepartmentShufflebag.next().toString();
         const recruit = zoneCitizens[recruitIndex];
         const agentUpdate = hireAgent(recruit, org.id, 'troop', leader.id);
         if (agentUpdate !== null) {
@@ -365,6 +563,7 @@ const hireStartingAgents = () => {
   GameManager.getInstance().updateGameData(updatedGameData);
   initializeLoyalties();
   initializePersonnel();
+  initializeOrgOpinions();
   return updatedGameData;
 };
 
@@ -439,6 +638,48 @@ const initializePersonnel = () => {
   });
 };
 
+const initializeOrgOpinions = () => {
+  const organizations = {
+    ...GameManager.getInstance().gameData.governingOrganizations,
+  };
+
+  // We're first going to loop over all of our organizations
+  // For each, we'll loop over all other organizations and set
+  // the opinion from the origination org's perspective.
+  Object.values(organizations).forEach((organization) => {
+    const opinions: { [organizationId: string]: number } = {};
+    Object.values(organizations).forEach((otherOrg) => {
+      if (otherOrg.id !== organization.id) {
+        // For now, we'll say other orgs are neutral to each other
+        // but distrustful of the EoE
+        if (otherOrg.evil) {
+          opinions[otherOrg.id] = -10;
+        } else {
+          opinions[otherOrg.id] = 0;
+        }
+      }
+    });
+    organization.opinions = opinions;
+    console.debug('Initialized opinions for', organization.name, opinions);
+  });
+
+  GameManager.getInstance().updateGameData({
+    governingOrganizations: organizations,
+  });
+};
+
 const createGameManager = () => new GameManager();
 
-export { handleNewGameV2, hireStartingAgents, createGameManager };
+const newGame = (options: NewGameOptions) => {
+  ShufflebagManager.getInstance().addShufflebag(
+    'skillBaseShufflebag',
+    settings.shufflebags.skillBaseShufflebag,
+  );
+
+  handleNewGame(options);
+  populateActivities();
+  populatePlots();
+  GameManager.getInstance().setInitialized(true);
+};
+
+export { hireStartingAgents, createGameManager, newGame };

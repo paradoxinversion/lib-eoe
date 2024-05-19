@@ -1,7 +1,8 @@
 import { GameData, GameManager } from './GameManager';
 import { getEvilEmpire } from './organization';
 import { PlotResolution } from './plots';
-import { Shufflebag } from './utilities';
+// import { Shufflebag } from './utilities';
+import Shufflebag from './shufflebag/shufflebag';
 import { getPeople } from './actions/people';
 import GameEvent from './events/GameEvent';
 import GameEventQueue from './events/GameEventQueue';
@@ -19,6 +20,9 @@ import { generateMonthlyReportEvent } from './events/eventFunctions/monthlyRepor
 import { generatePetEvent } from './events/eventFunctions/petEvent';
 import { generateEmbedAgentsEvent } from './events/eventFunctions/embedAgents';
 import { generateRecallEmbeddedAgentsEvent } from './events/eventFunctions/recallEmbeddedAgents';
+import { generateInciteProtestEvent } from './events/eventFunctions/inciteProtest';
+import { raid } from './events/eventFunctions';
+import ShufflebagManager from './shufflebag/shufflebagManager';
 
 export interface EventRequirements {
   personnel?: {
@@ -45,10 +49,7 @@ interface EventData {
 /**
  * Generates events for each plot resolution
  */
-const addPlotResolutions = (
-  plotResolutions: PlotResolution[],
-  eventQueue: GameEventQueue,
-) => {
+const addPlotResolutions = (plotResolutions: PlotResolution[]) => {
   const plotResolutionEvents: GameEvent[] = [];
   plotResolutions.forEach((plotResolution) => {
     let resolutionEvent: GameEvent | null = null;
@@ -61,35 +62,53 @@ const addPlotResolutions = (
         break;
       case 'embed-agents':
         resolutionEvent = generateEmbedAgentsEvent(plotResolution.plot);
+        break;
       case 'recall-embedded-agents':
         resolutionEvent = generateRecallEmbeddedAgentsEvent(
           plotResolution.plot,
         );
+        break;
+      case 'incite-protest':
+        resolutionEvent = generateInciteProtestEvent(plotResolution.plot);
+        break;
 
       default:
         break;
     }
     if (resolutionEvent) {
       plotResolutionEvents.push(resolutionEvent);
-      eventQueue.addEvent(resolutionEvent);
+      GameEventQueue.getInstance().addEvent(resolutionEvent);
     }
   });
   return plotResolutionEvents;
 };
-
-const eventShufflebag = Shufflebag({
-  EvilApplicantEvent: 1,
-  WealthModEvent: 1,
-  nothing: 30,
-  IntruderAlert: 1,
-  AngryAdminEvent: 1,
-  OccupationalHazard: 1,
-  PetEvent: 1,
-});
+const eventShufflebag = ShufflebagManager.getInstance().addShufflebag(
+  'eventShufflebag',
+  {
+    EvilApplicantEvent: 5,
+    WealthModEvent: 1,
+    nothing: 1,
+    IntruderAlert: 1,
+    AngryAdminEvent: 1,
+    OccupationalHazard: 1,
+    PetEvent: 1,
+    Raid: 10,
+  },
+);
+// const eventShufflebag = new Shufflebag({
+//   EvilApplicantEvent: 1,
+//   WealthModEvent: 1,
+//   nothing: 30,
+//   IntruderAlert: 1,
+//   AngryAdminEvent: 1,
+//   OccupationalHazard: 1,
+//   PetEvent: 1,
+// });
 /**
  * Add a set of random events to the event queue
  */
 const prepareRandomEvents = () => {
+  console.debug('Preparing random events');
   const { gameData } = GameManager.getInstance();
   const events: GameEvent[] = [];
   for (let potentialEvents = 0; potentialEvents < 1; potentialEvents++) {
@@ -140,6 +159,27 @@ const prepareRandomEvents = () => {
       case 'PetEvent':
         if (getEvilEmpire().statusEffects.includes('pet')) {
           event = generatePetEvent();
+          events.push(event);
+        }
+        break;
+
+      case 'Raid':
+        // determine if there are any people to raid
+        const people = getPeople({
+          nation: {
+            nationId: getEvilEmpire().id,
+          },
+          personFilter: {
+            loyaltyFilter: {
+              comparison: 'less',
+              value: 75,
+              organizationId: getEvilEmpire().id,
+            },
+            excludeCaptured: true,
+          },
+        });
+        if (people.length > 0) {
+          event = raid.generateEvent();
           events.push(event);
         }
         break;

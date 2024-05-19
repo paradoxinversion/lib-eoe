@@ -13,6 +13,9 @@ import { occupationalHazardEventConfig } from './eventFunctions/occupationalHaza
 import { petEventConfig } from './eventFunctions/petEvent';
 import { embedAgentsConfig } from './eventFunctions/embedAgents';
 import { recallEmbeddedAgentsConfig } from './eventFunctions/recallEmbeddedAgents';
+import { inciteProtestConfig } from './eventFunctions/inciteProtest';
+import { config as domesticCombatEncounterConfig } from './eventFunctions/domesticCombatEncounter';
+import { config as raidConfig } from './eventFunctions/raid';
 /**
  * Sets `event.params` to an empty object. Should be used for
  * events that take no parameters.
@@ -41,6 +44,9 @@ const eventConfig: EventConfigMap = {
   petEvent: petEventConfig,
   embedAgents: embedAgentsConfig,
   recallEmbeddedAgents: recallEmbeddedAgentsConfig,
+  inciteProtest: inciteProtestConfig,
+  domesticCombatEncounter: domesticCombatEncounterConfig,
+  raid: raidConfig,
 };
 
 export default eventConfig;

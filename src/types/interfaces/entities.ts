@@ -2,9 +2,16 @@ import { BuildingStatusEffects } from '../../statusEffects/building';
 import { GoverningOrgStatusEffects } from '../../statusEffects/governingOrg';
 import { PersonStatusEffect } from '../../statusEffects/person';
 
+/**
+ * An interface for entities that can be surveilled
+ */
 interface IntelligenceSubject {
   intelligenceLevel: number;
 }
+
+/**
+ * An interface for Nations within a game.
+ */
 export interface Nation {
   /** The nation's indentifier, prefixed with `n_` */
   id: string;
@@ -12,9 +19,13 @@ export interface Nation {
   name: string;
   /** The size (amount of zones) of the nation */
   size: number;
+  /** The id of the org that controls the nation */
   organizationId: string;
 }
 
+/**
+ * An interface for Zones within a game.
+ */
 export interface Zone {
   /** The zone's indentifier, prefixed with `z_` */
   id: string;
@@ -28,7 +39,9 @@ export interface Zone {
   wealth: number;
   /** The level of knowledge the EOE has on this zone */
   intelligenceLevel: number;
+  /** The id of the org that controls the zone */
   organizationId: string;
+  /** The level of intelligence the EoE (player's empire) has on the zone */
   intelAttributes: IntelligenceSubject;
 }
 
@@ -56,6 +69,8 @@ export interface PersonStandardAttributes {
   agility: number;
   /** how smart the person is, related to Science */
   intelligence: number;
+  /** higher amounts denote less cruelty*/
+  empathy: number;
 }
 
 export type PersonBasicAttributeTypes = keyof PersonStandardAttributes;
@@ -136,6 +151,10 @@ export interface GoverningOrganization {
   totalEvil: number;
   captives: string[];
   statusEffects: GoverningOrgStatusEffects[];
+  opinions: {
+    /** The org's opinion on another organization, -/+100 */
+    [orgId: string]: number;
+  };
 }
 
 export interface Building {

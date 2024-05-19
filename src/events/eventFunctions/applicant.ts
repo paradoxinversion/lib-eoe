@@ -22,41 +22,56 @@ export interface EvilApplicantResolveArgs {
   };
 }
 
+type EvilApplicantEventParams = {
+  recruit: string;
+};
 /**
  * Create and return a new EVIL Applicant Game Event
  */
-export const generateEvilApplicantEvent = () => {
-  const { gameData } = GameManager.getInstance();
-  const playerZonesArray = getZones({
-    organizationId: gameData.player.organizationId,
-  });
-  if (
-    getPeople({
-      personFilter: {
-        organizationId: gameData.player.organizationId,
+export const generateEvilApplicantEvent = (
+  params?: EvilApplicantEventParams,
+) => {
+  let applicant =
+    params?.recruit ?
+      GameManager.getInstance().gameData.people[params?.recruit]
+    : null;
+
+  if (!applicant) {
+    const {
+      gameData: {
+        player: { organizationId },
       },
-      agentFilter: { agentsOnly: true },
-    }).length >= getMaxAgents(gameData.player.organizationId)
-  ) {
-    return null;
-  }
-
-  const potentialRecruits: Person[] = [];
-  playerZonesArray.map((zone) => {
-    getZoneCitizens(zone.id, true).forEach((person) => {
-      potentialRecruits.push(person);
+    } = GameManager.getInstance();
+    const playerZonesArray = getZones({
+      organizationId: organizationId,
     });
-  });
+    if (
+      getPeople({
+        personFilter: {
+          organizationId: organizationId,
+        },
+        agentFilter: { agentsOnly: true },
+      }).length >= getMaxAgents(organizationId)
+    ) {
+      return null;
+    }
 
-  if (potentialRecruits.length === 0) {
-    throw new Error('NoAvailableAgents');
+    const potentialRecruits: Person[] = [];
+    playerZonesArray.map((zone) => {
+      getZoneCitizens(zone.id, true).forEach((person) => {
+        potentialRecruits.push(person);
+      });
+    });
+
+    if (potentialRecruits.length === 0) {
+      throw new Error('NoAvailableAgents');
+    }
+    const recruitIndex = randomInt(0, potentialRecruits.length - 1);
+    applicant = potentialRecruits[recruitIndex];
   }
-  const recruitIndex = randomInt(0, potentialRecruits.length - 1);
-  const selectedAgent = potentialRecruits[recruitIndex];
-
   const event = new GameEvent(evilApplicantEvilConfig, {
-    recruit: selectedAgent,
-    organizationId: gameData.player.organizationId,
+    recruit: applicant,
+    organizationId: GameManager.getInstance().gameData.player.organizationId,
     department: 0,
   });
   return event;

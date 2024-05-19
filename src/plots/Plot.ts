@@ -3,6 +3,7 @@ import { CombatResult } from '../combat';
 import plotConfig from './plotConfig';
 import { PlotAttackZoneParams } from './plotFunctions/attackZone';
 import { PlotEmbedAgentsData } from './plotFunctions/embedAgents';
+import { InciteProtestData } from './plotFunctions/inciteProtest';
 import { PlotReconParams, ReconPlotData } from './plotFunctions/recon';
 
 /** Basic parameters common to any plot */
@@ -16,7 +17,12 @@ export interface PlotParamsStandard {
 export interface PlotResult {
   success: boolean;
   updatedGameData: Partial<GameData>;
-  resolutionData: ReconPlotData | CombatResult | PlotEmbedAgentsData | null;
+  resolutionData:
+    | ReconPlotData
+    | CombatResult
+    | PlotEmbedAgentsData
+    | InciteProtestData
+    | null;
 }
 
 export default class Plot {

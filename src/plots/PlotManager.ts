@@ -76,7 +76,6 @@ export class PlotManager {
    * Execute a plot, returning...
    */
   executePlot(plot: Plot): PlotResolution {
-    debugger;
     return plot.executePlot();
   }
 

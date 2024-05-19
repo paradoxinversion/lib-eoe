@@ -188,6 +188,11 @@ const chooseActivity = (person: Person, completedActivities: string[]) => {
 };
 
 export interface SimulatedActivityResolution {
+  /**
+   * The game data that should be updated as a result of the activity.
+   * This data may include the person, and other entities that are affected
+   * by their actions.
+   */
   updatedGamedata?: Partial<GameData>;
   activity?: string;
 }

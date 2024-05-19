@@ -122,11 +122,12 @@ const skillCheck = () => {
 export const skillLevelStr = (amount: number) => {
   const skillPercentage = (amount / 100) * 100;
   return (
-    skillPercentage === 100 ? 'Peak'
-    : skillPercentage > 75 ? 'Phenomenal'
-    : skillPercentage > 50 ? 'Above Average'
-    : skillPercentage > 25 ? 'Average'
-    : 'Below Average'
+    skillPercentage === 100 ? 'Master'
+    : skillPercentage > 80 ? 'Expert'
+    : skillPercentage > 60 ? 'Professional'
+    : skillPercentage > 40 ? 'Skilled'
+    : skillPercentage > 20 ? 'Novice'
+    : 'Amateur'
   );
 };
 

@@ -80,7 +80,7 @@ export const config: ScienceProjectDefinition = {
   startHandler,
   completeHandler,
   science: 20,
-  cost: 1,
+  cost: 2500,
   completionTime: 5,
   requirements: {
     completedProjects: [],

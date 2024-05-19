@@ -66,7 +66,13 @@ class GameEventQueue {
    * queue at once when the array is not empty.
    */
   addEvents(events: GameEvent[]) {
-    this.events.concat(events);
+    console.debug('Adding events:', events);
+    if (events.length === 0) {
+      console.warn('No events to add');
+      return;
+    }
+    this.events = this.events.concat(events);
+    console.debug('Events:', this.events);
   }
 
   /**

@@ -14,6 +14,7 @@ import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
 import { PersonStatusEffect } from '../statusEffects/person';
 import { BuildingType, buildingsSchematics } from '../buildings';
 import settings from '../config';
+import ShufflebagManager from '../shufflebag/shufflebagManager';
 const { v4: uuidv4 } = require('uuid');
 
 interface GenerateNationOpts {
@@ -142,6 +143,44 @@ const generateZones = (
   return zones;
 };
 
+const getSkillBase = () => {
+  const rank =
+    ShufflebagManager.getInstance().shuffleBags['skillBaseShufflebag'].next();
+  switch (rank) {
+    case 'Expert':
+      return randomInt(80, 100);
+    case 'Professional':
+      return randomInt(60, 80);
+    case 'Skilled':
+      return randomInt(40, 60);
+    case 'Novice':
+      return randomInt(20, 40);
+    case 'Amateur':
+      return randomInt(0, 20);
+    default:
+      return randomInt(0, 20);
+  }
+};
+
+const getAttributeBase = () => {
+  const rank =
+    ShufflebagManager.getInstance().shuffleBags[
+      'attributeBaseShufflebag'
+    ].next();
+  switch (rank) {
+    case 'Professional':
+      return randomInt(8, 9);
+    case 'Skilled':
+      return randomInt(6, 7);
+    case 'Novice':
+      return randomInt(4, 5);
+    case 'Amateur':
+      return randomInt(2, 3);
+    default:
+      return randomInt(0, 1);
+  }
+};
+
 const generatePerson = ({
   nationId = 'UNSET',
   homeZoneId = '',
@@ -156,6 +195,7 @@ const generatePerson = ({
   if (name === 'Unnamed Person') {
     name = generateName();
   }
+
   // Standard Attributes
   const strength = randomInt(
     settings.worldGen.people.attributeMin,
@@ -203,44 +243,19 @@ const generatePerson = ({
   }
 
   // Skills
-  const espionage = randomInt(
-    settings.worldGen.people.minSkill,
-    settings.worldGen.people.maxSkill,
-  );
+  const espionage = getSkillBase();
 
-  const disguise = randomInt(
-    settings.worldGen.people.minSkill,
-    settings.worldGen.people.maxSkill,
-  );
+  const disguise = getSkillBase();
 
-  const science = randomInt(
-    settings.worldGen.people.minSkill,
-    settings.worldGen.people.maxSkill,
-  );
+  const science = getSkillBase();
 
-  const administration =
-    initAdministration ||
-    randomInt(
-      settings.worldGen.people.minSkill,
-      settings.worldGen.people.maxSkill,
-    );
+  const administration = initAdministration || getSkillBase();
 
-  const leadership =
-    initLeadership ||
-    randomInt(
-      settings.worldGen.people.minSkill,
-      settings.worldGen.people.maxSkill,
-    );
+  const leadership = initLeadership || getSkillBase();
 
-  const security = randomInt(
-    settings.worldGen.people.minSkill,
-    settings.worldGen.people.maxSkill,
-  );
+  const security = getSkillBase();
 
-  const medicine = randomInt(
-    settings.worldGen.people.minSkill,
-    settings.worldGen.people.maxSkill,
-  );
+  const medicine = getSkillBase();
 
   return {
     id: 'p_' + uuidv4(),
@@ -258,6 +273,7 @@ const generatePerson = ({
       intelligence,
       constitution,
       agility,
+      empathy: randomInt(1, 10),
     },
     derivedAttributes: {
       health: {
@@ -358,6 +374,7 @@ const generateGoverningOrg = ({
     totalEvil: 0,
     captives: [],
     statusEffects,
+    opinions: {},
   };
 };
 interface GenerateBuildingOpts {
