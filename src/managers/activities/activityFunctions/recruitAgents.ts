@@ -1,9 +1,9 @@
 import { GameManager } from '../../game/GameManager';
-import { getPeople } from '../../../actions/people';
-import GameEvent from '../../../events/GameEvent';
-import GameEventQueue from '../../../events/GameEventQueue';
-import { generateEvilApplicantEvent } from '../../../events/eventFunctions/applicant';
+import people from '../../../actions/people';
+import GameEvent from '../../events/GameEvent';
+import GameEventQueue from '../../events/GameEventQueue';
 import { Person } from '../../../types/interfaces/entities';
+import { generateEvilApplicantEvent } from '../../events/eventFunctions/applicant';
 
 const recruitAgents = (participantArray: string[]) => {
   // Relevant skills/attributes:
@@ -28,7 +28,7 @@ const recruitAgents = (participantArray: string[]) => {
 
     console.debug('Recruiting agents in zone', agentHomeZone.name);
     console.debug('Max applicants:', maxApplicants);
-    const homeZoneCitizens = getPeople({
+    const homeZoneCitizens = people.getPeople({
       zone: {
         zoneId: agentHomeZone.id,
       },
@@ -54,7 +54,9 @@ const recruitAgents = (participantArray: string[]) => {
   const events: GameEvent[] = [];
   for (const applicant of applicants) {
     // Add an EvilApplicantEvent for each applicant
-    const event = generateEvilApplicantEvent({ recruit: applicant.id });
+    const event = generateEvilApplicantEvent({
+      recruit: applicant.id,
+    });
     events.push(event!);
   }
 

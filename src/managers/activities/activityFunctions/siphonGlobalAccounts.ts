@@ -1,7 +1,7 @@
 import { GameManager } from '../../game/GameManager';
-import { getPeople } from '../../../actions/people';
+import people from '../../../actions/people';
 import { getEvilEmpire } from '../../../organization';
-import { randomInt } from '../../../utilities';
+import utilities from '../../../utilities';
 
 const siphonGlobalAccounts = (participantArray: string[]) => {
   if (participantArray.length === 0) {
@@ -9,7 +9,7 @@ const siphonGlobalAccounts = (participantArray: string[]) => {
   }
   participantArray.forEach((participant) => {
     // Choose a citizen in the nation
-    const citizens = getPeople({
+    const citizens = people.getPeople({
       nation: {
         nationId: GameManager.getInstance().gameData.player.empireId,
         excludeNations: [GameManager.getInstance().gameData.player.empireId],
@@ -18,10 +18,10 @@ const siphonGlobalAccounts = (participantArray: string[]) => {
         excludeAgents: true,
       },
     });
-    const citizen = citizens[randomInt(0, citizens.length - 1)];
+    const citizen = citizens[utilities.randomInt(0, citizens.length - 1)];
     const citizenWealth = citizen.wealth;
 
-    const siphonAmt = randomInt(0, 5);
+    const siphonAmt = utilities.randomInt(0, 5);
     const newWealth = citizenWealth - siphonAmt;
     // Update the citizen's wealth
     const updatedCitizen = {

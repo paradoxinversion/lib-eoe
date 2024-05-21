@@ -1,4 +1,4 @@
-import { GameManager } from './GameManager';
+import { GameManager } from '../managers/game/GameManager';
 
 const getNationCitizens = (nationId: string) => {
   const { gameData } = GameManager.getInstance();

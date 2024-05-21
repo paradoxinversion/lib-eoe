@@ -8,7 +8,7 @@ import {
   Zone,
 } from '../types/interfaces/entities';
 
-import { throwErrorFromArray, randomInt } from '../utilities';
+import utilities from '../utilities';
 import { generateCompanyName, generateName } from '../generators/names';
 import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
 import { PersonStatusEffect } from '../statusEffects/person';
@@ -86,11 +86,11 @@ const generateNations = (
   if (minSize > maxSize || maxSize < minSize) {
     errors.push("'minSize' must be less than 'maxSize'.");
   }
-  throwErrorFromArray(errors);
+  utilities.throwErrorFromArray(errors);
   const nations: { [x: string]: Nation } = {};
   for (let nationIndex = 0; nationIndex < nationsAmt; nationIndex++) {
     const newNation = generateNation({
-      size: randomInt(1, maxSize),
+      size: utilities.randomInt(1, maxSize),
       name: 'Nation ' + nationIndex,
     });
     nations[newNation.id] = newNation;
@@ -104,7 +104,7 @@ const generateNations = (
 const generateZone = ({
   nationId = 'UNSET',
   name = 'Unnamed Zone',
-  size = randomInt(
+  size = utilities.randomInt(
     settings.worldGen.zones.minSize,
     settings.worldGen.zones.maxSize,
   ),
@@ -116,7 +116,7 @@ const generateZone = ({
     nationId,
     name,
     size,
-    wealth: randomInt(
+    wealth: utilities.randomInt(
       settings.worldGen.zones.minWealth,
       settings.worldGen.zones.maxWealth,
     ),
@@ -148,17 +148,17 @@ const getSkillBase = () => {
     ShufflebagManager.getInstance().shuffleBags['skillBaseShufflebag'].next();
   switch (rank) {
     case 'Expert':
-      return randomInt(80, 100);
+      return utilities.randomInt(80, 100);
     case 'Professional':
-      return randomInt(60, 80);
+      return utilities.randomInt(60, 80);
     case 'Skilled':
-      return randomInt(40, 60);
+      return utilities.randomInt(40, 60);
     case 'Novice':
-      return randomInt(20, 40);
+      return utilities.randomInt(20, 40);
     case 'Amateur':
-      return randomInt(0, 20);
+      return utilities.randomInt(0, 20);
     default:
-      return randomInt(0, 20);
+      return utilities.randomInt(0, 20);
   }
 };
 
@@ -169,15 +169,15 @@ const getAttributeBase = () => {
     ].next();
   switch (rank) {
     case 'Professional':
-      return randomInt(8, 9);
+      return utilities.randomInt(8, 9);
     case 'Skilled':
-      return randomInt(6, 7);
+      return utilities.randomInt(6, 7);
     case 'Novice':
-      return randomInt(4, 5);
+      return utilities.randomInt(4, 5);
     case 'Amateur':
-      return randomInt(2, 3);
+      return utilities.randomInt(2, 3);
     default:
-      return randomInt(0, 1);
+      return utilities.randomInt(0, 1);
   }
 };
 
@@ -197,38 +197,39 @@ const generatePerson = ({
   }
 
   // Standard Attributes
-  const strength = randomInt(
+  const strength = utilities.randomInt(
     settings.worldGen.people.attributeMin,
     settings.worldGen.people.attributeMax,
   );
-  const constitution = randomInt(
+  const constitution = utilities.randomInt(
     settings.worldGen.people.attributeMin,
     settings.worldGen.people.attributeMax,
   );
-  const agility = randomInt(
+  const agility = utilities.randomInt(
     settings.worldGen.people.attributeMin,
     settings.worldGen.people.attributeMax,
   );
   const intelligence =
     initIntelligence ||
-    randomInt(
+    utilities.randomInt(
       settings.worldGen.people.attributeMin,
       settings.worldGen.people.attributeMax,
     );
 
-  const loyalty = initLoyalty || randomInt(1, 100);
-  const combat = initCombat || randomInt(1, 10);
+  const loyalty = initLoyalty || utilities.randomInt(1, 100);
+  const combat = initCombat || utilities.randomInt(1, 10);
 
   // Derived Attriibutes
-  const totalHealth = constitution * 5 + strength * 2 + randomInt(1, 10);
-  const defense = constitution * 2 + randomInt(1, 10);
-  const evasion = agility * 2 + randomInt(1, 10);
+  const totalHealth =
+    constitution * 5 + strength * 2 + utilities.randomInt(1, 10);
+  const defense = constitution * 2 + utilities.randomInt(1, 10);
+  const evasion = agility * 2 + utilities.randomInt(1, 10);
 
   // "Quirks"
   const statusEffects: { [x: string]: number } = {};
-  const isConspiracyNut = randomInt(0, 100) > 90;
-  const isSanguine = randomInt(0, 100) > 90;
-  const isParanoid = randomInt(0, 100) > 90;
+  const isConspiracyNut = utilities.randomInt(0, 100) > 90;
+  const isSanguine = utilities.randomInt(0, 100) > 90;
+  const isParanoid = utilities.randomInt(0, 100) > 90;
   if (isConspiracyNut) {
     // statusEffects.push('conspiracy-nut');
     statusEffects['conspiracy-nut'] = -1;
@@ -273,7 +274,7 @@ const generatePerson = ({
       intelligence,
       constitution,
       agility,
-      empathy: randomInt(1, 10),
+      empathy: utilities.randomInt(1, 10),
     },
     derivedAttributes: {
       health: {
@@ -290,7 +291,7 @@ const generatePerson = ({
         [homeZoneId]: 20 + loyalty,
       },
     },
-    wealth: randomInt(50, 500),
+    wealth: utilities.randomInt(50, 500),
     statusEffects,
     skills: {
       espionage,
@@ -361,7 +362,7 @@ const generateGoverningOrg = ({
   if (!nationId) {
     errors.push("'nationId' is a required option parameter.");
   }
-  throwErrorFromArray(errors);
+  utilities.throwErrorFromArray(errors);
   const statusEffects: GoverningOrgStatusEffects[] = [];
   return {
     id: 'o_' + uuidv4(),
@@ -411,7 +412,7 @@ const generateBuilding = ({
   if (!upkeepCost) {
     errors.push("'upkeepCost' is a required option parameter.");
   }
-  throwErrorFromArray(errors);
+  utilities.throwErrorFromArray(errors);
   let wealthBonus = 0;
   let housingCapacity = 0;
   let maxPersonnel = 4;
@@ -420,33 +421,33 @@ const generateBuilding = ({
   const schematic = buildingsSchematics[buildingType];
   switch (buildingType) {
     case 'bank':
-      wealthBonus = randomInt(
+      wealthBonus = utilities.randomInt(
         settings.worldGen.buildings.minWealthBonus,
         settings.worldGen.buildings.maxWealthBonus,
       );
       break;
 
     case 'apartment':
-      housingCapacity = randomInt(
+      housingCapacity = utilities.randomInt(
         settings.worldGen.buildings.minHousingCapacity,
         settings.worldGen.buildings.maxHousingCapacity,
       );
       break;
 
     case 'laboratory':
-      maxPersonnel = randomInt(
+      maxPersonnel = utilities.randomInt(
         settings.worldGen.buildings.minSize,
         settings.worldGen.buildings.maxSize,
       );
       break;
     case 'office':
-      infrastructureBonus = randomInt(
+      infrastructureBonus = utilities.randomInt(
         settings.worldGen.buildings.minInfrastuctureBonus,
         settings.worldGen.buildings.maxInfrastuctureBonus,
       );
       break;
     case 'hospital':
-      beds = randomInt(
+      beds = utilities.randomInt(
         settings.worldGen.buildings.minHospitalBeds,
         settings.worldGen.buildings.maxHospitalBeds,
       );
@@ -485,7 +486,7 @@ const generateBuilding = ({
   };
 };
 
-export {
+export default {
   generateNation,
   generateNations,
   generateZone,

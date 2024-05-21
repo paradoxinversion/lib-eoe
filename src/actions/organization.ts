@@ -1,22 +1,18 @@
-import { GameData, GameManager } from './GameManager';
-import { getInfrastructurePercentage } from './actions/infrastructure';
-import { getPeople, killPerson } from './actions/people';
+import settings from '../../config/config';
+import buildings, { ResourceOutput } from './buildings';
+import generators from '../generators/game';
+import { getCodeName } from '../generators/names';
+import { GameManager, GameData } from '../managers/game/GameManager';
+import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
 import {
-  ResourceOutput,
-  getBuildings,
-  getResourceOutput,
-  getUpkeep,
-} from './buildings';
-import settings from './config';
-import { generateAgentData } from './generators/game';
-import { getCodeName } from './generators/names';
-import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
-import {
+  Person,
   AgentDepartment,
   GoverningOrganization,
-  Person,
-} from './types/interfaces/entities';
-import { randomInt, throwErrorFromArray } from './utilities';
+  Building,
+} from '../types/interfaces/entities';
+import utilities from '../utilities';
+import infrastructure from './infrastructure';
+import people from './people';
 
 /**
  * Returns a copy of the recruited person
@@ -93,7 +89,7 @@ const getScience = (organizationId: string) => {
 
   return orgLabs.reduce((tv, lab) => {
     let labIntelBonus = 0;
-    lab.personnel.forEach((personnelId) => {
+    (lab as Building).personnel.forEach((personnelId) => {
       labIntelBonus +=
         gameData.people[personnelId].standardAttributes.intelligence;
     });
@@ -105,32 +101,36 @@ const getScience = (organizationId: string) => {
  *
  */
 const getInfrastructure = (organizationId: string) => {
-  return getPeople({
-    personFilter: {
-      organizationId,
-    },
-    agentFilter: { agentsOnly: true },
-  }).reduce((infrastructure, currentAgent) => {
-    if (
-      currentAgent?.agent?.department === 'administrator' ||
-      currentAgent?.agent?.department === 'overlord'
-    ) {
-      return infrastructure + currentAgent.skills.administration;
-    }
+  return people
+    .getPeople({
+      personFilter: {
+        organizationId,
+      },
+      agentFilter: { agentsOnly: true },
+    })
+    .reduce((infrastructure, currentAgent) => {
+      if (
+        currentAgent?.agent?.department === 'administrator' ||
+        currentAgent?.agent?.department === 'overlord'
+      ) {
+        return infrastructure + currentAgent.skills.administration;
+      }
 
-    return infrastructure;
-  }, 0);
+      return infrastructure;
+    }, 0);
 };
 
 const getPayroll = (organizationId: string) => {
-  return getPeople({
-    personFilter: {
-      organizationId,
-    },
-    agentFilter: { agentsOnly: true },
-  }).reduce((payroll, currentAgent) => {
-    return payroll + (currentAgent?.agent?.salary || 0);
-  }, 0);
+  return people
+    .getPeople({
+      personFilter: {
+        organizationId,
+      },
+      agentFilter: { agentsOnly: true },
+    })
+    .reduce((payroll, currentAgent) => {
+      return payroll + (currentAgent?.agent?.salary || 0);
+    }, 0);
 };
 
 const hireAgent = (
@@ -146,7 +146,7 @@ const hireAgent = (
   }
 
   const calculatedSalary = calculateAgentSalary(newAgent);
-  const agentData = generateAgentData(
+  const agentData = generators.generateAgentData(
     organizationId,
     department,
     salary || calculatedSalary,
@@ -167,7 +167,7 @@ const fireAgent = (agent: Person) => {
 };
 
 const terminateAgent = (agent: Person): Partial<GameData> => {
-  const updatedGameData = killPerson(agent);
+  const updatedGameData = people.killPerson(agent);
   updatedGameData.people[agent.id].agent = null;
 
   // TODO: Should have a positive impact on org's EVIL value
@@ -190,10 +190,10 @@ const getEvilEmpire = () => {
 };
 
 const getOrgResources = (orgId: string): ResourceOutput => {
-  const orgBuildings = getBuildings({ organizationId: orgId });
+  const orgBuildings = buildings.getBuildings({ organizationId: orgId });
   const resources = orgBuildings.reduce(
     (prev, curr): ResourceOutput => {
-      const output = getResourceOutput(curr);
+      const output = buildings.getResourceOutput(curr);
       return {
         housing: prev.housing + output.housing,
         wealth: prev.wealth + output.wealth,
@@ -215,7 +215,7 @@ const getOrgResources = (orgId: string): ResourceOutput => {
 const getExpenses = (orgId: string) => {
   return {
     payroll: getPayroll(orgId),
-    upkeep: getUpkeep(orgId),
+    upkeep: buildings.getUpkeep(orgId),
   };
 };
 
@@ -259,7 +259,9 @@ const releaseCaptive = (orgId: string, captive: Person) => {
   }
 
   const updatedGo = { ...org };
-  updatedGo.captives = updatedGo.captives.filter((id) => id !== captive.id);
+  updatedGo.captives = (updatedGo as GoverningOrganization).captives.filter(
+    (id) => id !== captive.id,
+  );
   const update: Partial<GameData> = {
     people: {
       [captive.id]: {
@@ -316,7 +318,7 @@ const getOrgIncome = () => {
   const empireResources = getOrgResources(
     GameManager.getInstance().gameData.player.organizationId,
   );
-  const infrastructurePercentage = getInfrastructurePercentage(
+  const infrastructurePercentage = infrastructure.getInfrastructurePercentage(
     GameManager.getInstance().gameData.player.organizationId,
   );
   return (empireResources.wealth * infrastructurePercentage) / 100;
@@ -326,7 +328,7 @@ const getOrgScienceOutput = () => {
   const empireResources = getOrgResources(
     GameManager.getInstance().gameData.player.organizationId,
   );
-  const infrastructurePercentage = getInfrastructurePercentage(
+  const infrastructurePercentage = infrastructure.getInfrastructurePercentage(
     GameManager.getInstance().gameData.player.organizationId,
   );
   return (empireResources.science * infrastructurePercentage) / 100;
@@ -374,7 +376,7 @@ const getRandomOrg = (options: GetRandomOrgOptions): GoverningOrganization => {
   const pool = getOrganizations({
     exclude: { player: options.excludePlayer },
   });
-  return pool[randomInt(0, pool.length - 1)];
+  return pool[utilities.randomInt(0, pool.length - 1)];
 };
 
 const updateOrgWealth = (orgId: string, amt: number) => {

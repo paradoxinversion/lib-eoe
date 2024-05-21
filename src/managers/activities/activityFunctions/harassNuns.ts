@@ -1,11 +1,10 @@
 import { GameManager } from '../../game/GameManager';
-import { getPeople } from '../../../actions/people';
-import { randomInt } from '../../../utilities';
+import utilities from '../../../utilities';
 import {
   CrowdSize,
   generateEvent as generateDomesticEncounter,
 } from '../../../events/eventFunctions/domesticCombatEncounter';
-import GameEventQueue from '../../../events/GameEventQueue';
+import GameEventQueue from '../../events/GameEventQueue';
 const harassNuns = (participantArray: string[]) => {
   let empathy = 0;
   // For this, low empathy is mostly required
@@ -28,16 +27,16 @@ const harassNuns = (participantArray: string[]) => {
     // Most effective result, highest likelihood of retaliation
     evil *= 5;
     retaliation = true;
-    crowdSize = randomInt(1, 100) < 75 ? 'medium' : 'large';
+    crowdSize = utilities.randomInt(1, 100) < 75 ? 'medium' : 'large';
   } else if (empathyPercentage < 50) {
     // Effective result, moderate likelihood of retaliation
     evil *= 3;
-    retaliation = randomInt(1, 100) < 50;
-    crowdSize = randomInt(1, 100) < 50 ? 'medium' : 'small';
+    retaliation = utilities.randomInt(1, 100) < 50;
+    crowdSize = utilities.randomInt(1, 100) < 50 ? 'medium' : 'small';
   } else if (empathyPercentage < 75) {
     // Ineffective result, low likelihood of retaliation
     evil *= 2;
-    retaliation = randomInt(1, 100) - 25 < 50;
+    retaliation = utilities.randomInt(1, 100) - 25 < 50;
     crowdSize = 'small';
   }
 

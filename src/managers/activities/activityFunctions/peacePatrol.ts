@@ -1,8 +1,8 @@
-import { zones } from '../../../..';
+import zones from '../../../zones';
 import { GameManager } from '../../game/GameManager';
-import { updateIntelAttribute } from '../../../actions/people';
+import people from '../../../actions/people';
 import { Person } from '../../../types/interfaces/entities';
-import { randomInt } from '../../../utilities';
+import utilities from '../../../utilities';
 
 export const peacePatrol = (participantArray: string[]) => {
   const updatedGameData: { people: { [x: string]: Person } } = {
@@ -18,9 +18,9 @@ export const peacePatrol = (participantArray: string[]) => {
       true,
     );
     const citizen = {
-      ...homeZoneCitizens[randomInt(0, homeZoneCitizens.length) - 1],
+      ...homeZoneCitizens[utilities.randomInt(0, homeZoneCitizens.length) - 1],
     };
-    const updatedGameData = updateIntelAttribute(citizen, 'loyalty', 2);
+    const updatedGameData = people.updateIntelAttribute(citizen, 'loyalty', 2);
     updatedGameData.people[citizen.id] = updatedGameData.people[citizen.id];
   });
 };

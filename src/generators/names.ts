@@ -1,4 +1,4 @@
-import { randomInt } from '../utilities';
+import utilities from '../utilities';
 import femmeNames from './names/femme.json';
 import mascNames from './names/masc.json';
 import surnames from './names/surname.json';
@@ -22,16 +22,20 @@ const nationNames = [
 ];
 
 export const generateCompanyName = () => {
-  return `${companyBaseNames[randomInt(0, companyBaseNames.length - 1)]} ${
-    companyDescriptors[randomInt(0, companyDescriptors.length - 1)]
+  return `${companyBaseNames[utilities.randomInt(0, companyBaseNames.length - 1)]} ${
+    companyDescriptors[utilities.randomInt(0, companyDescriptors.length - 1)]
   }`;
 };
 
 const generateZoneName = () => {
   return `${
-    compoundZoneNameBases[randomInt(0, compoundZoneNameBases.length - 1)]
+    compoundZoneNameBases[
+      utilities.randomInt(0, compoundZoneNameBases.length - 1)
+    ]
   } ${
-    compoundZoneNameEndings[randomInt(0, compoundZoneNameEndings.length - 1)]
+    compoundZoneNameEndings[
+      utilities.randomInt(0, compoundZoneNameEndings.length - 1)
+    ]
   }`;
 };
 
@@ -42,14 +46,14 @@ const generateName = () => {
   const firstNames = femmeNames.concat(mascNames);
   const lastNames = surnames;
 
-  const name = `${firstNames[randomInt(0, firstNames.length - 1)]} ${
-    lastNames[randomInt(0, lastNames.length - 1)]
+  const name = `${firstNames[utilities.randomInt(0, firstNames.length - 1)]} ${
+    lastNames[utilities.randomInt(0, lastNames.length - 1)]
   }`;
   return name;
 };
 
 export const getCodeName = () => {
-  return codeNames[randomInt(0, codeNames.length - 1)];
+  return codeNames[utilities.randomInt(0, codeNames.length - 1)];
 };
 
 export { generateName, generateZoneName, nationNames };

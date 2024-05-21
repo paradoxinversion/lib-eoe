@@ -1,12 +1,10 @@
 /**
  * @deprecated - This file is deprecated and will be removed in the future.
  */
-// import { GameData, GameManager } from './GameManager';
-
 import { Building, Person } from './types/interfaces/entities';
 import { getInfrastructure } from './organization';
 import { BuildingStatusEffects } from './statusEffects/building';
-import { getInfrastructurePercentage } from './actions/infrastructure';
+// import { getInfrastructurePercentage } from './actions/infrastructure';
 import { GameManager, GameData } from './managers/game/GameManager';
 
 interface BuildingSchematic {
@@ -367,7 +365,7 @@ export const removeBuildingStatusEffect = (
 ) => {
   const building = GameManager.getInstance().gameData.buildings[buildingId];
   if (building.statusEffects.includes(statusEffect)) {
-    building.statusEffects = building.statusEffects.filter(
+    building.statusEffects = (building as Building).statusEffects.filter(
       (effect) => effect !== statusEffect,
     );
   }

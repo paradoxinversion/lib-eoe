@@ -1,9 +1,9 @@
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { CombatResult, doCombat } from '../../combat/combat';
-import { randomInt } from '../../utilities';
-import GameEvent from '../GameEvent';
-import { CombatEventParams } from './combat';
+import { GameManager } from '../../managers/game/GameManager';
+import combat, { CombatResult } from '../../combat/combat';
+import utilities from '../../utilities';
+import GameEvent from '../../managers/events/GameEvent';
+import people from '../../actions/people';
+import { CombatEventParams } from '../../managers/events/eventFunctions/combat';
 
 export interface DomesticCombatEncounterEventParams extends CombatEventParams {
   zoneId: string;
@@ -27,13 +27,13 @@ export const generateEvent = (params: GeneratEventParams) => {
   }
 
   const totalAttackers = Math.floor(
-    randomInt(maxAttackers * 0.25, maxAttackers),
+    utilities.randomInt(maxAttackers * 0.25, maxAttackers),
   );
 
   const attackers = [];
 
   for (let i = 0; i < totalAttackers; i++) {
-    const pool = getPeople({
+    const pool = people.getPeople({
       agentFilter: {
         agentsOnly: false,
       },
@@ -41,7 +41,7 @@ export const generateEvent = (params: GeneratEventParams) => {
         zoneId: params.zone,
       },
     });
-    const person = pool[randomInt(0, pool.length - 1)];
+    const person = pool[utilities.randomInt(0, pool.length - 1)];
     if (person) {
       attackers.push(person);
     }
@@ -50,7 +50,7 @@ export const generateEvent = (params: GeneratEventParams) => {
   const defenders = params.targetedAgents.map(
     (agent) => GameManager.getInstance().gameData.people[agent],
   );
-  const result = doCombat(attackers, defenders);
+  const result = combat.doCombat(attackers, defenders);
   const event = new GameEvent(config, {
     aggressingForce: attackers,
     defendingForce: defenders,

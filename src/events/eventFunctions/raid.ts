@@ -1,18 +1,25 @@
-import { combat } from '../../..';
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { getZones } from '../../actions/zones';
-import { CombatResult, doCombat } from '../../combat/combat';
-import { Person, Zone } from '../../types/interfaces/entities';
-import { randomInt } from '../../utilities';
-import GameEvent from '../GameEvent';
-import GameEventQueue from '../GameEventQueue';
-
+// import { combat } from '../../..';
+// import { GameManager } from '../../GameManager';
+// import { getPeople } from '../../actions/people';
+// import { getZones } from '../../actions/zones';
+// import { CombatResult, doCombat } from '../../combat/combat';
+// import { Person, Zone } from '../../types/interfaces/entities';
+// import { randomInt } from '../../utilities';
+// import GameEvent from '../GameEvent';
+// import GameEventQueue from '../GameEventQueue';
+import people from '../../actions/people';
+import { GameManager } from '../../managers/game/GameManager';
+import utilities from '../../utilities';
+import zones from '../../actions/zones';
+import combat from '../../combat';
+import GameEvent from '../../managers/events/GameEvent';
+import { CombatResult } from '../../combat/combat';
+import { Zone } from '../../types/interfaces/entities';
 export const generateEvent = () => {
   console.debug('Generating raid event');
-  const enemyTotal = randomInt(1, 5);
+  const enemyTotal = utilities.randomInt(1, 5);
 
-  const enemyPool = getPeople({
+  const enemyPool = people.getPeople({
     personFilter: {
       loyaltyFilter: {
         comparison: 'less',
@@ -28,17 +35,17 @@ export const generateEvent = () => {
 
   const enemies = [];
   for (let i = 0; i < enemyTotal; i++) {
-    const enemyIndex = randomInt(0, enemyPool.length - 1);
+    const enemyIndex = utilities.randomInt(0, enemyPool.length - 1);
     const enemy = enemyPool[enemyIndex];
     enemyPool.splice(enemyIndex, 1);
     enemies.push(enemy);
   }
-  const zones = getZones({
+  const zonePool = zones.getZones({
     organizationId: GameManager.getInstance().gameData.player.organizationId,
   });
-  const zone = zones[randomInt(0, zones.length - 1)];
+  const zone = zonePool[utilities.randomInt(0, zonePool.length - 1)];
 
-  const defendingAgents = getPeople({
+  const defendingAgents = people.getPeople({
     agentFilter: {
       agentsOnly: true,
     },
@@ -46,7 +53,7 @@ export const generateEvent = () => {
       zoneId: zone.id,
     },
   });
-  const combatResult = doCombat(enemies, defendingAgents);
+  const combatResult = combat.doCombat(enemies, defendingAgents);
   const event = new GameEvent(config, {
     combatResult,
     zone,

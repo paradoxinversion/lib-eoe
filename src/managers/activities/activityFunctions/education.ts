@@ -1,8 +1,8 @@
 import { GameManager } from '../../game/GameManager';
-import { updateLoyalty } from '../../../actions/people';
+import people from '../../../actions/people';
 import { updateEvil } from '../../../organization';
 import { Person } from '../../../types/interfaces/entities';
-import { randomInt } from '../../../utilities';
+import utilities from '../../../utilities';
 
 export const education = (participantArray: string[]) => {
   if (participantArray.length === 0) {
@@ -14,8 +14,8 @@ export const education = (participantArray: string[]) => {
       const updatedParticipant: Person = {
         ...gameData.people[participant],
       };
-      const loyaltyIncrease = randomInt(1, 4);
-      const updatedGameData = updateLoyalty(
+      const loyaltyIncrease = utilities.randomInt(1, 4);
+      const updatedGameData = people.updateLoyalty(
         updatedParticipant,
         updatedParticipant.agent?.organizationId!,
         loyaltyIncrease,

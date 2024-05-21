@@ -1,6 +1,6 @@
 import { GameManager } from '../managers/game/GameManager';
 import { getBuildings, getInfrastructureLoad } from '../buildings';
-import { getInfrastructure, getOrgResources } from '../organization';
+import { Building } from '../types/interfaces/entities';
 
 const getInfrastructurePercentage = (organizationId: string) => {
   const infrastructureOutput = getBuildings({
@@ -9,12 +9,15 @@ const getInfrastructurePercentage = (organizationId: string) => {
   }).reduce((total, building) => {
     const base = 0;
 
-    const personnelBonuses = building.personnel.reduce((total, personId) => {
-      return (total =
-        total +
-        GameManager.getInstance().gameData.people[personId].skills
-          .administration);
-    }, 0);
+    const personnelBonuses = (building as Building).personnel.reduce(
+      (total, personId) => {
+        return (total =
+          total +
+          GameManager.getInstance().gameData.people[personId].skills
+            .administration);
+      },
+      0,
+    );
     return total + base + personnelBonuses;
   }, 0);
 

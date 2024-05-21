@@ -18,25 +18,28 @@ import {
   modifyOrgScience,
 } from '../organization';
 import { Person } from '../types/interfaces/entities';
-import { getPeople, simulateDay, SimulateDayResolution } from './people';
+import people, { SimulateDayResolution } from './people';
 import { generateProjectCompleteEvent } from '../managers/events/eventFunctions/projectComplete';
 import { GameManager } from '../managers/game/GameManager';
+import GameEventQueue from '../managers/events/GameEventQueue';
 
 const handleSimActions = () => {
   console.debug('Handling sim actions');
   let actions: { [personId: string]: SimulateDayResolution } = {};
-  getPeople({
-    personFilter: {
-      excludeDeceased: true,
-    },
-    agentFilter: { excludeDepartments: ['overlord'] },
-  }).forEach((person) => {
-    const simResults = simulateDay(person);
-    actions[person.id] = {
-      ...actions,
-      ...simResults,
-    };
-  });
+  people
+    .getPeople({
+      personFilter: {
+        excludeDeceased: true,
+      },
+      agentFilter: { excludeDepartments: ['overlord'] },
+    })
+    .forEach((person) => {
+      const simResults = people.simulateDay(person);
+      actions[person.id] = {
+        ...actions,
+        ...simResults,
+      };
+    });
   console.debug('Sim actions:', actions);
 };
 
@@ -86,7 +89,7 @@ const advanceDay = () => {
   handleSimActions();
 
   // Activities may spawn events, so we need to handle them first
-  const activities = activityManager.executeActivities();
+  const activities = ActivityManager.getInstance().executeActivities();
   activities.forEach((activity) => {
     if (activity.result.updatedGameData) {
       updatedGameData.people = {
@@ -163,26 +166,29 @@ const advanceDay = () => {
   updatedGameData.gameDate = gameDate;
 
   // Everyone who is alive should regain 1 hp
-  getPeople({
-    personFilter: {
-      excludeDeceased: true,
-    },
-  }).forEach((person) => {
-    GameManager.getInstance().updateGameData({
-      people: {
-        [person.id]: {
-          ...person,
-          derivedAttributes: {
-            ...person.derivedAttributes,
-            health: {
-              ...person.derivedAttributes.health,
-              currentHealth: person.derivedAttributes.health.currentHealth + 1,
+  people
+    .getPeople({
+      personFilter: {
+        excludeDeceased: true,
+      },
+    })
+    .forEach((person) => {
+      GameManager.getInstance().updateGameData({
+        people: {
+          [person.id]: {
+            ...person,
+            derivedAttributes: {
+              ...person.derivedAttributes,
+              health: {
+                ...person.derivedAttributes.health,
+                currentHealth:
+                  person.derivedAttributes.health.currentHealth + 1,
+              },
             },
           },
         },
-      },
+      });
     });
-  });
 
   // Finalize the updates
   GameManager.getInstance().updateGameData(updatedGameData);
@@ -190,7 +196,7 @@ const advanceDay = () => {
   return {
     updatedGameData,
     gameEventQueue,
-    stop: gameEventQueue.events.some(
+    stop: GameEventQueue.getInstance().events.some(
       (event) => eventConfig[event.type].forceStop,
     ),
   };

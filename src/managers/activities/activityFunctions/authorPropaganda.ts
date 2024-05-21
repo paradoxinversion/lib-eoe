@@ -1,8 +1,7 @@
 import { GameManager } from '../../game/GameManager';
-import { getPeople } from '../../../actions/people';
-import { getEvilEmpire } from '../../../organization';
+import people from '../../../actions/people';
 import { Person } from '../../../types/interfaces/entities';
-import { randomInt } from '../../../utilities';
+import utilities from '../../../utilities';
 
 const authorPropaganda = (participantArray: string[]) => {
   if (participantArray.length === 0) {
@@ -11,7 +10,7 @@ const authorPropaganda = (participantArray: string[]) => {
   participantArray.forEach((participant) => {
     const agent = GameManager.getInstance().gameData.people[participant];
     // Determine the quality of the propaganda
-    const propagandaQuality = randomInt(
+    const propagandaQuality = utilities.randomInt(
       1,
       agent.standardAttributes.intelligence,
     );
@@ -29,29 +28,31 @@ const authorPropaganda = (participantArray: string[]) => {
         [updatedAgent.id]: updatedAgent,
       },
     });
-    getPeople({
-      zone: {
-        zoneId: agent.homeZoneId,
-      },
-    }).map((person) => {
-      const updatedPerson: Person = {
-        ...person,
-        intelAttributes: {
-          ...person.intelAttributes,
-          loyalties: {
-            ...person.intelAttributes.loyalties,
-            [agent.nationId]:
-              person.intelAttributes.loyalties[agent.nationId] +
-              propagandaEffect,
+    people
+      .getPeople({
+        zone: {
+          zoneId: agent.homeZoneId,
+        },
+      })
+      .map((person) => {
+        const updatedPerson: Person = {
+          ...person,
+          intelAttributes: {
+            ...person.intelAttributes,
+            loyalties: {
+              ...person.intelAttributes.loyalties,
+              [agent.nationId]:
+                person.intelAttributes.loyalties[agent.nationId] +
+                propagandaEffect,
+            },
           },
-        },
-      };
-      GameManager.getInstance().updateGameData({
-        people: {
-          [updatedPerson.id]: updatedPerson,
-        },
+        };
+        GameManager.getInstance().updateGameData({
+          people: {
+            [updatedPerson.id]: updatedPerson,
+          },
+        });
       });
-    });
   });
 };
 

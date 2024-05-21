@@ -1,9 +1,9 @@
 /**
  * People related actions.
  */
-import { GameManager, GameData, GameLog } from '../managers/game/GameManager';
+import { GameManager, GameData } from '../managers/game/GameManager';
 import { getActivityParticipants } from '../plots';
-import { SimulatedActivityResolution, simulateActivity } from '../sim/people';
+import people, { SimulatedActivityResolution } from '../sim/people';
 import { PersonStatusEffect } from '../statusEffects/person';
 import {
   AgentData,
@@ -11,8 +11,9 @@ import {
   PersonStandardAttributes,
   PersonIntelAttributes,
   AgentDepartment,
+  Building,
 } from '../types/interfaces/entities';
-import { randomInt } from '../utilities';
+import utilities from '../utilities';
 import { PlotManager } from '../managers/plots/PlotManager';
 export type ComparisonTypes = 'greater' | 'less' | 'equal';
 
@@ -445,9 +446,9 @@ const initializeLoyalty = (person: Person) => {
     GameManager.getInstance().gameData.governingOrganizations,
   ).forEach((go) => {
     if (go.id === zoneOwner.id) {
-      loyalties[go.id] = 20 + randomInt(0, 80);
+      loyalties[go.id] = 20 + utilities.randomInt(0, 80);
     } else {
-      loyalties[go.id] = randomInt(0, 70);
+      loyalties[go.id] = utilities.randomInt(0, 70);
     }
   });
   const updatedPerson: Person = {
@@ -542,7 +543,9 @@ const simulateDay = (person: Person) => {
   const completedActivities: string[] = [];
   const activityResolutions: SimulatedActivityResolution[] = [];
   for (let index = 0; index < 4; index++) {
-    activityResolutions.push(simulateActivity(person, completedActivities)!);
+    activityResolutions.push(
+      people.simulateActivity(person, completedActivities)!,
+    );
   }
   // const update = updates.reduce<Partial<GameData>>(
   //   (ugd, curr) => {
@@ -607,7 +610,9 @@ const relocatePerson = (person: Person, zoneId: string) => {
     const building = GameManager.getInstance().gameData.buildings[residence.id];
     const updatedBuilding = {
       ...building,
-      residents: building.inhabitants.filter((r) => r !== person.id),
+      residents: (building as Building).inhabitants.filter(
+        (r) => r !== person.id,
+      ),
     };
     GameManager.getInstance().updateGameData({
       buildings: {
