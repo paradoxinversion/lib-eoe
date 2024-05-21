@@ -1,5 +1,5 @@
 import { GameManager } from '../../GameManager';
-import settings from '../../config';
+import settings from '../../../config/config';
 import testEntities from '../helpers/testEntities';
 
 describe('GameManager', () => {

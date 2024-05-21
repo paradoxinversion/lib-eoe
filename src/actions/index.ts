@@ -1,5 +1,15 @@
-import { advanceDay } from './advanceDay';
-import * as people from './people';
-import * as zones from './zones';
-import * as infrastructure from './infrastructure';
-export { advanceDay, people, zones, infrastructure };
+import advanceDay from './advanceDay';
+import people from './people';
+import zones from './zones';
+import infrastructure from './infrastructure';
+import buildings from './buildings';
+import organization from './organization';
+
+export default {
+  advanceDay,
+  people,
+  zones,
+  infrastructure,
+  buildings,
+  organization,
+};

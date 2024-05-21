@@ -2,7 +2,7 @@ import { GameData, GameManager } from './GameManager';
 import { getEvilEmpire } from './organization';
 import { PlotResolution } from './plots';
 // import { Shufflebag } from './utilities';
-import Shufflebag from './shufflebag/shufflebag';
+import Shufflebag from './managers/shufflebag/Shufflebag';
 import { getPeople } from './actions/people';
 import GameEvent from './events/GameEvent';
 import GameEventQueue from './events/GameEventQueue';
@@ -22,7 +22,7 @@ import { generateEmbedAgentsEvent } from './events/eventFunctions/embedAgents';
 import { generateRecallEmbeddedAgentsEvent } from './events/eventFunctions/recallEmbeddedAgents';
 import { generateInciteProtestEvent } from './events/eventFunctions/inciteProtest';
 import { raid } from './events/eventFunctions';
-import ShufflebagManager from './shufflebag/shufflebagManager';
+import ShufflebagManager from './managers/shufflebag/shufflebagManager';
 
 export interface EventRequirements {
   personnel?: {

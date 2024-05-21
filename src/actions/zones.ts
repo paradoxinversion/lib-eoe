@@ -1,11 +1,10 @@
-import { GameManager } from '../GameManager';
-
+import { GameManager } from '../managers/game/GameManager';
 interface GetZonesOptions {
   nationId?: string | null;
   organizationId?: string | null;
 }
 
-export const getZones = ({
+const getZones = ({
   nationId = null,
   organizationId = null,
 }: GetZonesOptions = {}) => {
@@ -24,7 +23,9 @@ export const getZones = ({
   );
 };
 
-export const getRandomZone = (options: GetZonesOptions) => {
+const getRandomZone = (options: GetZonesOptions) => {
   const zones = getZones(options);
   return zones[Math.floor(Math.random() * zones.length)];
 };
+
+export default { getZones, getRandomZone };

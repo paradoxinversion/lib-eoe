@@ -1,4 +1,4 @@
-import { GameData, GameManager } from './GameManager';
+import { GameManager, GameData } from './managers/game/GameManager';
 import { getPeople } from './actions/people';
 import { getBuildings } from './buildings';
 import { Zone } from './types/interfaces/entities';
@@ -124,7 +124,7 @@ const transferZoneControl = ({
     buildings: updatedZoneBuildings,
   };
 };
-export {
+export default {
   getZones,
   getZoneWealth,
   getZonesWealth,

@@ -7,7 +7,7 @@ import {
   getResourceOutput,
   getUpkeep,
 } from './buildings';
-import settings from './config';
+import settings from '../config/config';
 import { generateAgentData } from './generators/game';
 import { getCodeName } from './generators/names';
 import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';

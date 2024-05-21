@@ -16,7 +16,7 @@ interface SimulatedActivity {
   handler?: (person: Person) => Partial<GameData>;
 }
 
-export const simActivities: { [x: string]: SimulatedActivity } = {
+const simActivities: { [x: string]: SimulatedActivity } = {
   laze: {
     name: 'laze',
     text: 'lazed at home',
@@ -197,7 +197,7 @@ export interface SimulatedActivityResolution {
   activity?: string;
 }
 
-export const simulateActivity = (
+const simulateActivity = (
   person: Person,
   completedActivities: string[],
 ): SimulatedActivityResolution | null => {
@@ -229,3 +229,5 @@ export const getGroupSkillValue = (personIds: string[], skill: SkillTypes) => {
   );
   return skillValues.reduce((acc, val) => acc! + (val || 0), 0)!;
 };
+
+export default { simActivities, simulateActivity };

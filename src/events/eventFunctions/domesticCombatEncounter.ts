@@ -1,6 +1,6 @@
 import { GameManager } from '../../GameManager';
 import { getPeople } from '../../actions/people';
-import { CombatResult, doCombat } from '../../combat';
+import { CombatResult, doCombat } from '../../combat/combat';
 import { randomInt } from '../../utilities';
 import GameEvent from '../GameEvent';
 import { CombatEventParams } from './combat';

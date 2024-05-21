@@ -1,5 +1,5 @@
 import { GameData, GameManager } from '../GameManager';
-import { CombatResult } from '../combat';
+import { CombatResult } from '../combat/combat';
 import plotConfig from './plotConfig';
 import { PlotAttackZoneParams } from './plotFunctions/attackZone';
 import { PlotEmbedAgentsData } from './plotFunctions/embedAgents';

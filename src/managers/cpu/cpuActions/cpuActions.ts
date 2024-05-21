@@ -1,7 +1,7 @@
 import cpuActionNothing from './nothing';
 import trainAgents from './trainAgents';
 
-const cpuActions = {
+export const cpuActions = {
   nothing: cpuActionNothing,
   trainAgents: trainAgents,
 };

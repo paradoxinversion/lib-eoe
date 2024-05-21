@@ -13,8 +13,8 @@ import { generateCompanyName, generateName } from '../generators/names';
 import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
 import { PersonStatusEffect } from '../statusEffects/person';
 import { BuildingType, buildingsSchematics } from '../buildings';
-import settings from '../config';
-import ShufflebagManager from '../shufflebag/shufflebagManager';
+import settings from '../../config/config';
+import ShufflebagManager from '../managers/shufflebag/ShufflebagManager';
 const { v4: uuidv4 } = require('uuid');
 
 interface GenerateNationOpts {

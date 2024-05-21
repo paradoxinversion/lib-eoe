@@ -1,8 +1,8 @@
-import { GameManager } from '../GameManager';
+import { GameManager } from '../managers/game/GameManager';
 import { getBuildings, getInfrastructureLoad } from '../buildings';
 import { getInfrastructure, getOrgResources } from '../organization';
 
-export const getInfrastructurePercentage = (organizationId: string) => {
+const getInfrastructurePercentage = (organizationId: string) => {
   const infrastructureOutput = getBuildings({
     organizationId,
     type: 'office',
@@ -22,4 +22,8 @@ export const getInfrastructurePercentage = (organizationId: string) => {
     (infrastructureOutput / getInfrastructureLoad(organizationId)) * 100;
 
   return percentage < 100 ? percentage : 100;
+};
+
+export default {
+  getInfrastructurePercentage,
 };

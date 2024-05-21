@@ -2,15 +2,13 @@
  * advanceDay.ts
  *
  */
-import ActivityManager from '../activities/ActivityManager';
-import { getBuildings, handleHospitalOperations } from '../buildings';
-import { generateProjectCompleteEvent } from '../events/eventFunctions/projectComplete';
+import ActivityManager from '../managers/activities/ActivityManager';
+import { handleHospitalOperations } from '../buildings';
 import {
   addPlotResolutions,
   eventConfig,
   prepareRandomEvents,
 } from '../gameEvents';
-import { GameManager } from '../GameManager';
 import PlayerManager from '../managers/cpu/PlayerManager';
 import { ScienceManager } from '../managers/science/science';
 import { ScienceProject } from '../managers/science/types';
@@ -21,6 +19,8 @@ import {
 } from '../organization';
 import { Person } from '../types/interfaces/entities';
 import { getPeople, simulateDay, SimulateDayResolution } from './people';
+import { generateProjectCompleteEvent } from '../managers/events/eventFunctions/projectComplete';
+import { GameManager } from '../managers/game/GameManager';
 
 const handleSimActions = () => {
   console.debug('Handling sim actions');
@@ -61,7 +61,7 @@ const handleActivities = () => {
  * Determines what events happen at end of turn and returns
  * updated gamedata with those events.
  */
-export const advanceDay = () => {
+const advanceDay = () => {
   const {
     gameData,
     eventManager: gameEventQueue,
@@ -199,11 +199,16 @@ export const advanceDay = () => {
 /**
  * Advance multiple days until a stop event is reached
  */
-export const advanceDays = (days: number) => {
+const advanceDays = (days: number) => {
   for (let i = 0; i < days; i++) {
     const { updatedGameData, gameEventQueue, stop } = advanceDay();
     if (stop) {
       return updatedGameData;
     }
   }
+};
+
+export default {
+  advanceDay,
+  advanceDays,
 };

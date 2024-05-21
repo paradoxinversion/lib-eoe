@@ -1,8 +1,13 @@
-import { GameData, GameManager } from './GameManager';
+/**
+ * @deprecated - This file is deprecated and will be removed in the future.
+ */
+// import { GameData, GameManager } from './GameManager';
+
 import { Building, Person } from './types/interfaces/entities';
 import { getInfrastructure } from './organization';
 import { BuildingStatusEffects } from './statusEffects/building';
 import { getInfrastructurePercentage } from './actions/infrastructure';
+import { GameManager, GameData } from './managers/game/GameManager';
 
 interface BuildingSchematic {
   buildingType: string;

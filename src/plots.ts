@@ -2,8 +2,8 @@ import { GameData, GameManager } from './GameManager';
 import { Person } from './types/interfaces/entities';
 import Plot from './plots/Plot';
 import plotConfig from './plots/plotConfig';
-import Activity from './activities/Activity';
-import activityConfig from './activities/activityConfig';
+import Activity from './managers/activities/Activity';
+import activityConfig from './managers/activities/activityConfig';
 export interface PlotResolution {
   plot: Plot;
   resolution: any;

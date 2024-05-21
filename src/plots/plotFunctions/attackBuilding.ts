@@ -1,6 +1,6 @@
 import { GameManager } from '../../GameManager';
 import { getPeople } from '../../actions/people';
-import { doCombat } from '../../combat';
+import { doCombat } from '../../combat/combat';
 import { Building, Person } from '../../types/interfaces/entities';
 import { PlotResult } from '../Plot';
 

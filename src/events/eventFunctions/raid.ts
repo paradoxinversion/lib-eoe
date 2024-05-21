@@ -2,7 +2,7 @@ import { combat } from '../../..';
 import { GameManager } from '../../GameManager';
 import { getPeople } from '../../actions/people';
 import { getZones } from '../../actions/zones';
-import { CombatResult, doCombat } from '../../combat';
+import { CombatResult, doCombat } from '../../combat/combat';
 import { Person, Zone } from '../../types/interfaces/entities';
 import { randomInt } from '../../utilities';
 import GameEvent from '../GameEvent';

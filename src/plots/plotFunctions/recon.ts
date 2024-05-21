@@ -1,6 +1,6 @@
 import { GameManager } from '../../GameManager';
 import { getPeople } from '../../actions/people';
-import { CombatResult, doCombat } from '../../combat';
+import { CombatResult, doCombat } from '../../combat/combat';
 import { getEvilEmpire, takeCaptive } from '../../organization';
 import {
   GoverningOrganization,

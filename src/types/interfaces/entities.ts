@@ -10,7 +10,7 @@ interface IntelligenceSubject {
 }
 
 /**
- * An interface for Nations within a game.
+ * Nations represent groups of regions within a geographical area.
  */
 export interface Nation {
   /** The nation's indentifier, prefixed with `n_` */
@@ -24,7 +24,7 @@ export interface Nation {
 }
 
 /**
- * An interface for Zones within a game.
+ * Zones represent regions within a nation.
  */
 export interface Zone {
   /** The zone's indentifier, prefixed with `z_` */
@@ -85,7 +85,7 @@ export interface PersonIntelAttributes extends IntelligenceSubject {
 export interface Person {
   /** The person's indentifier, prefixed with `p_` */
   id: string;
-  /** The ID of the nation the Person belongs to */
+  /** The ID of the nation the Person is native to */
   nationId: string;
   /** The ID of the Zone this Person calls home */
   homeZoneId: string;

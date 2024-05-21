@@ -20,46 +20,6 @@ const randomInt = (min = 0, max = 100) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-interface ShufflebagFrequency {
-  [x: string]: number;
-}
-
-/**
- * Better random values that `randomInt`
- */
-const Shufflebag = (
-  /** a key/value map of options and their frequencies */
-  frequencyMap: ShufflebagFrequency,
-) => {
-  /**
-   * Set the Shufflebag's values
-   */
-  const getValueSet = (frequencyMap: ShufflebagFrequency) => {
-    let valueSet: string[] = [];
-    for (let entry in frequencyMap) {
-      for (let y = 0; y < frequencyMap[entry]; y++) {
-        valueSet.push(entry);
-      }
-    }
-    return valueSet;
-  };
-
-  const fmap = frequencyMap;
-  let values = getValueSet(fmap);
-  return {
-    /**
-     * Return the next value in the shufflebag.
-     */
-    next() {
-      const selectedValue = Math.floor(Math.random() * values.length);
-      const selection = values[selectedValue];
-      values.splice(selectedValue, 1);
-      if (values.length === 0) values = getValueSet(fmap);
-      return selection;
-    },
-  };
-};
-
 /**
  *
  */
@@ -119,7 +79,7 @@ const skillCheck = () => {
   // to implement
 };
 
-export const skillLevelStr = (amount: number) => {
+const skillLevelStr = (amount: number) => {
   const skillPercentage = (amount / 100) * 100;
   return (
     skillPercentage === 100 ? 'Master'
@@ -131,7 +91,7 @@ export const skillLevelStr = (amount: number) => {
   );
 };
 
-export const attributeLevelStr = (amount: number) => {
+const attributeLevelStr = (amount: number) => {
   const attributePercentage = (amount / 10) * 100;
   return (
     attributePercentage === 10 ? 'Peak'
@@ -141,11 +101,12 @@ export const attributeLevelStr = (amount: number) => {
     : 'Terrible'
   );
 };
-export {
+export default {
   throwErrorFromArray,
   randomInt,
-  Shufflebag,
   checkGameOverState,
   checkVictoryState,
   numberWithErrorMargin,
+  skillLevelStr,
+  attributeLevelStr,
 };

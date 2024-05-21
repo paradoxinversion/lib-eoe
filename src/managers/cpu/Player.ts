@@ -1,8 +1,8 @@
+import Shufflebag from '../shufflebag/Shufflebag';
 import { PlayerData as IPlayer } from '../../types/player';
 import cpuActionNothing from './cpuActions/nothing';
 import trainAgents from './cpuActions/trainAgents';
-import { Shufflebag } from '../../utilities';
-const actionShuffleBag = Shufflebag({
+const actionShuffleBag = new Shufflebag({
   nothing: 1,
   trainAgents: 1,
 });

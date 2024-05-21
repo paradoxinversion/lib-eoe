@@ -1,9 +1,8 @@
 /**
  * People related actions.
  */
-import { GameData, GameLog, GameManager } from '../GameManager';
+import { GameManager, GameData, GameLog } from '../managers/game/GameManager';
 import { getActivityParticipants } from '../plots';
-import { PlotManager } from '../plots/PlotManager';
 import { SimulatedActivityResolution, simulateActivity } from '../sim/people';
 import { PersonStatusEffect } from '../statusEffects/person';
 import {
@@ -14,7 +13,9 @@ import {
   AgentDepartment,
 } from '../types/interfaces/entities';
 import { randomInt } from '../utilities';
+import { PlotManager } from '../managers/plots/PlotManager';
 export type ComparisonTypes = 'greater' | 'less' | 'equal';
+
 interface GetPeopleParams {
   limit?: number;
   zone?: {
@@ -104,7 +105,7 @@ const GetPeopleDefaultParams: GetPeopleParams = {
 /**
  * Get all people in the game that match the given parameters.
  */
-export const getPeople = (params: GetPeopleParams = {}) => {
+const getPeople = (params: GetPeopleParams = {}) => {
   const options: GetPeopleParams = {
     ...GetPeopleDefaultParams,
     ...params,
@@ -299,7 +300,7 @@ export const getPeople = (params: GetPeopleParams = {}) => {
   );
 };
 
-export const getAgentDepartment = (agentData: AgentData) => {
+const getAgentDepartment = (agentData: AgentData) => {
   if (agentData.department === 'troop') {
     return 'Henchman';
   } else if (agentData.department === 'administrator') {
@@ -313,7 +314,7 @@ export const getAgentDepartment = (agentData: AgentData) => {
   }
 };
 
-export const changeAgentDepartment = (
+const changeAgentDepartment = (
   theAgent: Person,
   department: AgentDepartment,
 ): Partial<GameData> => {
@@ -337,7 +338,7 @@ export const changeAgentDepartment = (
   };
 };
 
-export const killPerson = (person: Person) => {
+const killPerson = (person: Person) => {
   const updatedPerson: Person = {
     ...person,
     dead: true,
@@ -357,7 +358,7 @@ export const killPerson = (person: Person) => {
   };
 };
 
-export const updateBasicAttribute = (
+const updateBasicAttribute = (
   person: Person,
   attribute: keyof PersonStandardAttributes,
   modAmt: number,
@@ -377,7 +378,7 @@ export const updateBasicAttribute = (
   };
 };
 
-export const updateIntelAttribute = (
+const updateIntelAttribute = (
   person: Person,
   attribute: keyof PersonIntelAttributes,
   modAmt: number,
@@ -397,11 +398,7 @@ export const updateIntelAttribute = (
   };
 };
 
-export const updateLoyalty = (
-  person: Person,
-  orgId: string,
-  modAmt: number,
-) => {
+const updateLoyalty = (person: Person, orgId: string, modAmt: number) => {
   const updatedPerson: Person = {
     ...person,
     intelAttributes: {
@@ -419,7 +416,7 @@ export const updateLoyalty = (
   };
 };
 
-export const setLoyalty = (person: Person, orgId: string, amt: number) => {
+const setLoyalty = (person: Person, orgId: string, amt: number) => {
   const updatedPerson: Person = {
     ...person,
     intelAttributes: {
@@ -437,7 +434,7 @@ export const setLoyalty = (person: Person, orgId: string, amt: number) => {
   };
 };
 
-export const initializeLoyalty = (person: Person) => {
+const initializeLoyalty = (person: Person) => {
   const homeZone = GameManager.getInstance().gameData.zones[person.homeZoneId];
   const zoneOwner =
     GameManager.getInstance().gameData.governingOrganizations[
@@ -468,7 +465,7 @@ export const initializeLoyalty = (person: Person) => {
   };
 };
 
-export const updateCurrentHealth = (person: Person, modAmt: number) => {
+const updateCurrentHealth = (person: Person, modAmt: number) => {
   const updatedPerson: Person = {
     ...person,
     derivedAttributes: {
@@ -487,7 +484,7 @@ export const updateCurrentHealth = (person: Person, modAmt: number) => {
   };
 };
 
-export const addPersonStatusEffect = (
+const addPersonStatusEffect = (
   person: Person,
   statusEffect: PersonStatusEffect,
   duration: number = -1,
@@ -513,7 +510,7 @@ export const addPersonStatusEffect = (
   };
 };
 
-export const removePersonStatusEffect = (
+const removePersonStatusEffect = (
   person: Person,
   statusEffect: PersonStatusEffect,
 ) => {
@@ -541,7 +538,7 @@ export const removePersonStatusEffect = (
 /**
  * Simulate the the person does on a given day.
  */
-export const simulateDay = (person: Person) => {
+const simulateDay = (person: Person) => {
   const completedActivities: string[] = [];
   const activityResolutions: SimulatedActivityResolution[] = [];
   for (let index = 0; index < 4; index++) {
@@ -571,7 +568,7 @@ export const simulateDay = (person: Person) => {
 
 export type SimulateDayResolution = ReturnType<typeof simulateDay>;
 
-export const setCodename = (personId: string, codename: string) => {
+const setCodename = (personId: string, codename: string) => {
   const person = GameManager.getInstance().gameData.people[personId];
   const updatedPerson = {
     ...person,
@@ -594,7 +591,7 @@ export const setCodename = (personId: string, codename: string) => {
   };
 };
 
-export const relocatePerson = (person: Person, zoneId: string) => {
+const relocatePerson = (person: Person, zoneId: string) => {
   console.debug('Relocating person', person.id, 'to zone', zoneId);
   const residence =
     person.residentAt ?
@@ -630,4 +627,22 @@ export const relocatePerson = (person: Person, zoneId: string) => {
       [updatedPerson.id]: updatedPerson,
     },
   };
+};
+
+export default {
+  getPeople,
+  getAgentDepartment,
+  changeAgentDepartment,
+  updateBasicAttribute,
+  updateIntelAttribute,
+  killPerson,
+  relocatePerson,
+  setCodename,
+  simulateDay,
+  addPersonStatusEffect,
+  removePersonStatusEffect,
+  updateCurrentHealth,
+  initializeLoyalty,
+  setLoyalty,
+  updateLoyalty,
 };
