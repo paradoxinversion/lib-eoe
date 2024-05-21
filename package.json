@@ -1,4 +1,10 @@
 {
   "name": "empire-of-evil",
-  "packageManager": "yarn@4.2.2"
+  "packageManager": "yarn@4.2.2",
+  "devDependencies": {
+    "@eslint/js": "^9.3.0",
+    "eslint": "9.x",
+    "globals": "^15.3.0",
+    "typescript-eslint": "^7.10.0"
+  }
 }
