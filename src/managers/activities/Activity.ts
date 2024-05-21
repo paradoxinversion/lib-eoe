@@ -46,7 +46,7 @@ export default class Activity {
    */
   addAgent(agent: string) {
     const { gameData } = GameManager.getInstance();
-    let updatedGameData: { people: { [x: string]: Person } } = {
+    const updatedGameData: { people: { [x: string]: Person } } = {
       people: {},
     };
     if (!this.agents.includes(agent)) {
@@ -64,7 +64,7 @@ export default class Activity {
    */
   removeAgent(agentId: string) {
     const { gameData } = GameManager.getInstance();
-    let updatedGameData: { people: { [x: string]: Person } } = {
+    const updatedGameData: { people: { [x: string]: Person } } = {
       people: {},
     };
     const agentIndex = this.agents.findIndex((agent) => agent === agentId);

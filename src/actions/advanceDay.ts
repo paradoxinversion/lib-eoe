@@ -25,7 +25,7 @@ import GameEventQueue from '../managers/events/GameEventQueue';
 
 const handleSimActions = () => {
   console.debug('Handling sim actions');
-  let actions: { [personId: string]: SimulateDayResolution } = {};
+  const actions: { [personId: string]: SimulateDayResolution } = {};
   people
     .getPeople({
       personFilter: {

@@ -5,7 +5,7 @@ import { Building, Person } from './types/interfaces/entities';
 import { getInfrastructure } from './organization';
 import { BuildingStatusEffects } from './statusEffects/building';
 // import { getInfrastructurePercentage } from './actions/infrastructure';
-import { GameManager, GameData } from './managers/game/GameManager';
+import { GameData, GameManager } from './managers/game/GameManager';
 
 interface BuildingSchematic {
   buildingType: string;

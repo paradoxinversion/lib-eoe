@@ -11,8 +11,8 @@ export default class Shufflebag {
   }
 
   getValueSet(frequencyMap: ShufflebagFrequency) {
-    let valueSet: string[] = [];
-    for (let entry in frequencyMap) {
+    const valueSet: string[] = [];
+    for (const entry in frequencyMap) {
       for (let y = 0; y < frequencyMap[entry]; y++) {
         valueSet.push(entry);
       }

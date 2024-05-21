@@ -1,16 +1,16 @@
 import {
+  advancedExplosivesConfig,
+  appliedRocketryConfig,
+  basicExplosivesConfig,
+  carrierPigeonsConfig,
   centralizedCommunicationsConfig,
   currencyReproductionConfig,
   empireIntranetConfig,
   forgeryConfig,
   microFlightControlConfig,
   miniaturizedLocomotionConfig,
-  carrierPigeonsConfig,
   missilePigeonsConfig,
   pigeonMissilesConfig,
-  basicExplosivesConfig,
-  advancedExplosivesConfig,
-  appliedRocketryConfig,
 } from './projects';
 
 export const SCIENCE_PROJECTS = {

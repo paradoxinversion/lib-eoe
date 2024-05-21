@@ -1,14 +1,14 @@
 import { buildingsSchematics } from '../buildings';
 import {
-  generateNation,
-  generateZone,
-  generatePerson,
-  generateGoverningOrg,
-  generateNations,
-  generateZones,
-  generatePeople,
   generateAgentData,
   generateBuilding,
+  generateGoverningOrg,
+  generateNation,
+  generateNations,
+  generatePeople,
+  generatePerson,
+  generateZone,
+  generateZones,
 } from '../generators/game';
 
 describe('generators', () => {

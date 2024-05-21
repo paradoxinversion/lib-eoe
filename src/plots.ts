@@ -1,4 +1,4 @@
-import { GameManager, GameData } from './managers/game/GameManager';
+import { GameData, GameManager } from './managers/game/GameManager';
 import { Person } from './types/interfaces/entities';
 import Plot from './plots/Plot';
 import ActivityManager from './managers/activities/ActivityManager';

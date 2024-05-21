@@ -8,7 +8,7 @@ import {
   Zone,
 } from '../../../types/interfaces/entities';
 import utilities from '../../../utilities';
-import { PlotResult, PlotParamsStandard } from '../Plot';
+import { PlotParamsStandard, PlotResult } from '../Plot';
 
 export interface PlotReconParams {
   /** If caught by the enemy, surrender */

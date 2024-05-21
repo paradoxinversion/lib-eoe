@@ -1,4 +1,4 @@
-import { GameManager, GameData } from '../managers/game/GameManager';
+import { GameData, GameManager } from '../managers/game/GameManager';
 import people from '../actions/people';
 import { PersonStatusEffect } from '../statusEffects/person';
 import { Person, SkillTypes } from '../types/interfaces/entities';
