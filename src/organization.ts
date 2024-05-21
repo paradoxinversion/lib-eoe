@@ -1,6 +1,6 @@
-import { GameData, GameManager } from './GameManager';
-import { getInfrastructurePercentage } from './actions/infrastructure';
-import { getPeople, killPerson } from './actions/people';
+import { GameData, GameManager } from './managers/game/GameManager';
+import infrastructure from './actions/infrastructure';
+import people from './actions/people';
 import {
   ResourceOutput,
   getBuildings,
@@ -8,7 +8,7 @@ import {
   getUpkeep,
 } from './buildings';
 import settings from '../config/config';
-import { generateAgentData } from './generators/game';
+import generators from './generators/game';
 import { getCodeName } from './generators/names';
 import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
 import {
@@ -16,7 +16,7 @@ import {
   GoverningOrganization,
   Person,
 } from './types/interfaces/entities';
-import { randomInt, throwErrorFromArray } from './utilities';
+import utilities from './utilities';
 
 /**
  * Returns a copy of the recruited person
@@ -105,32 +105,36 @@ const getScience = (organizationId: string) => {
  *
  */
 const getInfrastructure = (organizationId: string) => {
-  return getPeople({
-    personFilter: {
-      organizationId,
-    },
-    agentFilter: { agentsOnly: true },
-  }).reduce((infrastructure, currentAgent) => {
-    if (
-      currentAgent?.agent?.department === 'administrator' ||
-      currentAgent?.agent?.department === 'overlord'
-    ) {
-      return infrastructure + currentAgent.skills.administration;
-    }
+  return people
+    .getPeople({
+      personFilter: {
+        organizationId,
+      },
+      agentFilter: { agentsOnly: true },
+    })
+    .reduce((infrastructure, currentAgent) => {
+      if (
+        currentAgent?.agent?.department === 'administrator' ||
+        currentAgent?.agent?.department === 'overlord'
+      ) {
+        return infrastructure + currentAgent.skills.administration;
+      }
 
-    return infrastructure;
-  }, 0);
+      return infrastructure;
+    }, 0);
 };
 
 const getPayroll = (organizationId: string) => {
-  return getPeople({
-    personFilter: {
-      organizationId,
-    },
-    agentFilter: { agentsOnly: true },
-  }).reduce((payroll, currentAgent) => {
-    return payroll + (currentAgent?.agent?.salary || 0);
-  }, 0);
+  return people
+    .getPeople({
+      personFilter: {
+        organizationId,
+      },
+      agentFilter: { agentsOnly: true },
+    })
+    .reduce((payroll, currentAgent) => {
+      return payroll + (currentAgent?.agent?.salary || 0);
+    }, 0);
 };
 
 const hireAgent = (
@@ -146,7 +150,7 @@ const hireAgent = (
   }
 
   const calculatedSalary = calculateAgentSalary(newAgent);
-  const agentData = generateAgentData(
+  const agentData = generators.generateAgentData(
     organizationId,
     department,
     salary || calculatedSalary,
@@ -167,7 +171,7 @@ const fireAgent = (agent: Person) => {
 };
 
 const terminateAgent = (agent: Person): Partial<GameData> => {
-  const updatedGameData = killPerson(agent);
+  const updatedGameData = people.killPerson(agent);
   updatedGameData.people[agent.id].agent = null;
 
   // TODO: Should have a positive impact on org's EVIL value
@@ -322,7 +326,7 @@ export const getOrgIncome = () => {
   const empireResources = getOrgResources(
     GameManager.getInstance().gameData.player.organizationId,
   );
-  const infrastructurePercentage = getInfrastructurePercentage(
+  const infrastructurePercentage = infrastructure.getInfrastructurePercentage(
     GameManager.getInstance().gameData.player.organizationId,
   );
   return (empireResources.wealth * infrastructurePercentage) / 100;
@@ -332,7 +336,7 @@ export const getOrgScienceOutput = () => {
   const empireResources = getOrgResources(
     GameManager.getInstance().gameData.player.organizationId,
   );
-  const infrastructurePercentage = getInfrastructurePercentage(
+  const infrastructurePercentage = infrastructure.getInfrastructurePercentage(
     GameManager.getInstance().gameData.player.organizationId,
   );
   return (empireResources.science * infrastructurePercentage) / 100;
@@ -382,7 +386,7 @@ export const getRandomOrg = (
   const pool = getOrganizations({
     exclude: { player: options.excludePlayer },
   });
-  return pool[randomInt(0, pool.length - 1)];
+  return pool[utilities.randomInt(0, pool.length - 1)];
 };
 
 export const updateOrgWealth = (orgId: string, amt: number) => {

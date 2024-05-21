@@ -1,12 +1,13 @@
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { getZones } from '../../actions/zones';
-import { generateAgentData } from '../../generators/game';
-import { calculateAgentSalary, getMaxAgents } from '../../organization';
-import { AgentDepartment, Person } from '../../types/interfaces/entities';
-import { randomInt } from '../../utilities';
-import { getZoneCitizens } from '../../zones';
+import { GameManager } from '../../game/GameManager';
+import people from '../../../actions/people';
+import zones from '../../../actions/zones';
+import generators from '../../../generators';
+
+// import { calculateAgentSalary, getMaxAgents } from '../../organization';
+import { AgentDepartment, Person } from '../../../types/interfaces/entities';
+import utilities from '../../../utilities';
 import GameEvent, { EventConfig } from '../GameEvent';
+import organization from '../../../actions/organization';
 
 export interface EvilApplicantParams {
   recruit: Person;
@@ -42,31 +43,36 @@ export const generateEvilApplicantEvent = (
         player: { organizationId },
       },
     } = GameManager.getInstance();
-    const playerZonesArray = getZones({
+    const playerZonesArray = zones.getZones({
       organizationId: organizationId,
     });
     if (
-      getPeople({
+      people.getPeople({
         personFilter: {
           organizationId: organizationId,
         },
         agentFilter: { agentsOnly: true },
-      }).length >= getMaxAgents(organizationId)
+      }).length >= organization.getMaxAgents(organizationId)
     ) {
       return null;
     }
 
     const potentialRecruits: Person[] = [];
     playerZonesArray.map((zone) => {
-      getZoneCitizens(zone.id, true).forEach((person) => {
-        potentialRecruits.push(person);
-      });
+      people
+        .getPeople({
+          zone: { zoneId: zone.id },
+          agentFilter: { excludeAgents: true },
+        })
+        .forEach((person) => {
+          potentialRecruits.push(person);
+        });
     });
 
     if (potentialRecruits.length === 0) {
       throw new Error('NoAvailableAgents');
     }
-    const recruitIndex = randomInt(0, potentialRecruits.length - 1);
+    const recruitIndex = utilities.randomInt(0, potentialRecruits.length - 1);
     applicant = potentialRecruits[recruitIndex];
   }
   const event = new GameEvent(evilApplicantEvilConfig, {
@@ -109,8 +115,8 @@ export function resolveEvilApplicant(
       params.department = resolveArgs.data.department as AgentDepartment;
 
       const updatedAgent: Person = { ...gameData.people[params.recruit?.id!] };
-      const salary = calculateAgentSalary(updatedAgent);
-      const agentData = generateAgentData(
+      const salary = organization.calculateAgentSalary(updatedAgent);
+      const agentData = generators.entityGenerators.generateAgentData(
         params.organizationId!,
         params.department,
         salary,

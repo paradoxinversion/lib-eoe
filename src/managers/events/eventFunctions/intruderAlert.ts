@@ -1,7 +1,7 @@
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { takeCaptive } from '../../organization';
-import { randomInt } from '../../utilities';
+import { GameManager } from '../../game/GameManager';
+import people from '../../../actions/people';
+import organization from '../../../actions/organization';
+import utilities from '../../../utilities';
 import GameEvent from '../GameEvent';
 
 export interface IntruderAlertEventParams {
@@ -13,8 +13,9 @@ export const generateIntruderAlertEvent = () => {
   const possibleNations = Object.values(
     GameManager.getInstance().gameData.governingOrganizations,
   ).filter((org) => !org.evil);
-  const org = possibleNations[randomInt(0, possibleNations.length - 1)];
-  const orgAgents = getPeople({
+  const org =
+    possibleNations[utilities.randomInt(0, possibleNations.length - 1)];
+  const orgAgents = people.getPeople({
     personFilter: {
       organizationId: org.id,
     },
@@ -22,7 +23,7 @@ export const generateIntruderAlertEvent = () => {
       agentsOnly: true,
     },
   });
-  const agent = orgAgents[randomInt(0, orgAgents.length - 1)];
+  const agent = orgAgents[utilities.randomInt(0, orgAgents.length - 1)];
   const event = new GameEvent(intruderAlertEventConfig, {
     intruderId: agent.id,
   });
@@ -41,7 +42,7 @@ function setIntruderAlertParams(
 function resolveIntruderAlert(this: GameEvent) {
   const { gameData } = GameManager.getInstance();
   const params = this.params as IntruderAlertEventParams;
-  const updatedGameData = takeCaptive(
+  const updatedGameData = organization.takeCaptive(
     gameData.player.organizationId,
     gameData.people[params.intruderId!],
   );

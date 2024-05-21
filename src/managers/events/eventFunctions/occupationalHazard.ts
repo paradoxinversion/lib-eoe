@@ -1,11 +1,7 @@
-import { GameManager } from '../../GameManager';
-import {
-  getPeople,
-  updateCurrentHealth,
-  killPerson,
-} from '../../actions/people';
-import { Person } from '../../types/interfaces/entities';
-import { randomInt } from '../../utilities';
+import { GameManager } from '../../game/GameManager';
+import people from '../../../actions/people';
+import { Person } from '../../../types/interfaces/entities';
+import utilities from '../../../utilities';
 import GameEvent, { EventConfig } from '../GameEvent';
 
 export type OccupationalHazardParams = {
@@ -18,7 +14,7 @@ export const generateOccupationalHazardEvent = () => {
   // for flavor, this may be limited to people working in certain buildings
 
   // Select a random empire agent
-  const agents = getPeople({
+  const agents = people.getPeople({
     personFilter: {
       organizationId: GameManager.getInstance().gameData.player.organizationId,
       excludeDeceased: true,
@@ -31,8 +27,8 @@ export const generateOccupationalHazardEvent = () => {
   const currentHealth = agent.derivedAttributes.health.currentHealth;
   const damage =
     lethalPotential ?
-      randomInt(1, currentHealth)
-    : randomInt(1, currentHealth - 1);
+      utilities.randomInt(1, currentHealth)
+    : utilities.randomInt(1, currentHealth - 1);
   return new GameEvent(occupationalHazardEventConfig, {
     agent: agent.id,
     damage,
@@ -46,12 +42,12 @@ export function resolveOccupationalHazardEvent(this: GameEvent) {
 
   // Reduce the agent's health
   const updatedAgent: Person = GameManager.getInstance().updateGameData(
-    updateCurrentHealth(agent, -params.damage),
+    people.updateCurrentHealth(agent, -params.damage),
   ).people[agent.id];
 
   if (agent.derivedAttributes.health.currentHealth <= 0) {
     // Agent has died
-    GameManager.getInstance().updateGameData(killPerson(agent));
+    GameManager.getInstance().updateGameData(people.killPerson(agent));
   }
   this.eventData = {
     type: 'occupational-hazard',

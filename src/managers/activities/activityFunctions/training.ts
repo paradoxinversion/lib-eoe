@@ -1,11 +1,11 @@
 import { GameManager } from '../../game/GameManager';
-import { updateBasicAttribute } from '../../../actions/people';
+import people from '../../../actions/people';
 import { updateEvil } from '../../../organization';
 import {
   Person,
   PersonStandardAttributes,
 } from '../../../types/interfaces/entities';
-import { randomInt } from '../../../utilities';
+import utilities from '../../../utilities';
 
 export const executeTrainingActivity = (participantArray: string[]) => {
   if (participantArray.length === 0) {
@@ -19,8 +19,8 @@ export const executeTrainingActivity = (participantArray: string[]) => {
         ...gameData.people[participantId],
       };
       const basicAttributes = Object.keys(particpantObject.standardAttributes);
-      const attributeKey = randomInt(0, basicAttributes.length);
-      const updatedGameData = updateBasicAttribute(
+      const attributeKey = utilities.randomInt(0, basicAttributes.length);
+      const updatedGameData = people.updateBasicAttribute(
         particpantObject,
         basicAttributes[attributeKey] as keyof PersonStandardAttributes,
         1,

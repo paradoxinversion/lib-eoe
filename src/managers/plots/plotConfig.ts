@@ -1,6 +1,5 @@
 import { attackZone } from './plotFunctions/attackZone';
 import { executeReconPlot } from './plotFunctions/recon';
-import { ActivityConfig } from '../managers/activities/activityConfig';
 import { executeEmbedAgentsPlot } from './plotFunctions/embedAgents';
 import { executeRecallEmbeddedAgentsPlot } from './plotFunctions/recallEmbeddedAgents';
 import { executeInciteProtestPlot } from './plotFunctions/inciteProtest';

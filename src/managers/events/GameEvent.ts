@@ -1,5 +1,5 @@
-import { GameData } from '../GameManager';
-import { EventRequirements } from '../gameEvents';
+import { GameData } from '../game/GameManager';
+import { EventRequirements } from '../../gameEvents';
 import { EvilApplicantParams } from './eventFunctions/applicant';
 import { AttackZoneParams } from './eventFunctions/attackZone';
 import { IntruderAlertEventParams } from './eventFunctions/intruderAlert';

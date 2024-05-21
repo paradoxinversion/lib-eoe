@@ -14,7 +14,7 @@ import {
   Building,
 } from '../types/interfaces/entities';
 import utilities from '../utilities';
-import { PlotManager } from '../managers/plots/PlotManager';
+import PlotManager from '../managers/plots/PlotManager';
 export type ComparisonTypes = 'greater' | 'less' | 'equal';
 
 interface GetPeopleParams {

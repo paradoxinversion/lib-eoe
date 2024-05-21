@@ -1,13 +1,13 @@
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { CombatResult, doCombat } from '../../combat';
-import { getEvilEmpire, takeCaptive } from '../../organization';
+import { GameManager } from '../../game/GameManager';
+import people from '../../../actions/people';
+import combat, { CombatResult } from '../../../combat/combat';
+import organization from '../../../actions/organization';
 import {
   GoverningOrganization,
   Person,
   Zone,
-} from '../../types/interfaces/entities';
-import { randomInt } from '../../utilities';
+} from '../../../types/interfaces/entities';
+import utilities from '../../../utilities';
 import { PlotResult, PlotParamsStandard } from '../Plot';
 
 export interface PlotReconParams {
@@ -41,7 +41,7 @@ export const executeReconPlot = (
     // This is a placeholder for now
     intelMod = 10;
   } else {
-    enemyZoneAgents = getPeople({
+    enemyZoneAgents = people.getPeople({
       personFilter: {
         organizationId: zone.organizationId,
       },
@@ -68,11 +68,13 @@ export const executeReconPlot = (
     }, 0);
 
     const detectionRoll =
-      randomInt(0, detection) +
-      randomInt(0, detection) +
-      randomInt(0, detection);
+      utilities.randomInt(0, detection) +
+      utilities.randomInt(0, detection) +
+      utilities.randomInt(0, detection);
     const stealthRoll =
-      randomInt(0, stealth) + randomInt(0, stealth) + randomInt(0, stealth);
+      utilities.randomInt(0, stealth) +
+      utilities.randomInt(0, stealth) +
+      utilities.randomInt(0, stealth);
 
     success = stealthRoll > detectionRoll;
   }
@@ -81,7 +83,7 @@ export const executeReconPlot = (
 
   if (success) {
     // Intelligence Phase
-    intelMod = randomInt(5, 10);
+    intelMod = utilities.randomInt(5, 10);
     if (intelMod > 100) {
       intelMod = 100;
     }
@@ -97,7 +99,7 @@ export const executeReconPlot = (
         capturedAgentIds = participants.filter(() => Math.random() > 0.01);
       } else {
         // Agents will engage in combat with the enemy
-        combatResult = doCombat(empireAgents, enemyZoneAgents);
+        combatResult = combat.doCombat(empireAgents, enemyZoneAgents);
       }
     }
   }
@@ -125,7 +127,7 @@ export const executeReconPlot = (
 
   // updatedZone.intelAttributes.intelligenceLevel += intelMod;
   updatedGameData.zones[updatedZone.id] = updatedZone;
-  const preupdateEmpire = getEvilEmpire();
+  const preupdateEmpire = organization.getEvilEmpire();
   const evilEmpire: GoverningOrganization = {
     ...preupdateEmpire,
     totalEvil: preupdateEmpire.totalEvil + 10,
@@ -133,7 +135,7 @@ export const executeReconPlot = (
   updatedGameData.governingOrganizations[evilEmpire.id] = evilEmpire;
   if (capturedAgentIds) {
     capturedAgentIds.forEach((agent) => {
-      updatedGameData.people[agent] = takeCaptive(
+      updatedGameData.people[agent] = organization.takeCaptive(
         updatedZone.organizationId,
         gameData.people[agent],
       ).people![agent];

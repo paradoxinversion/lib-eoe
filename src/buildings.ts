@@ -49,7 +49,7 @@ const buildingsSchematics = {
   },
 };
 export type BuildingType = keyof typeof buildingsSchematics;
-type BuildingSchematics = { [key in BuildingType]: BuildingSchematic };
+export type BuildingSchematics = { [key in BuildingType]: BuildingSchematic };
 /**
  * Get the infrastructure load of all buildings
  * controlled by the org.

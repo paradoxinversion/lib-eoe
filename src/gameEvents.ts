@@ -1,28 +1,27 @@
-import { GameData, GameManager } from './GameManager';
+import { GameData, GameManager } from './managers/game/GameManager';
 import { getEvilEmpire } from './organization';
 import { PlotResolution } from './plots';
-// import { Shufflebag } from './utilities';
-import Shufflebag from './managers/shufflebag/Shufflebag';
-import { getPeople } from './actions/people';
-import GameEvent from './events/GameEvent';
-import GameEventQueue from './events/GameEventQueue';
+import GameEvent from './managers/events/GameEvent';
+import GameEventQueue from './managers/events/GameEventQueue';
 import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
-import { generateOccupationalHazardEvent } from './events/eventFunctions/occupationalHazard';
-import eventConfig from './events/eventConfig';
-import { generateStandardReportEvent } from './events/eventFunctions/standardReport';
-import { generateEvilApplicantEvent } from './events/eventFunctions/applicant';
-import { generateIntruderAlertEvent } from './events/eventFunctions/intruderAlert';
-import { generateAttackZonePlotEvent } from './events/eventFunctions/attackZone';
-import { generateReconZoneEvent } from './events/eventFunctions/recon';
-import { generateWealthMod } from './events/eventFunctions/wealthMod';
-import { generateTemperTantrumEvent } from './events/eventFunctions/temperTantrum';
-import { generateMonthlyReportEvent } from './events/eventFunctions/monthlyReport';
-import { generatePetEvent } from './events/eventFunctions/petEvent';
-import { generateEmbedAgentsEvent } from './events/eventFunctions/embedAgents';
-import { generateRecallEmbeddedAgentsEvent } from './events/eventFunctions/recallEmbeddedAgents';
-import { generateInciteProtestEvent } from './events/eventFunctions/inciteProtest';
-import { raid } from './events/eventFunctions';
-import ShufflebagManager from './managers/shufflebag/shufflebagManager';
+import { generateOccupationalHazardEvent } from './managers/events/eventFunctions/occupationalHazard';
+import eventConfig from './managers/events/eventConfig';
+import { generateEvilApplicantEvent } from './managers/events/eventFunctions/applicant';
+import { generateAttackZonePlotEvent } from './managers/events/eventFunctions/attackZone';
+import { generateEmbedAgentsEvent } from './managers/events/eventFunctions/embedAgents';
+import { generateInciteProtestEvent } from './managers/events/eventFunctions/inciteProtest';
+import { generateIntruderAlertEvent } from './managers/events/eventFunctions/intruderAlert';
+import { generateMonthlyReportEvent } from './managers/events/eventFunctions/monthlyReport';
+import { generatePetEvent } from './managers/events/eventFunctions/petEvent';
+import { generateRecallEmbeddedAgentsEvent } from './managers/events/eventFunctions/recallEmbeddedAgents';
+import { generateReconZoneEvent } from './managers/events/eventFunctions/recon';
+import { generateStandardReportEvent } from './managers/events/eventFunctions/standardReport';
+import { generateTemperTantrumEvent } from './managers/events/eventFunctions/temperTantrum';
+import { generateWealthMod } from './managers/events/eventFunctions/wealthMod';
+import ShufflebagManager from './managers/shufflebag/ShufflebagManager';
+import people from './actions/people';
+import organization from './actions/organization';
+import { generateEvent as generateRaidEvent } from './managers/events/eventFunctions/raid';
 
 export interface EventRequirements {
   personnel?: {
@@ -141,7 +140,7 @@ const prepareRandomEvents = () => {
         break;
       case 'AngryAdminEvent':
         if (
-          getPeople({
+          people.getPeople({
             personFilter: {
               organizationId: getEvilEmpire().id,
             },
@@ -165,21 +164,21 @@ const prepareRandomEvents = () => {
 
       case 'Raid':
         // determine if there are any people to raid
-        const people = getPeople({
+        const raiderPool = people.getPeople({
           nation: {
-            nationId: getEvilEmpire().id,
+            nationId: organization.getEvilEmpire().id,
           },
           personFilter: {
             loyaltyFilter: {
               comparison: 'less',
               value: 75,
-              organizationId: getEvilEmpire().id,
+              organizationId: organization.getEvilEmpire().id,
             },
             excludeCaptured: true,
           },
         });
-        if (people.length > 0) {
-          event = raid.generateEvent();
+        if (raiderPool.length > 0) {
+          event = generateRaidEvent();
           events.push(event);
         }
         break;
@@ -197,7 +196,7 @@ const prepareRandomEvents = () => {
   const gd = new Date(gameData.gameDate);
   const month = gd.getMonth();
   const year = gd.getFullYear() + 1;
-  //@ts-ignore
+  // @ts-ignore
   const monthEnd = new Date(new Date(year, month, 1) - 1);
   const day = gd.getDate();
 

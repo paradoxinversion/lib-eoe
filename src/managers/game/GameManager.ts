@@ -4,14 +4,8 @@ import {
   Nation,
   Person,
   Zone,
-} from './types/interfaces/entities';
-import GameEventQueue from './events/GameEventQueue';
-import { ScienceManager } from './managers/science/science';
-import { PlotManager } from './plots/PlotManager';
-import ActivityManager from './activities/ActivityManager';
-import PlayerManager from './managers/cpu/PlayerManager';
-import { SCIENCE_PROJECTS } from './managers/science/scienceProjects';
-import settings from './config';
+} from '../../types/interfaces/entities';
+import config from '../../../config';
 export interface GameLog {
   /** Logs of actions non-agent citizens have taken */
   simActions: {
@@ -62,12 +56,7 @@ export interface GameData {
 export class GameManager {
   private static instance: GameManager;
   initialized: boolean;
-  plotManager: PlotManager;
-  activityManager: ActivityManager;
-  scienceManager: ScienceManager;
   gameData: GameData;
-  eventManager: GameEventQueue;
-  cpuManager: PlayerManager;
   constructor() {
     console.log('Game Manager Initialized');
 
@@ -77,7 +66,7 @@ export class GameManager {
       governingOrganizations: {},
       zones: {},
       buildings: {},
-      gameDate: new Date(settings.worldGen.startDate),
+      gameDate: new Date(config.settings.worldGen.startDate),
       player: {
         empireId: '',
         organizationId: '',
@@ -90,12 +79,7 @@ export class GameManager {
         events: [],
       },
     };
-    this.eventManager = GameEventQueue.getInstance();
-    this.plotManager = PlotManager.getInstance();
-    this.activityManager = ActivityManager.getInstance();
-    this.scienceManager = ScienceManager.getInstance();
     this.initialized = false;
-    this.cpuManager = PlayerManager.getInstance();
   }
 
   public static getInstance(): GameManager {

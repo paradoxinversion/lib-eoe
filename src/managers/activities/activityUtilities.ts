@@ -1,9 +1,8 @@
-import { GameManager } from '../game/GameManager';
 import { Person } from '../../types/interfaces/entities';
+import ActivityManager from './ActivityManager';
 
 export const isPersonParticipant = (person: Person) => {
-  const { activityManager } = GameManager.getInstance();
-  return activityManager.activities.some((activity) =>
+  return ActivityManager.getInstance().activities.some((activity) =>
     activity.agents.includes(person.id),
   );
 };

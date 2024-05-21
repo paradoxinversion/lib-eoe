@@ -1,9 +1,9 @@
 import Plot from './Plot';
 import plotConfig from './plotConfig';
-import * as plotManager from './PlotManager';
+import PlotManager from './PlotManager';
 
 export default {
   Plot,
   plotConfig,
-  plotManager,
+  PlotManager,
 };

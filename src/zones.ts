@@ -1,5 +1,5 @@
 import { GameManager, GameData } from './managers/game/GameManager';
-import { getPeople } from './actions/people';
+import people from './actions/people';
 import { getBuildings } from './buildings';
 import { Zone } from './types/interfaces/entities';
 /**
@@ -22,7 +22,7 @@ const getZoneWealth = (zone: Zone) => {
   const peopleArray = Object.values(gameData.people);
   peopleArray
     .filter((person) => person.homeZoneId === zone.id)
-    .reduce((totalWealth, person) => {
+    .reduce((totalWealth) => {
       return totalWealth++;
     }, 0);
 };
@@ -36,14 +36,14 @@ const getZonesWealth = (zones: Zone[]) => {
   return zones.reduce((total, zone) => {
     return (total += peopleArray
       .filter((person) => person.homeZoneId === zone.id)
-      .reduce((totalWealth, person) => {
+      .reduce((totalWealth) => {
         return (totalWealth += 1);
       }, 0));
   }, 0);
 };
 
 const getZonesInfrastructureCost = (zones: Zone[]) => {
-  return zones.reduce((total, zone) => {
+  return zones.reduce((total) => {
     return (total += 1);
   }, 0);
 };
@@ -102,19 +102,21 @@ const transferZoneControl = ({
     };
   }, {});
 
-  const updatedPeople = getPeople({
-    zone: {
-      zoneId,
-    },
-  }).reduce((prev, person) => {
-    return {
-      ...prev,
-      [person.id]: {
-        ...person,
-        nationId,
+  const updatedPeople = people
+    .getPeople({
+      zone: {
+        zoneId,
       },
-    };
-  }, {});
+    })
+    .reduce((prev, person) => {
+      return {
+        ...prev,
+        [person.id]: {
+          ...person,
+          nationId,
+        },
+      };
+    }, {});
 
   return {
     zones: {

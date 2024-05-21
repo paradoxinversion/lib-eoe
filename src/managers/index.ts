@@ -5,4 +5,4 @@ import activities from './activities';
 import events from './events';
 import plots from './plots';
 
-export { science, cpu, game, activities, events, plots };
+export default { science, cpu, game, activities, events, plots };

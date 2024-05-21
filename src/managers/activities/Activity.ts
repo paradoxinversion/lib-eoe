@@ -1,7 +1,6 @@
-import { updateEvil, updateOrgWealth } from '../../organization';
+import { updateOrgWealth } from '../../organization';
 import { Person } from '../../types/interfaces/entities';
 import { GameManager } from '../game/GameManager';
-import activityConfig from './activityConfig';
 
 export interface ActivityParticipants {
   name: string;

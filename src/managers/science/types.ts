@@ -1,4 +1,4 @@
-import { GameData, GameManager } from '../../GameManager';
+import { GameData, GameManager } from '../game/GameManager';
 import { SCIENCE_PROJECTS } from './scienceProjects';
 
 /**

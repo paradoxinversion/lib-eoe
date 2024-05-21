@@ -1,6 +1,5 @@
 import { BuildingStatusEffects } from '../../statusEffects/building';
 import { GoverningOrgStatusEffects } from '../../statusEffects/governingOrg';
-import { PersonStatusEffect } from '../../statusEffects/person';
 
 /**
  * An interface for entities that can be surveilled

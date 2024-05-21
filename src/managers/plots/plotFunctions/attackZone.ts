@@ -1,14 +1,14 @@
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { doCombat } from '../../combat';
-import { getEvilEmpire } from '../../organization';
+import { GameManager } from '../../game/GameManager';
+import people from '../../../actions/people';
+import combat from '../../../combat';
+import organization from '../../../actions/organization';
 import {
   Building,
   GoverningOrganization,
   Person,
   Zone,
-} from '../../types/interfaces/entities';
-import { transferZoneControl } from '../../zones';
+} from '../../../types/interfaces/entities';
+import zones from '../../../actions/zones';
 import { PlotResult } from '../Plot';
 
 export interface PlotAttackZoneParams {}
@@ -28,7 +28,7 @@ export const attackZone = ({
   participants,
 }: PlotAttackZoneOpts): PlotResult => {
   const { gameData } = GameManager.getInstance();
-  const defendingAgents = getPeople({
+  const defendingAgents = people.getPeople({
     personFilter: {
       organizationId: zoneOrgId,
     },
@@ -38,7 +38,7 @@ export const attackZone = ({
     agentFilter: { agentsOnly: true },
   });
   const attackingAgents = participants.map((agent) => gameData.people[agent]);
-  const result = doCombat(attackingAgents, defendingAgents);
+  const result = combat.doCombat(attackingAgents, defendingAgents);
 
   const updatedGameData: {
     people: { [x: string]: Person };
@@ -61,7 +61,7 @@ export const attackZone = ({
     updatedGameData.people[agent.id] = agent;
   });
   if (result.victoryResult === 1) {
-    const zoneTransferUpdate = transferZoneControl({
+    const zoneTransferUpdate = zones.transferZoneControl({
       zoneId,
       nationId: gameData.player.empireId,
       organizationId: gameData.player.organizationId,
@@ -71,7 +71,7 @@ export const attackZone = ({
     updatedGameData.buildings = zoneTransferUpdate.buildings!;
   }
 
-  const preupdateEmpire = getEvilEmpire();
+  const preupdateEmpire = organization.getEvilEmpire();
   const evilEmpire: GoverningOrganization = {
     ...preupdateEmpire,
     totalEvil: preupdateEmpire.totalEvil + 10,

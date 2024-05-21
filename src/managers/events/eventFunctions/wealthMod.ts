@@ -1,6 +1,6 @@
-import { GameManager } from '../../GameManager';
-import { GoverningOrganization } from '../../types/interfaces/entities';
-import { randomInt } from '../../utilities';
+import { GameManager } from '../../game/GameManager';
+import { GoverningOrganization } from '../../../types/interfaces/entities';
+import utilities from '../../../utilities';
 import GameEvent from '../GameEvent';
 export interface WealthModEventParams {
   modAmount: number;
@@ -9,7 +9,7 @@ export interface WealthModEventParams {
  * Set parameters for a Wealth Mod event
  */
 export function setWealthModParams(this: GameEvent) {
-  this.params = { modAmount: randomInt(-10, 10) };
+  this.params = { modAmount: utilities.randomInt(-10, 10) };
 }
 
 /**

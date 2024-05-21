@@ -1,5 +1,7 @@
 import { Person } from '../../types/interfaces/entities';
+import { GameManager } from '../game/GameManager';
 import Activity, { ActivityParticipants } from './Activity';
+import activityConfig from './activityConfig';
 
 export default class ActivityManager {
   private static instance: ActivityManager;
@@ -17,7 +19,46 @@ export default class ActivityManager {
 
     return ActivityManager.instance;
   }
+  populateActivities() {
+    const activities = [];
+    for (
+      let activityParamIndex = 0;
+      activityParamIndex < activityConfig.length;
+      activityParamIndex++
+    ) {
+      const activityParameters = activityConfig[activityParamIndex];
+      activities.push(
+        new Activity(
+          activityParameters.name,
+          activityParameters.type,
+          activityParameters.costPerParticipant,
+          activityParameters.fn,
+          activityParameters.description,
+        ),
+      );
+    }
+    ActivityManager.getInstance().setActivities(activities);
+  }
 
+  getActivityParticipants() {
+    const { gameData } = GameManager.getInstance();
+    const p = ActivityManager.getInstance().activities.reduce(
+      (participants, currentActivity) => {
+        currentActivity.agents.forEach((agent) => {
+          participants.push({
+            participant: gameData.people[agent],
+            activity: currentActivity.name,
+          });
+        });
+        return participants;
+      },
+      [] as {
+        participant: Person;
+        activity: string;
+      }[],
+    );
+    return p;
+  }
   /**
    *
    */

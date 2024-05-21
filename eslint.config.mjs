@@ -9,13 +9,11 @@ export default [
   ...tseslint.configs.recommended,
   {
     "rules": {
-      "no-unused-vars": ["error", {
-          "vars": "all",
-          "args": "after-used",
-          "caughtErrors": "all",
-          "ignoreRestSiblings": false,
-          "reportUsedIgnorePattern": false
-      }]
+      "eqeqeq": "warn",
+      "no-invalid-this": "warn",
+      "yoda": "error",
+      "sort-vars": 'warn',
+      "sort-imports": "warn"
     }
   }
 ];

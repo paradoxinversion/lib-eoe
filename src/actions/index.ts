@@ -4,7 +4,7 @@ import zones from './zones';
 import infrastructure from './infrastructure';
 import buildings from './buildings';
 import organization from './organization';
-
+import nations from './nations';
 export default {
   advanceDay,
   people,
@@ -12,4 +12,5 @@ export default {
   infrastructure,
   buildings,
   organization,
+  nations,
 };

@@ -1,4 +1,4 @@
-import { GameManager } from '../../../GameManager';
+import { GameManager } from '../../game/GameManager';
 import { applyStatusEffect } from '../../../organization';
 import {
   ScienceProject,

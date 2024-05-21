@@ -1,4 +1,4 @@
-import { Person } from '../../types/interfaces/entities';
+import { Person } from '../../../types/interfaces/entities';
 import GameEvent from '../GameEvent';
 
 export interface CombatEventParams {

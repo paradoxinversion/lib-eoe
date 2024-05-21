@@ -1,4 +1,7 @@
-import { GameManager } from '../managers/game/GameManager';
+import { GameData, GameManager } from '../managers/game/GameManager';
+import { Zone } from '../types/interfaces/entities';
+import buildings from './buildings';
+import people from './people';
 interface GetZonesOptions {
   nationId?: string | null;
   organizationId?: string | null;
@@ -28,4 +31,102 @@ const getRandomZone = (options: GetZonesOptions) => {
   return zones[Math.floor(Math.random() * zones.length)];
 };
 
-export default { getZones, getRandomZone };
+/**
+ *
+ */
+const getZoneWealth = (zone: Zone) => {
+  const { gameData } = GameManager.getInstance();
+  const peopleArray = Object.values(gameData.people);
+  peopleArray
+    .filter((person) => person.homeZoneId === zone.id)
+    .reduce((totalWealth) => {
+      return totalWealth++;
+    }, 0);
+};
+
+/**
+ *
+ */
+const getZonesWealth = (zones: Zone[]) => {
+  const { gameData } = GameManager.getInstance();
+  const peopleArray = Object.values(gameData.people);
+  return zones.reduce((total, zone) => {
+    return (total += peopleArray
+      .filter((person) => person.homeZoneId === zone.id)
+      .reduce((totalWealth) => {
+        return (totalWealth += 1);
+      }, 0));
+  }, 0);
+};
+
+const getZonesInfrastructureCost = (zones: Zone[]) => {
+  return zones.reduce((total) => {
+    return (total += 1);
+  }, 0);
+};
+
+interface TransferZoneControlParams {
+  zoneId: string;
+  organizationId: string;
+  nationId: string;
+}
+
+const transferZoneControl = ({
+  zoneId,
+  organizationId,
+  nationId,
+}: TransferZoneControlParams): Partial<GameData> => {
+  const {
+    gameData: { zones },
+  } = GameManager.getInstance();
+  const zone = { ...zones[zoneId] };
+  zone.organizationId = organizationId;
+  zone.nationId = nationId || zone.nationId;
+
+  const updatedZoneBuildings = buildings
+    .getBuildings({
+      zoneId,
+    })
+    .reduce((prev, building) => {
+      return {
+        ...prev,
+        [building.id]: {
+          ...building,
+          organizationId,
+        },
+      };
+    }, {});
+
+  const updatedPeople = people
+    .getPeople({
+      zone: {
+        zoneId,
+      },
+    })
+    .reduce((prev, person) => {
+      return {
+        ...prev,
+        [person.id]: {
+          ...person,
+          nationId,
+        },
+      };
+    }, {});
+
+  return {
+    zones: {
+      [zoneId]: zone,
+    },
+    people: updatedPeople,
+    buildings: updatedZoneBuildings,
+  };
+};
+
+export default {
+  getZones,
+  getRandomZone,
+  getZoneWealth,
+  getZonesWealth,
+  transferZoneControl,
+  getZonesInfrastructureCost,
+};

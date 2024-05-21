@@ -15,7 +15,8 @@ import { PersonStatusEffect } from '../statusEffects/person';
 import { BuildingType, buildingsSchematics } from '../buildings';
 import settings from '../../config/config';
 import ShufflebagManager from '../managers/shufflebag/ShufflebagManager';
-const { v4: uuidv4 } = require('uuid');
+// const { v4: uuidv4 } = require('uuid');
+import { v4 as uuidv4 } from 'uuid';
 
 interface GenerateNationOpts {
   /** The name of the nation. */

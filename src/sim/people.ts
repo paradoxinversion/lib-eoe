@@ -1,8 +1,8 @@
-import { GameData, GameManager } from '../GameManager';
-import { updateLoyalty } from '../actions/people';
+import { GameManager, GameData } from '../managers/game/GameManager';
+import people from '../actions/people';
 import { PersonStatusEffect } from '../statusEffects/person';
 import { Person, SkillTypes } from '../types/interfaces/entities';
-import { randomInt } from '../utilities';
+import utilities from '../utilities';
 
 interface SimulatedActivity {
   name: string;
@@ -60,7 +60,7 @@ const simActivities: { [x: string]: SimulatedActivity } = {
       wealth: 'not-broke',
     },
     handler(person) {
-      const cost = randomInt(0, 10);
+      const cost = utilities.randomInt(0, 10);
       // console.info(`${person.name} spent $${cost}`);
       return {
         people: {
@@ -82,7 +82,7 @@ const simActivities: { [x: string]: SimulatedActivity } = {
       const orgId =
         GameManager.getInstance().gameData.zones[person.homeZoneId]
           .organizationId;
-      const p = updateLoyalty(person, orgId, -randomInt(0, 3));
+      const p = people.updateLoyalty(person, orgId, -utilities.randomInt(0, 3));
       // console.info(`${person.name} lost loyalty`);
       return p;
     },
@@ -94,7 +94,7 @@ const simActivities: { [x: string]: SimulatedActivity } = {
       wealth: 'low',
     },
     handler(person) {
-      const pay = randomInt(0, 10);
+      const pay = utilities.randomInt(0, 10);
       // console.info(`${person.name} sold art for $${pay}`);
       return {
         people: {
@@ -113,7 +113,7 @@ const simActivities: { [x: string]: SimulatedActivity } = {
       wealth: 'medium',
     },
     handler(person) {
-      const cost = randomInt(0, 100);
+      const cost = utilities.randomInt(0, 100);
       // console.info(`${person.name} spent $${cost}`);
       return {
         people: {
@@ -184,7 +184,7 @@ const chooseActivity = (person: Person, completedActivities: string[]) => {
     return true;
   });
 
-  return activityOptions[randomInt(0, activityOptions.length - 1)];
+  return activityOptions[utilities.randomInt(0, activityOptions.length - 1)];
 };
 
 export interface SimulatedActivityResolution {

@@ -1,22 +1,13 @@
-import { GameManager } from './GameManager';
+import { GameManager } from './managers/game/GameManager';
 import { hireAgent } from './organization';
-import { getZoneCitizens } from './zones';
-import {
-  generateGoverningOrg,
-  generateNation,
-  generatePerson,
-  generateZone,
-  generateBuilding,
-  generateAgentData,
-} from './generators/game';
+import generators from './generators/game';
 
-import { generateZoneName, nationNames } from './generators/names';
-import { randomInt } from './utilities';
+import { generateZoneName } from './generators/names';
+import utilities from './utilities';
 import settings from '../config/config';
 import {
   BuildingType,
   addMultiplePersonnel,
-  addPersonnel,
   addResident,
   buildingsSchematics,
   getBuildings,
@@ -28,14 +19,15 @@ import {
   Person,
   Zone,
 } from './types/interfaces/entities';
-import { getPeople, initializeLoyalty, setLoyalty } from './actions/people';
-import { getZones } from './actions/zones';
+import people from './actions/people';
 import Player from './managers/cpu/Player';
 import PlayerManager from './managers/cpu/PlayerManager';
 import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
-import { populateActivities, populatePlots } from './plots';
+import { populatePlots } from './plots';
 import ShufflebagManager from './managers/shufflebag/shufflebagManager';
 import Shufflebag from './managers/shufflebag/Shufflebag';
+import ActivityManager from './managers/activities/ActivityManager';
+import PlotManager from './managers/plots/PlotManager';
 /**
  * The main Shufflebag for building types
  */
@@ -69,7 +61,7 @@ type PlayerOptions = {
  */
 const populateResidences = (orgId: string, nationId: string) => {
   console.debug('Populating residences');
-  const orgCitizens = getPeople({ nation: { nationId: nationId } });
+  const orgCitizens = people.getPeople({ nation: { nationId: nationId } });
   let housedPeople = 0;
   // Get all the apartments
   Object.values(getBuildings({ organizationId: orgId }))
@@ -105,7 +97,7 @@ const prepareBuildingPersonnel = (options: HireStartingAgentsOptions) => {
         const employees = [];
         for (let i = 0; i < building.basicAttributes.maxPersonnel; i++) {
           // Make sure we're excluding agents that have already been hired
-          const agents = getPeople({
+          const agents = people.getPeople({
             personFilter: {
               excludePersonnel: true,
             },
@@ -151,7 +143,7 @@ const prepareBuildingPersonnel = (options: HireStartingAgentsOptions) => {
     ) {
       const building = buildings[buildingIndex];
       const employees = [];
-      const citizens = getPeople({
+      const citizens = people.getPeople({
         zone: { zoneId: building.zoneId },
         agentFilter: { excludeAgents: true },
         personFilter: { excludePersonnel: true },
@@ -161,7 +153,7 @@ const prepareBuildingPersonnel = (options: HireStartingAgentsOptions) => {
         personnelIndex < building.basicAttributes.maxPersonnel;
         personnelIndex++
       ) {
-        const p = citizens[randomInt(0, citizens.length - 1)];
+        const p = citizens[utilities.randomInt(0, citizens.length - 1)];
         if (p) {
           employees.push(p);
         }
@@ -178,12 +170,12 @@ const prepareNation = (options: PlayerOptions) => {
   const { isCPU } = options;
   const nationParams = {
     name: isCPU ? 'CPU Nation' : 'EVIL Empire',
-    size: randomInt(
+    size: utilities.randomInt(
       settings.worldGen.nations.minSize,
       settings.worldGen.nations.maxSize,
     ),
   };
-  const nation = generateNation(nationParams);
+  const nation = generators.generateNation(nationParams);
 
   return nation;
 };
@@ -196,7 +188,7 @@ const prepareGoverningOrg = (options: PlayerOptions, nation: Nation) => {
     name: isCPU ? 'CPU Organization' : 'EVIL Empire',
   };
 
-  const governOrg = generateGoverningOrg(orgParams);
+  const governOrg = generators.generateGoverningOrg(orgParams);
   if (!isCPU) {
     nation;
   }
@@ -216,7 +208,7 @@ const prepareZones = (
   const zones: { [key: string]: Zone } = {};
   const nationSize = isCPU ? nation.size : 1;
   for (let x = 0; x < nationSize; x++) {
-    const z = generateZone({
+    const z = generators.generateZone({
       name: generateZoneName(),
       nationId: nation.id,
       organizationId: governOrg.id,
@@ -236,7 +228,7 @@ const prepareLeader = (
   const leaderName =
     options.leaderName || (isCPU ? 'CPU Leader' : 'EVIL Overlord');
 
-  const leader = generatePerson({
+  const leader = generators.generatePerson({
     homeZoneId: zones[Object.keys(zones)[0]].id,
     name: leaderName,
     nationId: nation.id,
@@ -247,7 +239,7 @@ const prepareLeader = (
     initAdministration: 10,
   });
 
-  leader.agent = generateAgentData(
+  leader.agent = generators.generateAgentData(
     governOrg.id,
     'overlord',
     0,
@@ -264,35 +256,35 @@ const prepareGuaranteedBuildings = (
 ) => {
   const buildings: { [key: string]: Building } = {};
   // In the first zone, create one of each basic building type
-  const bank = generateBuilding({
+  const bank = generators.generateBuilding({
     zoneId: Object.values(zones)[0].id,
     buildingType: 'bank',
     infrastructureCost: buildingsSchematics['bank'].infrastructureCost,
     organizationId: governOrg.id,
     upkeepCost: buildingsSchematics['bank'].infrastructureCost,
   });
-  const hospital = generateBuilding({
+  const hospital = generators.generateBuilding({
     zoneId: Object.values(zones)[0].id,
     buildingType: 'hospital',
     infrastructureCost: buildingsSchematics['hospital'].infrastructureCost,
     organizationId: governOrg.id,
     upkeepCost: buildingsSchematics['hospital'].infrastructureCost,
   });
-  const laboratory = generateBuilding({
+  const laboratory = generators.generateBuilding({
     zoneId: Object.values(zones)[0].id,
     buildingType: 'laboratory',
     infrastructureCost: buildingsSchematics['laboratory'].infrastructureCost,
     organizationId: governOrg.id,
     upkeepCost: buildingsSchematics['laboratory'].infrastructureCost,
   });
-  const office = generateBuilding({
+  const office = generators.generateBuilding({
     zoneId: Object.values(zones)[0].id,
     buildingType: 'office',
     infrastructureCost: buildingsSchematics['office'].infrastructureCost,
     organizationId: governOrg.id,
     upkeepCost: buildingsSchematics['office'].infrastructureCost,
   });
-  const apartment = generateBuilding({
+  const apartment = generators.generateBuilding({
     zoneId: Object.values(zones)[0].id,
     buildingType: 'apartment',
     infrastructureCost: buildingsSchematics['apartment'].infrastructureCost,
@@ -321,7 +313,7 @@ const createPlayer = (options: PlayerOptions) => {
   // const leaderName =
   //   options.leaderName || (isCPU ? 'CPU Leader' : 'EVIL Overlord');
 
-  // const leader = generatePerson({
+  // const leader = generators.generatePerson({
   //   homeZoneId: zones[Object.keys(zones)[0]].id,
   //   name: leaderName,
   //   nationId: nation.id,
@@ -345,35 +337,35 @@ const createPlayer = (options: PlayerOptions) => {
   };
   // const buildings: { [key: string]: Building } = {};
   // // In the first zone, create one of each basic building type
-  // const bank = generateBuilding({
+  // const bank = generators.generateBuilding({
   //   zoneId: Object.values(zones)[0].id,
   //   buildingType: 'bank',
   //   infrastructureCost: buildingsSchematics['bank'].infrastructureCost,
   //   organizationId: governOrg.id,
   //   upkeepCost: buildingsSchematics['bank'].infrastructureCost,
   // });
-  // const hospital = generateBuilding({
+  // const hospital = generators.generateBuilding({
   //   zoneId: Object.values(zones)[0].id,
   //   buildingType: 'hospital',
   //   infrastructureCost: buildingsSchematics['hospital'].infrastructureCost,
   //   organizationId: governOrg.id,
   //   upkeepCost: buildingsSchematics['hospital'].infrastructureCost,
   // });
-  // const laboratory = generateBuilding({
+  // const laboratory = generators.generateBuilding({
   //   zoneId: Object.values(zones)[0].id,
   //   buildingType: 'laboratory',
   //   infrastructureCost: buildingsSchematics['laboratory'].infrastructureCost,
   //   organizationId: governOrg.id,
   //   upkeepCost: buildingsSchematics['laboratory'].infrastructureCost,
   // });
-  // const office = generateBuilding({
+  // const office = generators.generateBuilding({
   //   zoneId: Object.values(zones)[0].id,
   //   buildingType: 'office',
   //   infrastructureCost: buildingsSchematics['office'].infrastructureCost,
   //   organizationId: governOrg.id,
   //   upkeepCost: buildingsSchematics['office'].infrastructureCost,
   // });
-  // const apartment = generateBuilding({
+  // const apartment = generators.generateBuilding({
   //   zoneId: Object.values(zones)[0].id,
   //   buildingType: 'apartment',
   //   infrastructureCost: buildingsSchematics['apartment'].infrastructureCost,
@@ -389,7 +381,7 @@ const createPlayer = (options: PlayerOptions) => {
   let peopleTotal = 0;
   Object.values(zones).forEach((zone) => {
     for (let personIndex = 0; personIndex < zone.size; personIndex++) {
-      const p = generatePerson({
+      const p = generators.generatePerson({
         nationId: nation.id,
         homeZoneId: zone.id,
       });
@@ -410,7 +402,7 @@ const createPlayer = (options: PlayerOptions) => {
     ) {
       const buildingType = buildingShufflebag.next();
       const schematic = buildingsSchematics[buildingType as BuildingType];
-      const b = generateBuilding({
+      const b = generators.generateBuilding({
         zoneId: zone.id,
         buildingType: schematic.buildingType as BuildingType,
         infrastructureCost: schematic.infrastructureCost,
@@ -561,12 +553,12 @@ const hireOrganizationAgents = (options: HireOrganizationAgentsOptions) => {
   // Now we have our target agents, we need to hire them
   // Get the leader of the organization
   // We'll need to assign them as the commander of the agents
-  const leader = getPeople({
+  const leader = people.getPeople({
     personFilter: { organizationId: orgId },
     agentFilter: { department: 'overlord' },
   })[0];
 
-  // NOTE: The getPeople invocations below should ensure we don't get people who are
+  // NOTE: The people.getPeople invocations below should ensure we don't get people who are
   // already agents at the cost of a performance hit... it's worth it for now
   if (options.fullStaffDetail) {
     // If we're doing full staff detail, we need to hire agents for all buildings
@@ -577,7 +569,7 @@ const hireOrganizationAgents = (options: HireOrganizationAgentsOptions) => {
       // Make sure we're not hiring for apartments
       if (building.type !== 'apartment') {
         for (let i = 0; i < building.basicAttributes.maxPersonnel; i++) {
-          const citizens = getPeople({
+          const citizens = people.getPeople({
             zone: { zoneId: building.zoneId },
             agentFilter: { excludeAgents: true },
           });
@@ -591,7 +583,7 @@ const hireOrganizationAgents = (options: HireOrganizationAgentsOptions) => {
     // If we're not doing full staff detail, we'll just hire the target amount from
     // entire nation pool
     for (let i = 0; i < targetAgents; i++) {
-      const citizens = getPeople({
+      const citizens = people.getPeople({
         nation: {
           nationId: leader.nationId,
         },
@@ -614,7 +606,7 @@ const initializeLoyalties = () => {
   Object.values(GameManager.getInstance().gameData.people).forEach((person) => {
     const update = initializeLoyalty(person);
     if (update.people[person.id].agent) {
-      update.people[person.id].intelAttributes.loyalties = setLoyalty(
+      update.people[person.id].intelAttributes.loyalties = people.setLoyalty(
         person,
         person.agent?.organizationId!,
         80,
@@ -671,8 +663,8 @@ const newGame = (options?: NewGameOptions) => {
   );
 
   handleNewGame(options);
-  populateActivities();
-  populatePlots();
+  ActivityManager.getInstance().populateActivities();
+  PlotManager.getInstance().populatePlots();
   GameManager.getInstance().setInitialized(true);
 };
 

@@ -1,5 +1,4 @@
 import Player from './Player';
-import { PlayerData } from '../../types/player';
 class PlayerManager {
   private static instance: PlayerManager;
   players: { [key: string]: Player };

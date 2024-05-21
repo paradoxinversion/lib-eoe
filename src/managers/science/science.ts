@@ -1,4 +1,4 @@
-import { GameData, GameManager } from '../../GameManager';
+import { GameManager } from '../game/GameManager';
 import { SCIENCE_PROJECTS } from './scienceProjects';
 import {
   ScienceProject,
@@ -23,7 +23,7 @@ export class ScienceManager {
   ) {
     console.info('Science Manager Initialized');
     this.PROJECT_DEFINITIONS = projects;
-    activeProjects = activeProjects;
+    this.activeProjects = activeProjects;
   }
 
   public static getInstance(): ScienceManager {
@@ -79,7 +79,7 @@ export class ScienceManager {
 
   handleProjectProgress(status: ScienceProjectStatus): ScienceProjectStatus {
     const project =
-      GameManager.getInstance().scienceManager.PROJECT_DEFINITIONS[
+      ScienceManager.getInstance().PROJECT_DEFINITIONS[
         status.indexName as ScienceProject
       ];
     const empireUpdate =

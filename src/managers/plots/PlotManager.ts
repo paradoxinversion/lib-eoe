@@ -1,12 +1,13 @@
-import { GameManager } from '../GameManager';
-import { ActivityConfig } from '../managers/activities/activityConfig';
+import { Person } from '../../types/interfaces/entities';
+import ActivityManager from '../activities/ActivityManager';
+import { GameManager } from '../game/GameManager';
 import Plot from './Plot';
-import { PlotConfig } from './plotConfig';
+import plotConfig, { PlotConfig } from './plotConfig';
 export interface PlotResolution {
   plot: Plot;
   resolution: any;
 }
-export class PlotManager {
+class PlotManager {
   private static instance: PlotManager;
   plotQueue: Plot[];
   currentPlot: number;
@@ -29,7 +30,15 @@ export class PlotManager {
 
     return PlotManager.instance;
   }
-
+  populatePlots() {
+    const plots = [];
+    const plotConfigArray = Object.values(plotConfig);
+    for (let plotIndex = 0; plotIndex < plotConfigArray.length; plotIndex++) {
+      const element = plotConfigArray[plotIndex];
+      plots.push(element);
+    }
+    PlotManager.getInstance().setPlots(plots);
+  }
   /**
    * Set the game plots (not individual playerp lots)
    */
@@ -106,4 +115,25 @@ export class PlotManager {
 
     return plots;
   }
+  getPlotParticpants() {
+    const { gameData } = GameManager.getInstance();
+    const p = ActivityManager.getInstance().activities.reduce(
+      (participants, currentActivity) => {
+        currentActivity.agents.forEach((agent) => {
+          participants.push({
+            participant: gameData.people[agent],
+            activity: currentActivity.name,
+          });
+        });
+        return participants;
+      },
+      [] as {
+        participant: Person;
+        activity: string;
+      }[],
+    );
+    return p;
+  }
 }
+
+export default PlotManager;

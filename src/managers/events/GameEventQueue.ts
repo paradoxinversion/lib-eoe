@@ -1,4 +1,3 @@
-import { GameManager } from '../GameManager';
 import GameEvent from './GameEvent';
 
 /**
@@ -30,7 +29,7 @@ class GameEventQueue {
   /**
    * Resolve the current game event with player input (resolveArgs)
    */
-  //@ts-ignore
+  //@ts-expect-error ResolveArgs needs to be typed
   resolveCurrentEvent(resolveArgs) {
     return this.events[this.eventIndex].resolveEvent(resolveArgs);
   }

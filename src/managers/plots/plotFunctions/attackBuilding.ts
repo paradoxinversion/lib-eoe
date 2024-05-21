@@ -1,7 +1,7 @@
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { doCombat } from '../../combat';
-import { Building, Person } from '../../types/interfaces/entities';
+import { GameManager } from '../../game/GameManager';
+import people from '../../../actions/people';
+import combat from '../../../combat';
+import { Person } from '../../../types/interfaces/entities';
 import { PlotResult } from '../Plot';
 
 interface PlotAttackBuildingOpts {
@@ -9,7 +9,6 @@ interface PlotAttackBuildingOpts {
   participants: string[];
 }
 
-interface PlotAttackBuildingResult {}
 export const attackBuilding = (opts: PlotAttackBuildingOpts): PlotResult => {
   const { gameData } = GameManager.getInstance();
   const { buildingId, participants } = opts;
@@ -17,7 +16,7 @@ export const attackBuilding = (opts: PlotAttackBuildingOpts): PlotResult => {
   const buildingPersonnel = building.personnel.map(
     (personId) => gameData.people[personId],
   );
-  const zoneAgents = getPeople({
+  const zoneAgents = people.getPeople({
     personFilter: {
       organizationId: building.organizationId,
     },
@@ -28,7 +27,7 @@ export const attackBuilding = (opts: PlotAttackBuildingOpts): PlotResult => {
   });
   const possibleDefenders = buildingPersonnel.concat(zoneAgents);
   const attackers = participants.map((agent) => gameData.people[agent]);
-  const result = doCombat(attackers, possibleDefenders);
+  const result = combat.doCombat(attackers, possibleDefenders);
   if (result.victoryResult === 1) {
     return {
       success: true,

@@ -1,9 +1,7 @@
-import { GameData, GameManager } from './GameManager';
+import { GameManager, GameData } from './managers/game/GameManager';
 import { Person } from './types/interfaces/entities';
 import Plot from './plots/Plot';
-import plotConfig from './plots/plotConfig';
-import Activity from './managers/activities/Activity';
-import activityConfig from './managers/activities/activityConfig';
+import ActivityManager from './managers/activities/ActivityManager';
 export interface PlotResolution {
   plot: Plot;
   resolution: any;
@@ -15,45 +13,9 @@ export interface ActivityResult {
   };
 }
 
-/**
- *
- */
-const populateActivities = () => {
-  const { activityManager } = GameManager.getInstance();
-  const activities = [];
-  for (
-    let activityParamIndex = 0;
-    activityParamIndex < activityConfig.length;
-    activityParamIndex++
-  ) {
-    const activityParameters = activityConfig[activityParamIndex];
-    activities.push(
-      new Activity(
-        activityParameters.name,
-        activityParameters.type,
-        activityParameters.costPerParticipant,
-        activityParameters.fn,
-        activityParameters.description,
-      ),
-    );
-  }
-  activityManager.setActivities(activities);
-};
-
-const populatePlots = () => {
-  const { plotManager } = GameManager.getInstance();
-  const plots = [];
-  const plotConfigArray = Object.values(plotConfig);
-  for (let plotIndex = 0; plotIndex < plotConfigArray.length; plotIndex++) {
-    const element = plotConfigArray[plotIndex];
-    plots.push(element);
-  }
-  plotManager.setPlots(plots);
-};
-
 const getActivityParticipants = () => {
-  const { activityManager, gameData } = GameManager.getInstance();
-  const p = activityManager.activities.reduce(
+  const { gameData } = GameManager.getInstance();
+  const p = ActivityManager.getInstance().activities.reduce(
     (participants, currentActivity) => {
       currentActivity.agents.forEach((agent) => {
         participants.push({
@@ -71,4 +33,4 @@ const getActivityParticipants = () => {
   return p;
 };
 
-export { populateActivities, populatePlots, getActivityParticipants };
+export { getActivityParticipants };

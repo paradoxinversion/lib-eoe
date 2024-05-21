@@ -1,6 +1,6 @@
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { Person } from '../../types/interfaces/entities';
+import { GameManager } from '../../game/GameManager';
+import people from '../../../actions/people';
+import { Person } from '../../../types/interfaces/entities';
 import { PlotParamsStandard, PlotResult } from '../Plot';
 
 export type InciteProtestData = {
@@ -17,7 +17,7 @@ export const executeInciteProtestPlot = (
   const agents = participants.map(
     (agentId) => GameManager.getInstance().gameData.people[agentId],
   );
-  const zoneCitizens = getPeople({
+  const zoneCitizens = people.getPeople({
     personFilter: {
       organizationId: zone.organizationId,
       excludeDeceased: true,

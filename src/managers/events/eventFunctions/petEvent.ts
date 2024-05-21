@@ -1,13 +1,9 @@
-import { GameData, GameManager } from '../../GameManager';
-import {
-  getPeople,
-  updateCurrentHealth,
-  updateLoyalty,
-} from '../../actions/people';
-import { addBuildingStatusEffect, getBuildings } from '../../buildings';
-import { getRandomOrg, takeCaptive } from '../../organization';
+import { GameManager, GameData } from '../../game/GameManager';
+import people from '../../../actions/people';
+import buildings from '../../../actions/buildings';
+import organization from '../../../actions/organization';
 import Shufflebag from '../../shufflebag/Shufflebag';
-import { randomInt } from '../../utilities';
+import utilities from '../../../utilities';
 import GameEvent, { EventConfig } from '../GameEvent';
 
 export type PetEventTypes =
@@ -55,12 +51,12 @@ export const generatePetEvent = () => {
   switch (petEvent) {
     case 'detectIntruder':
       // get an intruder
-      const intruderOrg = getRandomOrg({
+      const intruderOrg = organization.getRandomOrg({
         excludePlayer: true,
       });
 
       // Update this to be random
-      const intrudingAgent = getPeople({
+      const intrudingAgent = people.getPeople({
         personFilter: {
           organizationId: intruderOrg.id,
           excludeDeceased: true,
@@ -70,7 +66,7 @@ export const generatePetEvent = () => {
 
       targetId = intrudingAgent.id;
       GameManager.getInstance().updateGameData(
-        takeCaptive(
+        organization.takeCaptive(
           GameManager.getInstance().gameData.player.organizationId,
           intrudingAgent,
         ),
@@ -81,7 +77,7 @@ export const generatePetEvent = () => {
       break;
     case 'maul': {
       // Select an empire agent
-      const agentPool = getPeople({
+      const agentPool = people.getPeople({
         personFilter: {
           organizationId:
             GameManager.getInstance().gameData.player.organizationId,
@@ -89,30 +85,34 @@ export const generatePetEvent = () => {
         },
         agentFilter: { agentsOnly: true, excludeDepartments: ['overlord'] },
       });
-      const agent = agentPool[randomInt(0, agentPool.length - 1)];
+      const agent = agentPool[utilities.randomInt(0, agentPool.length - 1)];
       targetId = agent.id;
-      updatedGameData = updateCurrentHealth(agent, -randomInt(1, 10));
+      updatedGameData = people.updateCurrentHealth(
+        agent,
+        -utilities.randomInt(1, 10),
+      );
       GameManager.getInstance().updateGameData(updatedGameData);
       message = `Your pet has mauled ${agent.name}`;
       break;
     }
     case 'trashKennel':
-      const buildings = getBuildings({
+      const buildingPool = buildings.getBuildings({
         zoneId:
           GameManager.getInstance().gameData.people[
             GameManager.getInstance().gameData.player.overlordId
           ].homeZoneId,
       });
-      const selectedBuilding = buildings[randomInt(0, buildings.length - 1)];
+      const selectedBuilding =
+        buildingPool[utilities.randomInt(0, buildingPool.length - 1)];
       updatedGameData = {
         ...updatedGameData,
-        ...addBuildingStatusEffect(selectedBuilding.id, 'trashed'),
+        ...buildings.addBuildingStatusEffect(selectedBuilding.id, 'trashed'),
       };
       GameManager.getInstance().updateGameData(updatedGameData);
       message = `Your pet has trashed ${selectedBuilding.name}`;
       break;
     case 'boostMorale':
-      const agents = getPeople({
+      const agents = people.getPeople({
         personFilter: {
           organizationId:
             GameManager.getInstance().gameData.player.organizationId,
@@ -125,10 +125,10 @@ export const generatePetEvent = () => {
         // boost morale
 
         GameManager.getInstance().updateGameData(
-          updateLoyalty(
+          people.updateLoyalty(
             agent,
             GameManager.getInstance().gameData.player.organizationId,
-            randomInt(1, 3),
+            utilities.randomInt(1, 3),
           ),
         );
       });

@@ -1,8 +1,8 @@
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { removePersonnel } from '../../buildings';
-import { getEvilEmpire } from '../../organization';
-import { randomInt } from '../../utilities';
+import { GameManager } from '../../game/GameManager';
+import people from '../../../actions/people';
+import buildings from '../../../actions/buildings';
+import organization from '../../../actions/organization';
+import utilities from '../../../utilities';
 import GameEvent from '../GameEvent';
 
 interface TemperTantrumParams {
@@ -13,24 +13,24 @@ export const generateTemperTantrumEvent = () => {
 };
 function setTemperTantrumParams(this: GameEvent) {
   this.params = {
-    adminRemains: randomInt(0, 1) === 1,
+    adminRemains: utilities.randomInt(0, 1) === 1,
   };
 }
 
 function resolveTemperTantrum(this: GameEvent) {
-  const pool = getPeople({
+  const pool = people.getPeople({
     personFilter: {
-      organizationId: getEvilEmpire().id,
+      organizationId: organization.getEvilEmpire().id,
     },
     agentFilter: {
       department: 'administrator',
       agentsOnly: true,
     },
   });
-  const admin = { ...pool[randomInt(0, pool.length - 1)] };
+  const admin = { ...pool[utilities.randomInt(0, pool.length - 1)] };
 
   if (admin.personnelAt) {
-    const update = removePersonnel(
+    const update = buildings.removePersonnel(
       admin,
       GameManager.getInstance().gameData.buildings[admin.personnelAt],
     );

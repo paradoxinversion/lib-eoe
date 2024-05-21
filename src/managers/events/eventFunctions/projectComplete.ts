@@ -1,5 +1,5 @@
-import { GameData, GameManager } from '../../GameManager';
-import { ScienceProjectResult } from '../../managers/science/types';
+import { GameData, GameManager } from '../../game/GameManager';
+import { ScienceProjectResult } from '../../science/types';
 import GameEvent from '../GameEvent';
 
 export interface ProjectCompleteParams {

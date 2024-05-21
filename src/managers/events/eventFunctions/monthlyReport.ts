@@ -1,12 +1,12 @@
-import { GameManager } from '../../GameManager';
+import { GameManager } from '../../game/GameManager';
+import buildings from '../../../actions/buildings';
+import organization from '../../../actions/organization';
 import {
-  addPersonStatusEffect,
-  removePersonStatusEffect,
-} from '../../actions/people';
-import { getUpkeep } from '../../buildings';
-import { getExpenses, getOrgResources, getPayroll } from '../../organization';
-import { GoverningOrganization, Person } from '../../types/interfaces/entities';
+  GoverningOrganization,
+  Person,
+} from '../../../types/interfaces/entities';
 import GameEvent from '../GameEvent';
+import people from '../../../actions/people';
 
 export interface MonthlyReportEventParams {
   expenses: {
@@ -18,8 +18,8 @@ export interface MonthlyReportEventParams {
 export const generateMonthlyReportEvent = () => {
   const { gameData } = GameManager.getInstance();
   const { organizationId } = gameData.player;
-  const upkeep = getUpkeep(organizationId);
-  const payroll = getPayroll(organizationId);
+  const upkeep = buildings.getUpkeep(organizationId);
+  const payroll = organization.getPayroll(organizationId);
   return new GameEvent(monthlyReportEventConfig, {
     expenses: {
       payroll,
@@ -110,8 +110,10 @@ function resolveMonthlyReport(
         ...updatedGameData,
         people: {
           ...updatedGameData.people,
-          [agentId]: addPersonStatusEffect(gameData.people[agentId], 'stiffed')
-            .people![agentId],
+          [agentId]: people.addPersonStatusEffect(
+            gameData.people[agentId],
+            'stiffed',
+          ).people![agentId],
         },
       };
     } else {
@@ -120,7 +122,7 @@ function resolveMonthlyReport(
           ...updatedGameData,
           people: {
             ...updatedGameData.people,
-            [agentId]: removePersonStatusEffect(
+            [agentId]: people.removePersonStatusEffect(
               gameData.people[agentId],
               'stiffed',
             ).people![agentId],

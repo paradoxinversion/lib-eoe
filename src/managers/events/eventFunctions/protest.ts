@@ -1,7 +1,7 @@
-import { GameManager } from '../../GameManager';
-import { getPeople } from '../../actions/people';
-import { getRandomZone, getZones } from '../../actions/zones';
-import { Person, Zone } from '../../types/interfaces/entities';
+import { GameManager } from '../../game/GameManager';
+import people from '../../../actions/people';
+import zones from '../../../actions/zones';
+import { Person, Zone } from '../../../types/interfaces/entities';
 import GameEvent from '../GameEvent';
 
 export interface ProtestEventParams {
@@ -11,21 +11,23 @@ export interface ProtestEventParams {
 }
 
 export const generateProtestEvent = () => {
-  const zone = getRandomZone({
+  const zone = zones.getRandomZone({
     organizationId: GameManager.getInstance().gameData.player.organizationId,
   });
 
   // get a random amount of people from the zone with low loyalty
-  const citizenPool = getPeople({
-    zone: {
-      zoneId: zone.id,
-    },
-    agentFilter: {
-      excludeAgents: true,
-    },
-  }).filter(
-    (person) => person.intelAttributes.loyalties[zone.organizationId] < 50,
-  );
+  const citizenPool = people
+    .getPeople({
+      zone: {
+        zoneId: zone.id,
+      },
+      agentFilter: {
+        excludeAgents: true,
+      },
+    })
+    .filter(
+      (person) => person.intelAttributes.loyalties[zone.organizationId] < 50,
+    );
 
   const protestorAmount = Math.floor(Math.random() * 0.25);
   const protestors = citizenPool.slice(0, protestorAmount);
@@ -56,7 +58,7 @@ function resolveProtest(this: GameEvent, resolveArgs: ProtestEventResolveArgs) {
   const { zone, protestors } = params;
   if (resolveArgs.stopWithForce) {
     // select 10% of the empire agents
-    const agents = getPeople({
+    const agents = people.getPeople({
       personFilter: {
         organizationId:
           GameManager.getInstance().gameData.player.organizationId,

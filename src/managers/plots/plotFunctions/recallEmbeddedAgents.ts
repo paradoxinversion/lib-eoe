@@ -1,5 +1,5 @@
-import { GameManager } from '../../GameManager';
-import { Person } from '../../types/interfaces/entities';
+import { GameManager } from '../../game/GameManager';
+import { Person } from '../../../types/interfaces/entities';
 import { PlotParamsStandard, PlotResult } from '../Plot';
 
 export interface PlotEmbedAgentsData {
