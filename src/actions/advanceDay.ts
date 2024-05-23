@@ -22,6 +22,7 @@ import people, { SimulateDayResolution } from './people';
 import { generateProjectCompleteEvent } from '../managers/events/eventFunctions/projectComplete';
 import { GameManager } from '../managers/game/GameManager';
 import GameEventQueue from '../managers/events/GameEventQueue';
+import PlotManager from '../managers/plots/PlotManager';
 
 const handleSimActions = () => {
   console.debug('Handling sim actions');
@@ -65,12 +66,7 @@ const handleActivities = () => {
  * updated gamedata with those events.
  */
 const advanceDay = () => {
-  const {
-    gameData,
-    eventManager: gameEventQueue,
-    activityManager,
-    plotManager,
-  } = GameManager.getInstance();
+  const { gameData } = GameManager.getInstance();
   const updatedGameData = { ...gameData };
   // Execute daily actions for People
   // getPeople({
@@ -99,15 +95,15 @@ const advanceDay = () => {
     }
   });
 
-  const plotResolutions = plotManager.executePlots();
+  const plotResolutions = PlotManager.getInstance().executePlots();
 
   // Setup Events
   const randomEvents = prepareRandomEvents();
-  gameEventQueue.addEvents(randomEvents);
+  GameEventQueue.getInstance().addEvents(randomEvents);
   const plotEvents = addPlotResolutions(plotResolutions);
-  gameEventQueue.addEvents(plotEvents);
+  GameEventQueue.getInstance().addEvents(plotEvents);
 
-  plotManager.clearPlotQueue();
+  PlotManager.getInstance().clearPlotQueue();
   // handle healing in hospitals
   const hospitalUpdates = handleHospitalOperations();
   Object.entries(hospitalUpdates).forEach(([personId, person]) => {
@@ -124,7 +120,7 @@ const advanceDay = () => {
   });
   // Handle science projects
   const scienceProjectStatuses = [
-    ...GameManager.getInstance().scienceManager.activeProjects,
+    ...ScienceManager.getInstance().activeProjects,
   ];
   scienceProjectStatuses.forEach((projectStatus) => {
     const result =
@@ -140,7 +136,9 @@ const advanceDay = () => {
         projectStatus.indexName as ScienceProject,
       );
 
-      gameEventQueue.addEvent(generateProjectCompleteEvent(completeResult));
+      GameEventQueue.getInstance().addEvent(
+        generateProjectCompleteEvent(completeResult),
+      );
     }
   });
 
@@ -195,7 +193,6 @@ const advanceDay = () => {
 
   return {
     updatedGameData,
-    gameEventQueue,
     stop: GameEventQueue.getInstance().events.some(
       (event) => eventConfig[event.type].forceStop,
     ),
@@ -207,7 +204,7 @@ const advanceDay = () => {
  */
 const advanceDays = (days: number) => {
   for (let i = 0; i < days; i++) {
-    const { updatedGameData, gameEventQueue, stop } = advanceDay();
+    const { updatedGameData, stop } = advanceDay();
     if (stop) {
       return updatedGameData;
     }

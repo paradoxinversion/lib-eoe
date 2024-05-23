@@ -200,14 +200,14 @@ const addPersonnel = (person: Person, building: Building) => {
     buildings: {},
   };
   if (!person) {
-    return;
+    return updatedGameData;
   }
   if (building.personnel.includes(person?.id)) {
-    return;
+    return updatedGameData;
   }
 
   if (building.personnel.length === building.basicAttributes.maxPersonnel) {
-    return;
+    return updatedGameData;
   }
   const updatedBuilding = { ...building };
   updatedBuilding.personnel = [...updatedBuilding.personnel, person.id];
