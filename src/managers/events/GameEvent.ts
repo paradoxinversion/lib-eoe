@@ -31,6 +31,8 @@ export interface EventConfig {
 
 /**
  * A GameEvent.
+ *
+ * Game Events are considered to have happened in the past, and are resolved in the present.
  */
 class GameEvent {
   getEventText: Function;
@@ -40,7 +42,6 @@ class GameEvent {
   eventData: EventData;
   eventName: string;
   params:
-    | {}
     | ReconZoneEventParams
     | EvilApplicantParams
     | MonthlyReportEventParams
@@ -48,7 +49,8 @@ class GameEvent {
     | IntruderAlertEventParams
     | OccupationalHazardParams
     | ProjectCompleteParams
-    | ProtestEventParams;
+    | ProtestEventParams
+    | undefined;
   type: string;
   /**
    * Create a game event using configuration.
@@ -69,7 +71,8 @@ class GameEvent {
       resolution: {},
     };
 
-    this.params = {};
+    this.params = undefined;
+
     /** The name of the event */
     this.eventName = config.name;
     this.setParams(eventSetupData);
