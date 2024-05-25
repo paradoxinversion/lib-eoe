@@ -2,7 +2,6 @@ import { Person } from '../../types/interfaces/entities';
 import { GameManager } from '../game/GameManager';
 import Activity, { ActivityParticipants } from './Activity';
 import activityConfig from './activityConfig';
-import { ActivityLog } from './types';
 
 export default class ActivityManager {
   private static instance: ActivityManager;
@@ -71,28 +70,12 @@ export default class ActivityManager {
   }
 
   executeActivities() {
-    const activitiesResults: {
-      activity: string;
-      result: {
-        result: any;
-        updatedGameData: { people: { [x: string]: Person } };
-      };
-      log: ActivityLog;
-    }[] = [];
     this.activities.forEach((activity) => {
       if (activity.agents.length === 0) {
         return;
       }
-      const activityData = activity.executeActivity();
-      const output = {
-        activity: activity.name,
-        result: activityData,
-        log: activity.logActivity(),
-      };
-      GameManager.getInstance().updateGameData(activityData.updatedGameData);
-      activitiesResults.push(output);
+      activity.executeActivity();
     });
-    return activitiesResults;
   }
 
   /**

@@ -16,7 +16,7 @@ export default class Activity {
   /** Array of IDs belonging to participating agents */
   agents: string[];
   /** Execution function for this activity */
-  fn: Function;
+  fn: (particpantArray: string[]) => void;
   type: string;
   costPerParticipant: number;
   description?: string;
@@ -25,7 +25,7 @@ export default class Activity {
     name: string,
     type: string,
     costPerParticipant: number,
-    executionFn: Function,
+    executionFn: (particpantArray: string[]) => void,
     description?: string,
   ) {
     this.name = name;
@@ -94,22 +94,12 @@ export default class Activity {
    * Execute this activity
    */
   executeActivity() {
-    const result = this.fn(this.agents);
+    this.fn(this.agents);
 
-    const updatedGameData: { people: { [x: string]: Person } } = {
-      people: {},
-    };
-
-    if (result) {
-      // Update empire wealth
-      updateOrgWealth(
-        GameManager.getInstance().gameData.player.organizationId,
-        -this.costPerParticipant * this.agents.length,
-      );
-      Object.values<Person>(result.people).forEach((person: Person) => {
-        updatedGameData.people[person.id] = person;
-      });
-    }
-    return { result, updatedGameData };
+    // Update empire wealth
+    updateOrgWealth(
+      GameManager.getInstance().gameData.player.organizationId,
+      -this.costPerParticipant * this.agents.length,
+    );
   }
 }

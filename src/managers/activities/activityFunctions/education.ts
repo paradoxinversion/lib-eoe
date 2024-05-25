@@ -27,5 +27,6 @@ export const education = (participantArray: string[]) => {
     {},
   );
   updateEvil(1);
+  GameManager.getInstance().updateGameData({ people: updatedAgents });
   return { people: updatedAgents };
 };

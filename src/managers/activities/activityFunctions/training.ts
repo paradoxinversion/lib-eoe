@@ -31,6 +31,7 @@ export const executeTrainingActivity = (participantArray: string[]) => {
     {},
   );
 
+  GameManager.getInstance().updateGameData({ people: updatedAgents });
   console.debug('Activity::Training::\n', { updatedAgents });
   return { people: updatedAgents };
 };

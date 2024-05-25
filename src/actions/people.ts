@@ -392,7 +392,11 @@ const updateIntelAttribute = (
       [attribute]: (person.intelAttributes[attribute] as number) + modAmt,
     },
   };
-
+  GameManager.getInstance().updateGameData({
+    people: {
+      [updatedPerson.id]: updatedPerson,
+    },
+  });
   return {
     people: {
       [updatedPerson.id]: updatedPerson,
