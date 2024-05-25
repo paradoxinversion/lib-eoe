@@ -60,26 +60,8 @@ export const generateEvent = (params: GeneratEventParams) => {
   return event;
 };
 
-export function setEventParams(
-  this: GameEvent,
-  {
-    aggressingForce,
-    defendingForce,
-    zoneId,
-    combatResult,
-  }: CombatEventParams & { zoneId: string; combatResult: CombatResult },
-) {
-  this.params = {
-    aggressingForce,
-    defendingForce,
-    zoneId,
-    combatResult,
-  };
-}
-
 export const config = {
   name: 'Domestic Combat Encounter',
-  setParams: setEventParams,
   getEventText(this: GameEvent) {
     this.eventText = `A domestic Combat encounter has occured!`;
   },

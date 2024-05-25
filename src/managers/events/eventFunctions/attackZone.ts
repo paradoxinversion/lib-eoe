@@ -14,14 +14,6 @@ export const generateAttackZonePlotEvent = (plot: Plot) => {
     plot,
   });
 };
-/**
- * Set parameters for an Attack Zone Plot Event
- */
-function setAttackZoneParams(this: GameEvent, { plot }: AttackZoneParams) {
-  this.params = {
-    plot,
-  };
-}
 
 /**
  * Resolve an attack zone event.
@@ -31,7 +23,12 @@ function resolveAttackZone(this: GameEvent) {
   const result = params.plot.resolution as PlotResult;
 
   GameManager.getInstance().updateGameData(result.updatedGameData);
-
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: attackZoneConfig.icon,
+    text: 'Attack Zone',
+  });
   this.eventData = {
     type: 'attack-zone',
     resolution: {
@@ -44,7 +41,6 @@ function resolveAttackZone(this: GameEvent) {
 
 export const attackZoneConfig = {
   name: 'Attack Zone',
-  setParams: setAttackZoneParams,
   resolve: resolveAttackZone,
   getEventText(this: GameEvent) {
     this.eventText = `The Empire has attacked a Zone!`;

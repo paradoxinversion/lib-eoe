@@ -78,24 +78,10 @@ export const generateEvilApplicantEvent = (
   const event = new GameEvent(evilApplicantEvilConfig, {
     recruit: applicant,
     organizationId: GameManager.getInstance().gameData.player.organizationId,
-    department: 0,
+    department: 'troop',
   });
   return event;
 };
-
-/**
- * Set parameters for an Evil Applicant event
- */
-export function setEvilApplicantParams(
-  this: GameEvent,
-  { recruit, organizationId, department }: EvilApplicantParams,
-) {
-  this.params = {
-    recruit,
-    department,
-    organizationId,
-  };
-}
 
 /**
  * Resolve an Evil Applicant Event
@@ -130,6 +116,12 @@ export function resolveEvilApplicant(
       break;
   }
   GameManager.getInstance().updateGameData(updatedGameData);
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: evilApplicantEvilConfig.icon,
+    text: 'Evil Agent Event',
+  });
   this.eventData = {
     type: 'recruit',
     resolution: {
@@ -141,7 +133,6 @@ export function resolveEvilApplicant(
 
 export const evilApplicantEvilConfig: EventConfig = {
   name: 'EVIL Applicant',
-  setParams: setEvilApplicantParams,
   resolve: resolveEvilApplicant,
   getEventText(this: GameEvent) {
     this.eventText = `A citizen, ${(this.params as EvilApplicantParams).recruit?.name}, has applied to become an EVIL Agent.`;

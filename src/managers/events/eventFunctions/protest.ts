@@ -40,16 +40,6 @@ export const generateProtestEvent = () => {
   });
 };
 
-export function setProtestEventParams(
-  this: GameEvent,
-  { zone, targetOrganization, protestors }: ProtestEventParams,
-) {
-  this.params = {
-    zone,
-    targetOrganization,
-    protestors,
-  };
-}
 type ProtestEventResolveArgs = {
   stopWithForce: boolean;
 };
@@ -111,7 +101,6 @@ function resolveProtest(this: GameEvent, resolveArgs: ProtestEventResolveArgs) {
 
 export const protestEventConfig = {
   name: 'Protest',
-  setParams: setProtestEventParams,
   resolve: resolveProtest,
   getEventText(this: GameEvent) {
     this.eventText = 'A protest has been started';

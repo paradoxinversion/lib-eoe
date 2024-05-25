@@ -7,7 +7,7 @@ const siphonGlobalAccounts = (participantArray: string[]) => {
   if (participantArray.length === 0) {
     return null;
   }
-  participantArray.forEach((participant) => {
+  participantArray.forEach(() => {
     // Choose a citizen in the nation
     const citizens = people.getPeople({
       nation: {

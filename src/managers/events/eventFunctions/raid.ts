@@ -54,19 +54,9 @@ export const generateEvent = () => {
   return event;
 };
 
-export function setParams(
-  this: GameEvent,
-  { combatResult, zone }: { combatResult: CombatResult; zone: Zone },
-) {
-  this.params = {
-    combatResult,
-    zone,
-  };
-}
 export function resolve() {}
 export const config = {
   name: 'Raid',
-  setParams,
   resolve,
   getEventText(this: GameEvent) {
     this.eventText = `A raid occured!`;

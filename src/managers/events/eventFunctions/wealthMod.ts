@@ -5,18 +5,14 @@ import GameEvent from '../GameEvent';
 export interface WealthModEventParams {
   modAmount: number;
 }
-/**
- * Set parameters for a Wealth Mod event
- */
-export function setWealthModParams(this: GameEvent) {
-  this.params = { modAmount: utilities.randomInt(-10, 10) };
-}
 
 /**
  * Create and return a new Wealth Mod Game Event
  */
 export const generateWealthMod = () => {
-  return new GameEvent(wealthModEventConfig);
+  return new GameEvent(wealthModEventConfig, {
+    modAmount: utilities.randomInt(-10, 10),
+  });
 };
 
 /**
@@ -37,6 +33,12 @@ export function resolveWealthMod(this: GameEvent) {
     updatedOrg;
   updatedOrg.wealth += params.modAmount;
   GameManager.getInstance().updateGameData(updatedGameData);
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: wealthModEventConfig.icon,
+    text: 'Wealth Mod',
+  });
   this.eventData = {
     type: 'cashmod',
     resolution: {
@@ -49,7 +51,6 @@ export function resolveWealthMod(this: GameEvent) {
 
 export const wealthModEventConfig = {
   name: 'Wealth Change',
-  setParams: setWealthModParams,
   resolve: resolveWealthMod,
   getEventText(this: GameEvent) {
     this.eventText = `The Empire's wealth has fluctuated by ${(this.params as WealthModEventParams).modAmount}`;

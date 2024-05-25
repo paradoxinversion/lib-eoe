@@ -14,19 +14,16 @@ export const generateProjectCompleteEvent = (
     empireUpdate: projectResult.updatedGameData,
   });
 };
-function setProjectCompleteParams(
-  this: GameEvent,
-  { projectIndexName, empireUpdate }: ProjectCompleteParams,
-) {
-  this.params = {
-    projectIndexName,
-    empireUpdate,
-  };
-}
 
 function resolveProjectComplete(this: GameEvent) {
   const params = this.params as ProjectCompleteParams;
   GameManager.getInstance().updateGameData(params.empireUpdate);
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: projectCompleteEventConfig.icon,
+    text: 'Project Complete',
+  });
   this.eventData = {
     type: 'project-complete',
     resolution: {
@@ -37,7 +34,6 @@ function resolveProjectComplete(this: GameEvent) {
 
 export const projectCompleteEventConfig = {
   name: 'Science Project Complete',
-  setParams: setProjectCompleteParams,
   resolve: resolveProjectComplete,
   getEventText(this: GameEvent) {
     this.eventText = 'A project has been completed!';

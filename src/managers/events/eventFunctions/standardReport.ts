@@ -21,9 +21,6 @@ export function resolveStandardReport(this: GameEvent) {
 
 export const standardReportConfig = {
   name: 'Standard Report',
-  setParams(this: GameEvent) {
-    this.params = {};
-  },
   resolve: resolveStandardReport,
   getEventText(this: GameEvent) {
     this.eventText = `There is nothing special to report.`;

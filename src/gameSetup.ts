@@ -666,6 +666,12 @@ const newGame = (options?: NewGameOptions) => {
   ActivityManager.getInstance().populateActivities();
   PlotManager.getInstance().populatePlots();
   GameManager.getInstance().setInitialized(true);
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: 'info',
+    text: 'Your empire has been established.',
+  });
 };
 
 export default { createGameManager, newGame };

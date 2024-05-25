@@ -1,14 +1,22 @@
 import { GameManager } from '../../game/GameManager';
 import { Person } from '../../../types/interfaces/entities';
-import { PlotParamsStandard, PlotResult } from '../Plot';
+import Plot, { PlotResult } from '../Plot';
+import { PlotParamsBase } from '../types';
+import PlotManager from '../PlotManager';
 
-export interface PlotEmbedAgentsData {
+export interface PlotResolutionRecallEmbeddedAgents {
   /** The agents that are returning */
   agents: string[];
 }
 
+const generateRecallEmbeddedAgentsPlot = (params: PlotParamsBase) => {
+  PlotManager.getInstance().addPlot(
+    new Plot('Recall Embedded Agents', 'recall-embedded-agents', params),
+  );
+};
+
 export const executeRecallEmbeddedAgentsPlot = (
-  params: PlotParamsStandard,
+  params: PlotParamsBase,
 ): PlotResult => {
   // For now, we just nullify the embeddedAt property from the agent object
   const { participants } = params;
@@ -39,4 +47,8 @@ export const executeRecallEmbeddedAgentsPlot = (
       people: returningAgents,
     },
   };
+};
+
+export default {
+  generateRecallEmbeddedAgentsPlot,
 };

@@ -5,6 +5,9 @@ import { Person } from '../../../types/interfaces/entities';
 import utilities from '../../../utilities';
 
 export const peacePatrol = (participantArray: string[]) => {
+  if (participantArray.length === 0) {
+    return null;
+  }
   const updatedGameData: { people: { [x: string]: Person } } = {
     people: {},
   };

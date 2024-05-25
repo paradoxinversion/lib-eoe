@@ -10,8 +10,9 @@ import {
 } from '../../../types/interfaces/entities';
 import zones from '../../../actions/zones';
 import { PlotResult } from '../Plot';
+import { PlotParamsBase } from '../types';
 
-export interface PlotAttackZoneParams {}
+export interface PlotAttackZoneParams extends PlotParamsBase {}
 
 interface PlotAttackZoneOpts {
   zone: {

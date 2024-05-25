@@ -5,15 +5,6 @@ export type InciteProtestParams = {
   plot: Plot;
 };
 
-export function setInciteProtestParams(
-  this: GameEvent,
-  { plot }: InciteProtestParams,
-) {
-  this.params = {
-    plot,
-  };
-}
-
 export const generateInciteProtestEvent = (plot: Plot) => {
   return new GameEvent(inciteProtestConfig, { plot });
 };
@@ -32,7 +23,6 @@ function resolveInciteProtest(this: GameEvent) {
 
 export const inciteProtestConfig = {
   name: 'Incite Protest',
-  setParams: setInciteProtestParams,
   resolve: resolveInciteProtest,
   getEventText(this: GameEvent) {
     this.eventText = 'A protest was incited';

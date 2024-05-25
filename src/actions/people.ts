@@ -15,6 +15,7 @@ import {
 } from '../types/interfaces/entities';
 import utilities from '../utilities';
 import PlotManager from '../managers/plots/PlotManager';
+import ActivityManager from '../managers/activities/ActivityManager';
 export type ComparisonTypes = 'greater' | 'less' | 'equal';
 
 interface GetPeopleParams {
@@ -156,11 +157,11 @@ const getPeople = (params: GetPeopleParams = {}) => {
 
       if (
         (options.agentFilter?.excludeParticipants &&
-          getActivityParticipants().some(
-            (p) => p.participant.id === person.id,
-          )) ||
+          ActivityManager.getInstance()
+            .getActivityParticipants()
+            .some((p) => p.participant.id === person.id)) ||
         PlotManager.getInstance().plotQueue.some((p) =>
-          p.standardParams.participants.some((p) => p === person.id),
+          p.plotParams.participants.some((p) => p === person.id),
         )
       ) {
         return false;

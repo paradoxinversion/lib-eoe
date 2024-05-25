@@ -2,9 +2,12 @@ import { GameData } from '../game/GameManager';
 import { CombatResult } from '../../combat/combat';
 import plotConfig from './plotConfig';
 import { PlotAttackZoneParams } from './plotFunctions/attackZone';
-import { PlotEmbedAgentsData } from './plotFunctions/embedAgents';
+import {
+  PlotResolutionEmbedAgents,
+  PlotParamsEmbedAgents,
+} from './plotFunctions/embedAgents';
 import { InciteProtestData } from './plotFunctions/inciteProtest';
-import { PlotReconParams, ReconPlotData } from './plotFunctions/recon';
+import { PlotReconParams, PlotReconResolution } from './plotFunctions/recon';
 
 /** Basic parameters common to any plot */
 export interface PlotParamsStandard {
@@ -18,34 +21,32 @@ export interface PlotResult {
   success: boolean;
   updatedGameData: Partial<GameData>;
   resolutionData:
-    | ReconPlotData
+    | PlotReconResolution
     | CombatResult
-    | PlotEmbedAgentsData
-    | InciteProtestData
-    | null;
+    | PlotResolutionEmbedAgents
+    | InciteProtestData;
 }
+
+type PlotParams =
+  | PlotReconParams
+  | PlotAttackZoneParams
+  | PlotParamsEmbedAgents;
 
 export default class Plot {
   /** The name of the plot (shown to the user) */
   name: string;
-  /** Basic parameters common to any plot */
-  standardParams: PlotParamsStandard;
-  plotParams: PlotReconParams | PlotAttackZoneParams | {};
+  plotParams: PlotParams;
   /** The parameters (set by the user) under which to execute the plot */
   plotType: string;
-  resolution: PlotResult | {};
+  resolution: PlotResult | Record<string, never>;
   type?: string;
-  constructor(
-    name: string,
-    plotType: string,
-    standardParams: PlotParamsStandard,
-    plotParams: PlotReconParams | PlotAttackZoneParams | {},
-  ) {
+  totalParticipants: number;
+  constructor(name: string, plotType: string, plotParams: PlotParams) {
     this.name = name;
-    this.standardParams = standardParams;
     this.plotType = plotType;
     this.resolution = {};
     this.plotParams = plotParams;
+    this.totalParticipants = plotParams.participants.length;
   }
 
   /**
@@ -53,7 +54,6 @@ export default class Plot {
    */
   executePlot() {
     const result = plotConfig[this.plotType].fn({
-      ...this.standardParams,
       ...this.plotParams,
     });
     this.resolution = result;

@@ -12,21 +12,17 @@ export const generateRecallEmbeddedAgentsEvent = (plot: Plot) => {
   });
 };
 
-function setRecallEmbedAgentsParams(
-  this: GameEvent,
-  { plot }: RecallEmbeddedAgentsParams,
-) {
-  this.params = {
-    plot,
-  };
-}
-
 function resolveRecallEmbedAgents(this: GameEvent) {
   const params = this.params as RecallEmbeddedAgentsParams;
   const result = params.plot.resolution as PlotResult;
 
   GameManager.getInstance().updateGameData(result.updatedGameData);
-
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: recallEmbeddedAgentsConfig.icon,
+    text: 'Agents Recalled',
+  });
   this.eventData = {
     type: 'recall-embedded-agents',
     resolution: {
@@ -39,7 +35,6 @@ function resolveRecallEmbedAgents(this: GameEvent) {
 
 export const recallEmbeddedAgentsConfig = {
   name: 'Recall Embedded Agents',
-  setParams: setRecallEmbedAgentsParams,
   resolve: resolveRecallEmbedAgents,
   getEventText(this: GameEvent) {
     this.eventText = `Agents were recalled from foreign territory!`;

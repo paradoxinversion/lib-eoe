@@ -54,6 +54,7 @@ const authorPropaganda = (participantArray: string[]) => {
         });
       });
   });
+  console.debug('Activity::Author Propaganda::\n');
 };
 
 export default authorPropaganda;

@@ -9,13 +9,10 @@ interface TemperTantrumParams {
   adminRemains: boolean;
 }
 export const generateTemperTantrumEvent = () => {
-  return new GameEvent(temperTantrumEventConfig);
-};
-function setTemperTantrumParams(this: GameEvent) {
-  this.params = {
+  return new GameEvent(temperTantrumEventConfig, {
     adminRemains: utilities.randomInt(0, 1) === 1,
-  };
-}
+  });
+};
 
 function resolveTemperTantrum(this: GameEvent) {
   const pool = people.getPeople({
@@ -48,7 +45,6 @@ function resolveTemperTantrum(this: GameEvent) {
 
 export const temperTantrumEventConfig = {
   name: 'Angry Admin',
-  setParams: setTemperTantrumParams,
   resolve: resolveTemperTantrum,
   getEventText(this: GameEvent) {
     this.eventText = 'An admin is angry';

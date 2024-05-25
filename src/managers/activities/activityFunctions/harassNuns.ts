@@ -1,9 +1,6 @@
 import { GameManager } from '../../game/GameManager';
 import utilities from '../../../utilities';
-// import {
-//   CrowdSize,
-//   generateEvent as generateDomesticEncounter,
-// } from '../../../events/eventFunctions/domesticCombatEncounter';
+
 import {
   CrowdSize,
   generateEvent as generateDomesticEncounter,
@@ -11,6 +8,9 @@ import {
 
 import GameEventQueue from '../../events/GameEventQueue';
 const harassNuns = (participantArray: string[]) => {
+  if (participantArray.length === 0) {
+    return null;
+  }
   let empathy = 0;
   // For this, low empathy is mostly required
   participantArray.forEach((participant) => {
@@ -44,17 +44,33 @@ const harassNuns = (participantArray: string[]) => {
     retaliation = utilities.randomInt(1, 100) - 25 < 50;
     crowdSize = 'small';
   }
+  const org =
+    GameManager.getInstance().gameData.governingOrganizations[
+      GameManager.getInstance().gameData.people[participantArray[0]].agent!
+        .organizationId
+    ];
+
+  GameManager.getInstance().updateGameData({
+    governingOrganizations: {
+      [org.id]: {
+        ...org,
+        totalEvil: org.totalEvil + evil,
+      },
+    },
+  });
 
   if (retaliation) {
     // Add a new event to the queue
     // The nuns are not pleased
     const event = generateDomesticEncounter({
-      crowd: 'small' as CrowdSize,
+      crowd: crowdSize as CrowdSize,
       targetedAgents: participantArray,
       zone: GameManager.getInstance().gameData.people[participantArray[0]]
         .homeZoneId,
     });
+
     GameEventQueue.getInstance().addEvent(event);
+    console.debug('Activity::Harass Nuns::\n', { event, retaliation, evil });
   }
 };
 

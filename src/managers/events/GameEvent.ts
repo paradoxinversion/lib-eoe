@@ -20,7 +20,6 @@ export interface EventData {
 
 export interface EventConfig {
   name: string;
-  setParams: Function;
   resolve: Function;
   getEventText: Function;
   icon: string;
@@ -28,6 +27,17 @@ export interface EventConfig {
   forceStop: boolean;
   requirements?: EventRequirements;
 }
+
+export type EventParams =
+  | ReconZoneEventParams
+  | EvilApplicantParams
+  | MonthlyReportEventParams
+  | AttackZoneParams
+  | IntruderAlertEventParams
+  | OccupationalHazardParams
+  | ProjectCompleteParams
+  | ProtestEventParams
+  | undefined;
 
 /**
  * A GameEvent.
@@ -37,25 +47,19 @@ export interface EventConfig {
 class GameEvent {
   getEventText: Function;
   eventText?: string;
-  setParams: Function;
   resolveEvent: Function;
   eventData: EventData;
   eventName: string;
-  params:
-    | ReconZoneEventParams
-    | EvilApplicantParams
-    | MonthlyReportEventParams
-    | AttackZoneParams
-    | IntruderAlertEventParams
-    | OccupationalHazardParams
-    | ProjectCompleteParams
-    | ProtestEventParams
-    | undefined;
+  params: EventParams;
   type: string;
   /**
    * Create a game event using configuration.
    */
-  constructor(config: EventConfig, eventSetupData = {}) {
+  constructor(
+    config: EventConfig,
+    eventSetupData: EventParams,
+    eventText?: string,
+  ) {
     /**
      * Gets the event text based on params
      */
@@ -63,7 +67,7 @@ class GameEvent {
     /**
      * Set parameters for the event.
      */
-    this.setParams = config.setParams.bind(this);
+    // this.setParams = config.setParams.bind(this);
     this.resolveEvent = config.resolve;
 
     this.eventData = {
@@ -71,13 +75,14 @@ class GameEvent {
       resolution: {},
     };
 
-    this.params = undefined;
+    this.params = eventSetupData;
 
     /** The name of the event */
     this.eventName = config.name;
-    this.setParams(eventSetupData);
+    // this.setParams(eventSetupData);
     this.getEventText();
     this.type = config.type;
+    this.eventText = eventText;
   }
 }
 

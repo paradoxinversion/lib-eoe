@@ -6,6 +6,9 @@ import { Person } from '../../../types/interfaces/entities';
 import { generateEvilApplicantEvent } from '../../events/eventFunctions/applicant';
 
 const recruitAgents = (participantArray: string[]) => {
+  if (participantArray.length === 0) {
+    return null;
+  }
   // Relevant skills/attributes:
   // leadership: helps determine how many agents can be recruited
   // intelligence: helps determine the quality of the agents
@@ -26,8 +29,6 @@ const recruitAgents = (participantArray: string[]) => {
     const agentHomeZone =
       GameManager.getInstance().gameData.zones[agent.homeZoneId];
 
-    console.debug('Recruiting agents in zone', agentHomeZone.name);
-    console.debug('Max applicants:', maxApplicants);
     const homeZoneCitizens = people.getPeople({
       zone: {
         zoneId: agentHomeZone.id,
@@ -50,7 +51,6 @@ const recruitAgents = (participantArray: string[]) => {
     }
   });
 
-  console.debug('Applicants:', applicants);
   const events: GameEvent[] = [];
   for (const applicant of applicants) {
     // Add an EvilApplicantEvent for each applicant
@@ -64,6 +64,7 @@ const recruitAgents = (participantArray: string[]) => {
   GameEventQueue.getInstance().addEvents(events);
 
   // No further game data to update, the events should take it from here
+  console.debug('Activity::RecruitAgents complete::\n', events);
 };
 
 export default recruitAgents;

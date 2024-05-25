@@ -3,6 +3,7 @@ import {
   GoverningOrganization,
   Nation,
   Person,
+  Zone,
 } from '../../types/interfaces/entities';
 
 const evilEmpireOrgId = 'o_879d5c4a-d08b-43d2-af5b-b192babf7e71';
@@ -108,18 +109,13 @@ const overlord: Person = {
   residentAt: 'b_8f630bd5-5e39-4e72-870a-99ef3ebb1411',
 };
 
-const apartment: Building = {
-  id: 'b_2d2461ce-c75c-405d-b8ed-8643ed466b12',
-  name: 'Conquest Holdings',
-  zoneId: 'z_e3ef7645-f4ff-4e5e-922f-acf7b628f8b6',
-  organizationId: 'o_ee174571-83f7-4fc9-84c7-7273b41f00f3',
+const buildingTemplate: Building = {
+  id: 'b_',
+  name: 'Test Building',
+  zoneId: 'z_',
+  organizationId: 'o_',
   type: 'apartment',
-  personnel: [
-    'p_622f27d4-52c4-478d-bc49-13a6942818c5',
-    'p_d5e7601b-4415-4a89-9240-8ac57a4fa451',
-    'p_591c45e1-f4cf-4fae-8415-11eb0a8c7251',
-    'p_1ce9201d-512b-4ef0-9055-9ec9808cd85c',
-  ],
+  personnel: [],
   basicAttributes: {
     upkeepCost: 600,
     infrastructureCost: 6,
@@ -143,9 +139,99 @@ const apartment: Building = {
   },
 };
 
+const governingOrgTemplate: GoverningOrganization = {
+  id: 'o_',
+  nationId: 'n_',
+  evil: false,
+  name: '',
+  wealth: 50000,
+  science: 0,
+  infrastructure: 0,
+  totalEvil: 0,
+  captives: [],
+  statusEffects: [],
+  opinions: {
+    o_: -10,
+  },
+};
+
+const nationTemplate: Nation = {
+  id: 'n_',
+  name: '',
+  size: 5,
+  organizationId: 'o_',
+};
+
+const personTemplate: Person = {
+  id: 'p_',
+  nationId: 'n_',
+  homeZoneId: 'z_',
+  name: '',
+  dead: false,
+  agent: null,
+  isPersonnel: false,
+  isCaptive: false,
+  personnelAt: '',
+  hospitalizedAt: null,
+  standardAttributes: {
+    strength: 4,
+    intelligence: 1,
+    constitution: 8,
+    agility: 10,
+    empathy: 4,
+  },
+  derivedAttributes: {
+    health: {
+      currentHealth: 58,
+      totalHealth: 58,
+    },
+    defense: 26,
+    evasion: 22,
+  },
+  intelAttributes: {
+    intelligenceLevel: 75,
+    loyalty: 5,
+    loyalties: {
+      z_: 25,
+    },
+  },
+  wealth: 312,
+  statusEffects: {},
+  skills: {
+    espionage: 61,
+    disguise: 20,
+    science: 14,
+    administration: 32,
+    leadership: 12,
+    combat: 6,
+    security: 25,
+    medicine: 53,
+  },
+  residentAt: 'b_',
+};
+
+const zoneTemplate: Zone = {
+  id: 'z_',
+  nationId: 'n_',
+  name: 'Crimson River',
+  size: 68,
+  wealth: 2,
+  organizationId: 'o_',
+  intelligenceLevel: 25,
+  intelAttributes: {
+    intelligenceLevel: 25,
+  },
+};
 const testEntities = {
   people: {
     overlord,
+  },
+  templates: {
+    building: buildingTemplate,
+    organization: governingOrgTemplate,
+    nation: nationTemplate,
+    person: personTemplate,
+    zone: zoneTemplate,
   },
 };
 export default testEntities;

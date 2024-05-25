@@ -1,14 +1,24 @@
 import { GameManager } from '../../game/GameManager';
 import { Person } from '../../../types/interfaces/entities';
-import { PlotParamsStandard, PlotResult } from '../Plot';
+import Plot, { PlotParamsStandard, PlotResult } from '../Plot';
+import PlotManager from '../PlotManager';
 
-export interface PlotEmbedAgentsData {
+export interface PlotParamsEmbedAgents extends PlotParamsStandard {
+  targetZone: string;
+}
+export interface PlotResolutionEmbedAgents {
   /** The agents that were embedded */
   agents: string[];
 }
 
+const generateEmbedAgentsPlot = (params: PlotParamsEmbedAgents) => {
+  PlotManager.getInstance().addPlot(
+    new Plot('Embed Agents', 'embed-agents', params),
+  );
+};
+
 export const executeEmbedAgentsPlot = (
-  params: PlotParamsStandard,
+  params: PlotParamsEmbedAgents,
 ): PlotResult => {
   const { participants, targetZone } = params;
   const { gameData } = GameManager.getInstance();
@@ -40,4 +50,8 @@ export const executeEmbedAgentsPlot = (
       people: embeddedAgents,
     },
   };
+};
+
+export default {
+  generateEmbedAgentsPlot,
 };

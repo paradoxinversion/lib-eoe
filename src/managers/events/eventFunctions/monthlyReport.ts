@@ -27,17 +27,6 @@ export const generateMonthlyReportEvent = () => {
     },
   });
 };
-/**
- *
- */
-function setMonthlyReportParams(
-  this: GameEvent,
-  { expenses }: MonthlyReportEventParams,
-) {
-  this.params = {
-    expenses,
-  };
-}
 
 export interface MonthlyReportEventResolveArgs {
   payroll: {
@@ -131,7 +120,12 @@ function resolveMonthlyReport(
       }
     }
   });
-
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: monthlyReportEventConfig.icon,
+    text: 'Payroll Complete',
+  });
   this.eventData = {
     type: 'monthly-report',
     resolution: {
@@ -144,7 +138,6 @@ function resolveMonthlyReport(
 
 export const monthlyReportEventConfig = {
   name: 'Monthly Report',
-  setParams: setMonthlyReportParams,
   resolve: resolveMonthlyReport,
   getEventText(this: GameEvent) {
     this.eventText = 'The month has ended.';

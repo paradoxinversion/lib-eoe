@@ -6,6 +6,14 @@ import {
   Zone,
 } from '../../types/interfaces/entities';
 import config from '../../../config';
+
+export type GameLogEvent = {
+  color: string;
+  text: string;
+  icon: string;
+  date: string;
+};
+
 export interface GameLog {
   /** Logs of actions non-agent citizens have taken */
   simActions: {
@@ -15,11 +23,7 @@ export interface GameLog {
       [x: string]: string[];
     };
   };
-  events: {
-    color: string;
-    text: string;
-    icon: string;
-  }[];
+  events: GameLogEvent[];
 }
 
 export interface GameData {
@@ -139,5 +143,9 @@ export class GameManager {
     };
 
     return this.gameData;
+  }
+
+  addGameLogEvent(event: GameLogEvent) {
+    this.gameData.gameLog.events = [...this.gameData.gameLog.events, event];
   }
 }

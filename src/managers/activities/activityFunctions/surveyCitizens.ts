@@ -37,5 +37,6 @@ export const surveyCitizens = (participantArray: string[]) => {
 
   updateEvil(1);
 
+  console.debug('Activity::Survey Citizens::\n', { updatedGameData });
   return updatedGameData;
 };

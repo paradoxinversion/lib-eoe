@@ -49,6 +49,12 @@ export function resolveOccupationalHazardEvent(this: GameEvent) {
     // Agent has died
     GameManager.getInstance().updateGameData(people.killPerson(agent));
   }
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: occupationalHazardEventConfig.icon,
+    text: 'An Agent has been injured',
+  });
   this.eventData = {
     type: 'occupational-hazard',
     resolution: {
@@ -59,16 +65,8 @@ export function resolveOccupationalHazardEvent(this: GameEvent) {
   return this.eventData;
 }
 
-export function setOccupationalHazardParams(
-  this: GameEvent,
-  params: OccupationalHazardParams,
-) {
-  this.params = params;
-}
-
 export const occupationalHazardEventConfig: EventConfig = {
   name: 'Occupational Hazard',
-  setParams: setOccupationalHazardParams,
   resolve: resolveOccupationalHazardEvent,
   getEventText(this: GameEvent) {
     this.eventText = 'An agent has been injured';

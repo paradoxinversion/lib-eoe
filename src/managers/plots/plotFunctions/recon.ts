@@ -8,24 +8,30 @@ import {
   Zone,
 } from '../../../types/interfaces/entities';
 import utilities from '../../../utilities';
-import { PlotParamsStandard, PlotResult } from '../Plot';
+import Plot, { PlotResult } from '../Plot';
+import { PlotParamsBase, PlotResultBase } from '../types';
+import PlotManager from '../PlotManager';
 
-export interface PlotReconParams {
+export interface PlotReconParams extends PlotParamsBase {
+  targetZone: string;
   /** If caught by the enemy, surrender */
   surrender: boolean;
   /** Use drones for the operation */
   useDrones: boolean;
 }
 
-export interface ReconPlotData {
+export interface PlotReconResolution extends PlotResultBase {
   intelligenceModifier: number;
   capturedAgentIds: string[];
   combatResult: CombatResult | null;
 }
 
-export const executeReconPlot = (
-  params: PlotParamsStandard & PlotReconParams,
-): PlotResult => {
+export const generateReconPlot = (params: PlotReconParams) => {
+  const plot = new Plot('Recon Zone', 'recon-zone', params);
+  PlotManager.getInstance().addPlot(plot);
+};
+
+export const executeReconPlot = (params: PlotReconParams): PlotResult => {
   const { participants, targetZone, surrender } = params;
   const { gameData } = GameManager.getInstance();
   const zone = gameData.zones[targetZone!];
@@ -142,13 +148,21 @@ export const executeReconPlot = (
       console.log(agent, 'taken captive');
     });
   }
+
+  GameManager.getInstance().updateGameData(updatedGameData);
+
   return {
     success,
     updatedGameData,
     resolutionData: {
+      success,
       intelligenceModifier: intelMod,
       capturedAgentIds,
       combatResult,
     },
   };
+};
+
+export default {
+  generateReconPlot,
 };

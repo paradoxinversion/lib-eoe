@@ -13,7 +13,7 @@ export default [
       "no-invalid-this": "warn",
       "yoda": "error",
       "sort-vars": 'warn',
-      "sort-imports": "warn"
+      // "sort-imports": "warn"
     }
   }
 ];

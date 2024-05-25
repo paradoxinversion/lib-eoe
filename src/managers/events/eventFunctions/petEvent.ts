@@ -157,13 +157,14 @@ export const generatePetEvent = () => {
   });
 };
 
-export function setPetEventParams(this: GameEvent, params: PetEventParams) {
-  this.params = params;
-}
-
 export function resolvePetEvent(this: GameEvent) {
   const params = this.params as PetEventParams;
-
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: petEventConfig.icon,
+    text: 'Pet Evemt',
+  });
   this.eventData = {
     type: 'pet-event',
     resolution: {
@@ -174,7 +175,6 @@ export function resolvePetEvent(this: GameEvent) {
 
 export const petEventConfig: EventConfig = {
   name: 'Pet Event',
-  setParams: setPetEventParams,
   resolve: resolvePetEvent,
   getEventText(this: GameEvent) {
     const params = this.params as PetEventParams;

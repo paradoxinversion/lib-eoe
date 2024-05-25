@@ -30,15 +30,6 @@ export const generateIntruderAlertEvent = () => {
   return event;
 };
 
-function setIntruderAlertParams(
-  this: GameEvent,
-  { intruderId }: IntruderAlertEventParams,
-) {
-  this.params = {
-    intruderId,
-  };
-}
-
 function resolveIntruderAlert(this: GameEvent) {
   const { gameData } = GameManager.getInstance();
   const params = this.params as IntruderAlertEventParams;
@@ -47,6 +38,12 @@ function resolveIntruderAlert(this: GameEvent) {
     gameData.people[params.intruderId!],
   );
   GameManager.getInstance().updateGameData(updatedGameData);
+  GameManager.getInstance().addGameLogEvent({
+    color: 'Primary',
+    date: GameManager.getInstance().gameData.gameDate.toDateString(),
+    icon: intruderAlertEventConfig.icon,
+    text: 'Intruder Alert',
+  });
   this.eventData = {
     type: 'intruder-alert',
     resolution: {
@@ -59,7 +56,6 @@ function resolveIntruderAlert(this: GameEvent) {
 
 export const intruderAlertEventConfig = {
   name: 'Intruder Alert!',
-  setParams: setIntruderAlertParams,
   resolve: resolveIntruderAlert,
   getEventText(this: GameEvent) {
     this.eventText = 'An intruder has been spotted';
