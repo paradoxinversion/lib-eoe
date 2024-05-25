@@ -67,23 +67,24 @@ export default class ActivityManager {
   }
 
   executeActivities() {
-    const activitiesResults = this.activities.reduce<
-      {
-        activity: string;
-        result: {
-          result: any;
-          updatedGameData: { people: { [x: string]: Person } };
-        };
-      }[]
-    >((activityResults, activity) => {
-      const result = activity.executeActivity();
+    const activitiesResults: {
+      activity: string;
+      result: {
+        result: any;
+        updatedGameData: { people: { [x: string]: Person } };
+      };
+    }[] = [];
+    this.activities.forEach((activity) => {
+      if (activity.agents.length === 0) {
+        return;
+      }
+      const activityData = activity.executeActivity();
       const output = {
         activity: activity.name,
-        result,
+        result: activityData,
       };
-      activityResults.push(output);
-      return activityResults;
-    }, []);
+      activitiesResults.push(output);
+    });
     return activitiesResults;
   }
 
