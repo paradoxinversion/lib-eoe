@@ -3,7 +3,7 @@
  *
  */
 import ActivityManager from '../managers/activities/ActivityManager';
-import { handleHospitalOperations } from '../buildings';
+import { handleHospitalOperations as medicalPhase } from '../buildings';
 import {
   addPlotResolutions,
   eventConfig,
@@ -17,14 +17,14 @@ import {
   getOrgResources,
   modifyOrgScience,
 } from '../organization';
-import { Person } from '../types/interfaces/entities';
 import people, { SimulateDayResolution } from './people';
 import { generateProjectCompleteEvent } from '../managers/events/eventFunctions/projectComplete';
-import { GameData, GameManager } from '../managers/game/GameManager';
+import { GameManager } from '../managers/game/GameManager';
 import GameEventQueue from '../managers/events/GameEventQueue';
 import PlotManager from '../managers/plots/PlotManager';
+import { PlotResolution } from '../plots';
 
-const handleSimActions = () => {
+const simActionsPhase = () => {
   console.debug('Handling sim actions');
   const actions: { [personId: string]: SimulateDayResolution } = {};
   people
@@ -44,50 +44,24 @@ const handleSimActions = () => {
   console.debug('Sim actions:', actions);
 };
 
-const handleActivities = () => {
-  const activities = ActivityManager.getInstance().executeActivities();
-  const updatedGameData: { people: { [personId: string]: Person } } = {
-    people: {},
-  };
-  activities.forEach((activity) => {
-    if (activity.result.updatedGameData) {
-      updatedGameData.people = {
-        ...updatedGameData.people,
-        ...activity.result.updatedGameData.people,
-      };
-    }
-  });
-
-  return activities;
+const activitiesPhase = () => {
+  ActivityManager.getInstance().executeActivities();
 };
 
-/**
- * Determines what events happen at end of turn and returns
- * updated gamedata with those events.
- */
-const advanceDay = () => {
-  // const { gameData } = GameManager.getInstance();
-  const updatedGameData: Partial<GameData> = {
-    people: {},
-    governingOrganizations: {},
-  };
+const plotsPhase = () => {
+  const plotResults = PlotManager.getInstance().executePlots();
+  console.debug('Plot results:', plotResults);
+  PlotManager.getInstance().clearPlotQueue();
+  return plotResults;
+};
 
-  handleSimActions();
-
-  // Activities may spawn events, so we need to handle them first
-  ActivityManager.getInstance().executeActivities();
-
-  // Setup Events
+const eventPhase = (plotResults: PlotResolution[]) => {
   GameEventQueue.getInstance().addEvents(prepareRandomEvents());
 
-  GameEventQueue.getInstance().addEvents(
-    addPlotResolutions(PlotManager.getInstance().executePlots()),
-  );
-  PlotManager.getInstance().clearPlotQueue();
-  // handle healing in hospitals
-  handleHospitalOperations();
+  GameEventQueue.getInstance().addEvents(addPlotResolutions(plotResults));
+};
 
-  // Handle science projects
+const researchPhase = () => {
   const scienceProjectStatuses = [
     ...ScienceManager.getInstance().activeProjects,
   ];
@@ -111,45 +85,39 @@ const advanceDay = () => {
       );
     }
   });
+};
 
-  // Handle resource (daily) gain
-  const scienceGain = getOrgResources(
-    GameManager.getInstance().gameData.player.organizationId,
-  ).science;
+const resourceGainPhase = () => {
+  const empire =
+    GameManager.getInstance().gameData.governingOrganizations[
+      GameManager.getInstance().gameData.player.organizationId
+    ];
+  const scienceGain = getOrgResources(empire.id).science;
 
-  const scienceUpdate = modifyOrgScience(
-    GameManager.getInstance().gameData.player.organizationId,
-    scienceGain,
-  );
+  const scienceUpdate = modifyOrgScience(empire.id, scienceGain);
 
-  updatedGameData.governingOrganizations =
-    scienceUpdate.governingOrganizations!;
   GameManager.getInstance().updateGameData(scienceUpdate);
 
   const orgWealthGain = Math.trunc(getOrgIncome());
-  updatedGameData.governingOrganizations[
-    GameManager.getInstance().gameData.player.organizationId
-  ].wealth += orgWealthGain;
 
   GameManager.getInstance().updateGameData({
     governingOrganizations: {
-      [GameManager.getInstance().gameData.player.organizationId]: {
-        ...GameManager.getInstance().gameData.governingOrganizations[
-          GameManager.getInstance().gameData.player.organizationId
-        ],
-        wealth: orgWealthGain,
+      [empire.id]: {
+        ...empire,
+        wealth: empire.wealth + orgWealthGain,
       },
     },
   });
+};
 
-  PlayerManager.getInstance().takeTurns();
-  // Handle the date
+const updateDate = () => {
   const gameDate = new Date(GameManager.getInstance().gameData.gameDate);
   gameDate.setDate(gameDate.getDate() + 1);
-  updatedGameData.gameDate = gameDate;
-  GameManager.getInstance().updateGameData({ gameDate: gameDate });
 
-  // Everyone who is alive should regain 1 hp
+  GameManager.getInstance().updateGameData({ gameDate: gameDate });
+};
+
+const healingPhase = () => {
   people
     .getPeople({
       personFilter: {
@@ -173,11 +141,35 @@ const advanceDay = () => {
         },
       });
     });
+};
+/**
+ * Determines what events happen at end of turn and returns
+ * updated gamedata with those events.
+ */
+const advanceDay = () => {
+  simActionsPhase();
+
+  // Activities may spawn events, so we need to handle them first
+  activitiesPhase();
+
+  const plotResults = plotsPhase();
+  eventPhase(plotResults);
+
+  researchPhase();
+
+  resourceGainPhase();
+
+  // Take AI turns
+  PlayerManager.getInstance().takeTurns();
+
+  // Handle the date
+  medicalPhase();
+  healingPhase();
+  updateDate();
 
   // Finalize the updates
   // GameManager.getInstance().updateGameData(updatedGameData);
   return {
-    updatedGameData,
     stop: GameEventQueue.getInstance().events.some(
       (event) => eventConfig[event.type].forceStop,
     ),
@@ -189,9 +181,9 @@ const advanceDay = () => {
  */
 const advanceDays = (days: number) => {
   for (let i = 0; i < days; i++) {
-    const { updatedGameData, stop } = advanceDay();
+    const { stop } = advanceDay();
     if (stop) {
-      return updatedGameData;
+      return;
     }
   }
 };
