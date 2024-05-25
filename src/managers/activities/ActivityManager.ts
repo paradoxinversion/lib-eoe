@@ -2,6 +2,7 @@ import { Person } from '../../types/interfaces/entities';
 import { GameManager } from '../game/GameManager';
 import Activity, { ActivityParticipants } from './Activity';
 import activityConfig from './activityConfig';
+import { ActivityLog } from './types';
 
 export default class ActivityManager {
   private static instance: ActivityManager;
@@ -40,6 +41,9 @@ export default class ActivityManager {
     ActivityManager.getInstance().setActivities(activities);
   }
 
+  /**
+   * Return a list of all participants in all activities
+   */
   getActivityParticipants() {
     const { gameData } = GameManager.getInstance();
     const p = ActivityManager.getInstance().activities.reduce(
@@ -73,6 +77,7 @@ export default class ActivityManager {
         result: any;
         updatedGameData: { people: { [x: string]: Person } };
       };
+      log: ActivityLog;
     }[] = [];
     this.activities.forEach((activity) => {
       if (activity.agents.length === 0) {
@@ -82,6 +87,7 @@ export default class ActivityManager {
       const output = {
         activity: activity.name,
         result: activityData,
+        log: activity.logActivity(),
       };
       activitiesResults.push(output);
     });
