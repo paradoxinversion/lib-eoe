@@ -1,6 +1,7 @@
 import { updateOrgWealth } from '../../organization';
 import { Person } from '../../types/interfaces/entities';
 import { GameManager } from '../game/GameManager';
+import { ActivityLog } from './types';
 
 export interface ActivityParticipants {
   name: string;
@@ -33,6 +34,15 @@ export default class Activity {
     this.type = type;
     this.costPerParticipant = costPerParticipant;
     this.description = description;
+  }
+
+  logActivity(): ActivityLog {
+    return {
+      activityName: this.name,
+      totalParticipants: this.agents.length,
+      costPerParticipant: this.costPerParticipant,
+      date: new Date().toISOString(),
+    };
   }
 
   /**
