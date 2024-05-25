@@ -20,7 +20,7 @@ import {
 import { Person } from '../types/interfaces/entities';
 import people, { SimulateDayResolution } from './people';
 import { generateProjectCompleteEvent } from '../managers/events/eventFunctions/projectComplete';
-import { GameManager } from '../managers/game/GameManager';
+import { GameData, GameManager } from '../managers/game/GameManager';
 import GameEventQueue from '../managers/events/GameEventQueue';
 import PlotManager from '../managers/plots/PlotManager';
 
@@ -66,62 +66,32 @@ const handleActivities = () => {
  * updated gamedata with those events.
  */
 const advanceDay = () => {
-  const { gameData } = GameManager.getInstance();
-  const updatedGameData = { ...gameData };
-  // Execute daily actions for People
-  // getPeople({
-  //   personFilter: {
-  //     excludeDeceased: true,
-  //   },
-  //   agentFilter: { excludeDepartments: ['overlord'] },
-  // }).forEach((person) => {
-  //   const simResults = simulateDay(person);
-  //   GameManager.getInstance().updateGameData(simResults.updatedGameData);
-  //   GameManager.getInstance().updateSimActionLog(
-  //     person.id,
-  //     simResults.updatedLog,
-  //   );
-  // });
+  // const { gameData } = GameManager.getInstance();
+  const updatedGameData: Partial<GameData> = {
+    people: {},
+    governingOrganizations: {},
+  };
+
   handleSimActions();
 
   // Activities may spawn events, so we need to handle them first
-  const activities = ActivityManager.getInstance().executeActivities();
-  activities.forEach((activity) => {
-    if (activity.result.updatedGameData) {
-      updatedGameData.people = {
-        ...updatedGameData.people,
-        ...activity.result.updatedGameData.people,
-      };
-    }
-  });
-
-  const plotResolutions = PlotManager.getInstance().executePlots();
+  ActivityManager.getInstance().executeActivities();
 
   // Setup Events
-  const randomEvents = prepareRandomEvents();
-  GameEventQueue.getInstance().addEvents(randomEvents);
-  const plotEvents = addPlotResolutions(plotResolutions);
-  GameEventQueue.getInstance().addEvents(plotEvents);
+  GameEventQueue.getInstance().addEvents(prepareRandomEvents());
 
+  GameEventQueue.getInstance().addEvents(
+    addPlotResolutions(PlotManager.getInstance().executePlots()),
+  );
   PlotManager.getInstance().clearPlotQueue();
   // handle healing in hospitals
-  const hospitalUpdates = handleHospitalOperations();
-  Object.entries(hospitalUpdates).forEach(([personId, person]) => {
-    updatedGameData.people[personId] = {
-      ...updatedGameData.people[personId],
-      derivedAttributes: {
-        ...updatedGameData.people[personId].derivedAttributes,
-        health: {
-          ...updatedGameData.people[personId].derivedAttributes.health,
-          currentHealth: person.derivedAttributes.health.currentHealth,
-        },
-      },
-    };
-  });
+  handleHospitalOperations();
+
   // Handle science projects
   const scienceProjectStatuses = [
     ...ScienceManager.getInstance().activeProjects,
   ];
+
   scienceProjectStatuses.forEach((projectStatus) => {
     const result =
       ScienceManager.getInstance().handleProjectProgress(projectStatus);
@@ -143,25 +113,41 @@ const advanceDay = () => {
   });
 
   // Handle resource (daily) gain
-  const scienceGain = getOrgResources(gameData.player.organizationId).science;
+  const scienceGain = getOrgResources(
+    GameManager.getInstance().gameData.player.organizationId,
+  ).science;
 
   const scienceUpdate = modifyOrgScience(
-    gameData.player.organizationId,
+    GameManager.getInstance().gameData.player.organizationId,
     scienceGain,
   );
 
   updatedGameData.governingOrganizations =
     scienceUpdate.governingOrganizations!;
+  GameManager.getInstance().updateGameData(scienceUpdate);
+
   const orgWealthGain = Math.trunc(getOrgIncome());
   updatedGameData.governingOrganizations[
     GameManager.getInstance().gameData.player.organizationId
   ].wealth += orgWealthGain;
 
+  GameManager.getInstance().updateGameData({
+    governingOrganizations: {
+      [GameManager.getInstance().gameData.player.organizationId]: {
+        ...GameManager.getInstance().gameData.governingOrganizations[
+          GameManager.getInstance().gameData.player.organizationId
+        ],
+        wealth: orgWealthGain,
+      },
+    },
+  });
+
   PlayerManager.getInstance().takeTurns();
   // Handle the date
-  const gameDate = new Date(gameData.gameDate);
+  const gameDate = new Date(GameManager.getInstance().gameData.gameDate);
   gameDate.setDate(gameDate.getDate() + 1);
   updatedGameData.gameDate = gameDate;
+  GameManager.getInstance().updateGameData({ gameDate: gameDate });
 
   // Everyone who is alive should regain 1 hp
   people
@@ -189,8 +175,7 @@ const advanceDay = () => {
     });
 
   // Finalize the updates
-  GameManager.getInstance().updateGameData(updatedGameData);
-
+  // GameManager.getInstance().updateGameData(updatedGameData);
   return {
     updatedGameData,
     stop: GameEventQueue.getInstance().events.some(

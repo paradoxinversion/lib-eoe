@@ -89,6 +89,7 @@ export default class ActivityManager {
         result: activityData,
         log: activity.logActivity(),
       };
+      GameManager.getInstance().updateGameData(activityData.updatedGameData);
       activitiesResults.push(output);
     });
     return activitiesResults;

@@ -403,15 +403,7 @@ export const admitHospitalPatient = (hospital: string, person: string) => {
 export const handleHospitalOperations = () => {
   // All hospitals handle their operations at once
   const hospitals = getBuildings({ type: 'hospital' });
-  const updatedPeople: {
-    [x: string]: {
-      derivedAttributes: {
-        health: {
-          currentHealth: number;
-        };
-      };
-    };
-  } = {};
+  const updatedPeople: { [x: string]: Person } = {};
 
   hospitals.forEach((hospital) => {
     if (hospital.inhabitants.length === 0) {
@@ -443,8 +435,11 @@ export const handleHospitalOperations = () => {
 
       const healthGain = maxGain * efficiency;
       const updatedInhabitant = {
+        ...inhabitant,
         derivedAttributes: {
+          ...inhabitant.derivedAttributes,
           health: {
+            ...inhabitant.derivedAttributes.health,
             currentHealth:
               (
                 healthGain + inhabitant.derivedAttributes.health.currentHealth >
@@ -465,7 +460,7 @@ export const handleHospitalOperations = () => {
       }
     });
   });
-
+  GameManager.getInstance().updateGameData({ people: updatedPeople });
   return updatedPeople;
 };
 
