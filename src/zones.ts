@@ -72,7 +72,7 @@ const getZoneCitizens = (
   return citizens;
 };
 
-interface TransferZoneControlParams {
+export interface TransferZoneControlParams {
   zoneId: string;
   organizationId: string;
   nationId: string;

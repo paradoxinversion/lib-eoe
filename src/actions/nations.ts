@@ -9,7 +9,7 @@ const getNationCitizens = (nationId: string) => {
   });
 };
 
-interface GetNationsParams {
+export interface GetNationsParams {
   isEvilEmpire?: boolean;
 }
 

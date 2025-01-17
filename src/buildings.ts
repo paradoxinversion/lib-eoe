@@ -311,7 +311,7 @@ const removePersonnel = (person: Person, building: Building) => {
   return updatedGameData;
 };
 
-interface GetBuildingsParams {
+export interface GetBuildingsParams {
   zoneId?: string | null;
   organizationId?: string | null;
   type?: BuildingType | null;

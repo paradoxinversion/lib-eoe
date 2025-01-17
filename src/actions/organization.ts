@@ -335,7 +335,7 @@ const getOrgScienceOutput = () => {
   return (empireResources.science * infrastructurePercentage) / 100;
 };
 
-interface GetOrganizationsOptions {
+export interface GetOrganizationsOptions {
   exclude?: {
     player?: boolean;
   };

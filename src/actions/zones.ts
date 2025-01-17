@@ -2,7 +2,7 @@ import { GameData, GameManager } from '../managers/game/GameManager';
 import { Zone } from '../types/interfaces/entities';
 import buildings from './buildings';
 import people from './people';
-interface GetZonesOptions {
+export interface GetZonesOptions {
   nationId?: string | null;
   organizationId?: string | null;
 }
@@ -65,7 +65,7 @@ const getZonesInfrastructureCost = (zones: Zone[]) => {
   }, 0);
 };
 
-interface TransferZoneControlParams {
+export interface TransferZoneControlParams {
   zoneId: string;
   organizationId: string;
   nationId: string;

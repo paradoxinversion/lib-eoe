@@ -17,14 +17,14 @@ import ShufflebagManager from '../managers/shufflebag/ShufflebagManager';
 // const { v4: uuidv4 } = require('uuid');
 import { v4 as uuidv4 } from 'uuid';
 
-interface GenerateNationOpts {
+export interface GenerateNationOpts {
   /** The name of the nation. */
   name: string;
   /** The size (amount of zones) of the nation */
   size: number;
 }
 
-interface GenerateZoneOpts {
+export interface GenerateZoneOpts {
   /** The ID of the nation the zone belongs to */
   nationId?: string;
   /** The name of the zone. */
@@ -35,7 +35,7 @@ interface GenerateZoneOpts {
   intelligenceLevel?: number;
 }
 
-interface GeneratePersonOpts {
+export interface GeneratePersonOpts {
   nationId?: string;
   homeZoneId?: string;
   name?: string;
@@ -308,7 +308,7 @@ const generateAgentData = (
   };
 };
 
-interface GenerateGoverningOrgOpts {
+export interface GenerateGoverningOrgOpts {
   /** The ID of the nation the Org belongs to */
   nationId: string;
   evil?: boolean;
@@ -338,7 +338,7 @@ const generateGoverningOrg = ({
     opinions: {},
   };
 };
-interface GenerateBuildingOpts {
+export interface GenerateBuildingOpts {
   zoneId: string;
   buildingType: BuildingType;
   organizationId: string;

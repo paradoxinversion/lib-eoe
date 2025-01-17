@@ -18,7 +18,7 @@ import PlotManager from '../managers/plots/PlotManager';
 import ActivityManager from '../managers/activities/ActivityManager';
 export type ComparisonTypes = 'greater' | 'less' | 'equal';
 
-interface GetPeopleParams {
+export interface GetPeopleParams {
   limit?: number;
   zone?: {
     zoneId?: string | null;

@@ -4,7 +4,7 @@ import { GoverningOrgStatusEffects } from '../../statusEffects/governingOrg';
 /**
  * An interface for entities that can be surveilled
  */
-interface IntelligenceSubject {
+export interface IntelligenceSubject {
   intelligenceLevel: number;
 }
 

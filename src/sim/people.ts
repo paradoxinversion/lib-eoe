@@ -4,7 +4,7 @@ import { PersonStatusEffect } from '../statusEffects/person';
 import { Person, SkillTypes } from '../types/interfaces/entities';
 import utilities from '../utilities';
 
-interface SimulatedActivity {
+export interface SimulatedActivity {
   name: string;
   text: string;
   requirements: {
