@@ -596,6 +596,7 @@ const hireOrganizationAgents = (options: HireOrganizationAgentsOptions) => {
   }
 
   console.debug('Done hiring organization agents');
+  console.debug('Game Data', GameManager.getInstance().gameData);
 };
 
 type HireStartingAgentsOptions = {
