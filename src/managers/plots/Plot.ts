@@ -24,7 +24,8 @@ export interface PlotResult {
     | PlotReconResolution
     | CombatResult
     | PlotResolutionEmbedAgents
-    | InciteProtestData;
+    | InciteProtestData
+    | null;
 }
 
 type PlotParams =

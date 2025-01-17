@@ -24,7 +24,7 @@ export interface ActivityConfig {
   /** The activity's type */
   type: string;
   /** The function to handle the execution of the activity */
-  fn: Function;
+  fn: (particpantArray: string[]) => void;
   /** Cost per particpant */
   costPerParticipant: number;
   description?: string;

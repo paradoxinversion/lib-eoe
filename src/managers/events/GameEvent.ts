@@ -37,6 +37,7 @@ export type EventParams =
   | OccupationalHazardParams
   | ProjectCompleteParams
   | ProtestEventParams
+  | NonNullable<unknown>
   | undefined;
 
 /**

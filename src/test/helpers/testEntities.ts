@@ -105,6 +105,7 @@ const overlord: Person = {
     combat: 10,
     security: 58,
     medicine: 55,
+    persuasion: 10,
   },
   residentAt: 'b_8f630bd5-5e39-4e72-870a-99ef3ebb1411',
 };
@@ -206,6 +207,7 @@ const personTemplate: Person = {
     combat: 6,
     security: 25,
     medicine: 53,
+    persuasion: 10,
   },
   residentAt: 'b_',
 };
