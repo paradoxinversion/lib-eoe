@@ -11,8 +11,7 @@ import {
 import utilities from '../utilities';
 import { generateCompanyName, generateName } from '../generators/names';
 import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
-import { PersonStatusEffect } from '../statusEffects/person';
-import { BuildingType, buildingsSchematics } from '../buildings';
+import { BuildingType } from '../buildings';
 import settings from '../../config/config';
 import ShufflebagManager from '../managers/shufflebag/ShufflebagManager';
 // const { v4: uuidv4 } = require('uuid');
@@ -61,42 +60,6 @@ const generateNation = ({
     size: size,
     organizationId: '',
   };
-};
-
-/**
- * Generate a number of nations.
- */
-const generateNations = (
-  /** The amount of nations to generate */
-  nationsAmt: number,
-  /** The minimum amount of zones in the nation */
-  minSize: number,
-  /** An object who's keys are nation id's and values are nation objects */
-  maxSize: number,
-): { [x: string]: Nation } => {
-  const errors = [];
-  if (nationsAmt === undefined) {
-    errors.push("'nationsAmt' is a required parameter.");
-  }
-  if (minSize === undefined) {
-    errors.push("'minSize' is a required parameter.");
-  }
-  if (maxSize === undefined) {
-    errors.push("'maxSize' is a required parameter.");
-  }
-  if (minSize > maxSize || maxSize < minSize) {
-    errors.push("'minSize' must be less than 'maxSize'.");
-  }
-  utilities.throwErrorFromArray(errors);
-  const nations: { [x: string]: Nation } = {};
-  for (let nationIndex = 0; nationIndex < nationsAmt; nationIndex++) {
-    const newNation = generateNation({
-      size: utilities.randomInt(1, maxSize),
-      name: 'Nation ' + nationIndex,
-    });
-    nations[newNation.id] = newNation;
-  }
-  return nations;
 };
 
 /**
@@ -303,6 +266,7 @@ const generatePerson = ({
       combat,
       security,
       medicine,
+      persuasion: getSkillBase(),
     },
     residentAt: null,
   };
@@ -359,11 +323,6 @@ const generateGoverningOrg = ({
   evil = false,
   name = 'Unnamed Organization',
 }: GenerateGoverningOrgOpts): GoverningOrganization => {
-  const errors = [];
-  if (!nationId) {
-    errors.push("'nationId' is a required option parameter.");
-  }
-  utilities.throwErrorFromArray(errors);
   const statusEffects: GoverningOrgStatusEffects[] = [];
   return {
     id: 'o_' + uuidv4(),
@@ -393,33 +352,11 @@ const generateBuilding = ({
   infrastructureCost,
   upkeepCost,
 }: GenerateBuildingOpts): Building => {
-  const errors = [];
-  if (!zoneId) {
-    errors.push("'zoneId' is a required option parameter.");
-  }
-
-  if (!buildingType) {
-    errors.push("'buildingType' is a required option parameter.");
-  }
-
-  if (!organizationId) {
-    errors.push("'organizationId' is a required option parameter.");
-  }
-
-  if (!infrastructureCost) {
-    errors.push("'infrastructureCost' is a required option parameter.");
-  }
-
-  if (!upkeepCost) {
-    errors.push("'upkeepCost' is a required option parameter.");
-  }
-  utilities.throwErrorFromArray(errors);
   let wealthBonus = 0;
   let housingCapacity = 0;
   let maxPersonnel = 4;
   let infrastructureBonus = 0;
   let beds = 0;
-  const schematic = buildingsSchematics[buildingType];
   switch (buildingType) {
     case 'bank':
       wealthBonus = utilities.randomInt(
@@ -489,7 +426,6 @@ const generateBuilding = ({
 
 export default {
   generateNation,
-  generateNations,
   generateZone,
   generateZones,
   generatePerson,

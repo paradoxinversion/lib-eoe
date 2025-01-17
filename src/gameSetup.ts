@@ -602,19 +602,19 @@ type HireStartingAgentsOptions = {
   fullStaffDetail: boolean;
 };
 
-const initializeLoyalties = () => {
-  Object.values(GameManager.getInstance().gameData.people).forEach((person) => {
-    const update = initializeLoyalty(person);
-    if (update.people[person.id].agent) {
-      update.people[person.id].intelAttributes.loyalties = people.setLoyalty(
-        person,
-        person.agent?.organizationId!,
-        80,
-      ).people[person.id].intelAttributes.loyalties;
-    }
-    GameManager.getInstance().updateGameData(update);
-  });
-};
+// const initializeLoyalties = () => {
+//   Object.values(GameManager.getInstance().gameData.people).forEach((person) => {
+//     const update = initializeLoyalty(person);
+//     if (update.people[person.id].agent) {
+//       update.people[person.id].intelAttributes.loyalties = people.setLoyalty(
+//         person,
+//         person.agent?.organizationId!,
+//         80,
+//       ).people[person.id].intelAttributes.loyalties;
+//     }
+//     GameManager.getInstance().updateGameData(update);
+//   });
+// };
 
 const initializeOrgOpinions = () => {
   const organizations = {

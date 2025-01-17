@@ -51,6 +51,7 @@ export interface Skills {
   disguise: number;
   security: number;
   science: number;
+  persuasion: number;
   administration: number;
   leadership: number;
   combat: number;

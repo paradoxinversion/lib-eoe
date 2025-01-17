@@ -76,7 +76,6 @@ const addPlotResolutions = (plotResolutions: PlotResolution[]) => {
     }
     if (resolutionEvent) {
       plotResolutionEvents.push(resolutionEvent);
-      GameEventQueue.getInstance().addEvent(resolutionEvent);
     }
   });
   return plotResolutionEvents;

@@ -244,6 +244,7 @@ const takeCaptive = (orgId: string, captive: Person) => {
       [org.id]: updatedGo,
     },
   };
+  GameManager.getInstance().updateGameData(update);
   return update;
 };
 

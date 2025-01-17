@@ -31,7 +31,7 @@ const harassNuns = (participantArray: string[]) => {
   if (empathyPercentage < 25) {
     // Most effective result, highest likelihood of retaliation
     evil *= 5;
-    retaliation = true;
+    retaliation = utilities.randomInt(1, 100) < 50;
     crowdSize = utilities.randomInt(1, 100) < 75 ? 'medium' : 'large';
   } else if (empathyPercentage < 50) {
     // Effective result, moderate likelihood of retaliation

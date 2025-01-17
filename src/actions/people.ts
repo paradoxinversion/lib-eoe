@@ -2,7 +2,7 @@
  * People related actions.
  */
 import { GameData, GameManager } from '../managers/game/GameManager';
-import { getActivityParticipants } from '../plots';
+import {} from '../plots';
 import people, { SimulatedActivityResolution } from '../sim/people';
 import { PersonStatusEffect } from '../statusEffects/person';
 import {
@@ -121,7 +121,7 @@ const getPeople = (params: GetPeopleParams = {}) => {
     },
   };
   return Object.values(GameManager.getInstance().gameData.people).filter(
-    (person, index) => {
+    (person) => {
       // if (options.limit && options.limit > 0 && index >= options.limit) {
       //   return false;
       // }
@@ -176,8 +176,9 @@ const getPeople = (params: GetPeopleParams = {}) => {
       }
       if (
         options.agentFilter?.excludeDepartments &&
+        person.agent &&
         options.agentFilter?.excludeDepartments.includes(
-          person.agent?.department!,
+          person.agent?.department,
         )
       ) {
         return false;
