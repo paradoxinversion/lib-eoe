@@ -3,7 +3,7 @@
   "name": "empire-of-evil",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "vitest --watch",
     "prettier": "prettier . --debug-check",
@@ -27,7 +27,15 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "typescript": "^5.3.3",
+    "typescript": "5.4.5",
     "uuid": "^9.0.0"
+  },
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": "./dist/src/types/index.js"
   }
 }
