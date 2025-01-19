@@ -1,8 +1,12 @@
-import { BuildingType } from '../buildings';
-import { GameData, GameManager } from '../managers/game/GameManager';
+import { GameManager } from '../managers/game/GameManager';
 import { getInfrastructure } from '../organization';
-import { BuildingStatusEffects } from '../statusEffects/building';
-import { Building, Person } from '../types/interfaces/entities';
+import {
+  Building,
+  BuildingType,
+  BuildingStatusEffects,
+  GameData,
+  Person,
+} from '../types';
 
 const modifyBuildingCurrentHealth = (buildingId: string, amt: number) => {
   const { gameData } = GameManager.getInstance();
@@ -286,31 +290,44 @@ const removePersonnel = (person: Person, building: Building) => {
   return updatedGameData;
 };
 
-interface GetBuildingsParams {
+export interface GetBuildingsParams {
   zoneId?: string | null;
   organizationId?: string | null;
   type?: BuildingType | null;
+  zone?: {
+    zoneId: string;
+  };
+  personnel?: {
+    needsPersonnel: boolean;
+  };
 }
 /**
  *
  */
-const getBuildings = ({
-  zoneId = null,
-  organizationId = null,
-  type = null,
-}: GetBuildingsParams = {}) => {
+const getBuildings = (params: GetBuildingsParams = {}) => {
   return Object.values(GameManager.getInstance().gameData.buildings).filter(
     (building) => {
-      if (zoneId && building.zoneId !== zoneId) {
+      if (params.zoneId && building.zoneId !== params.zoneId) {
         return false;
       }
 
-      if (organizationId && building.organizationId !== organizationId) {
+      if (
+        params.organizationId &&
+        building.organizationId !== params.organizationId
+      ) {
         return false;
       }
 
-      if (type && building.type !== type) {
+      if (params.type && building.type !== params.type) {
         return false;
+      }
+
+      if (params.personnel?.needsPersonnel) {
+        if (
+          building.personnel.length === building.basicAttributes.maxPersonnel
+        ) {
+          return false;
+        }
       }
 
       return true;

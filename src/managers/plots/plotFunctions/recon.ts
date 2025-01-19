@@ -1,30 +1,20 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
-import combat, { CombatResult } from '../../../combat/combat';
+import combat from '../../../combat/combat';
 import organization from '../../../actions/organization';
 import {
   GoverningOrganization,
   Person,
   Zone,
-} from '../../../types/interfaces/entities';
-import utilities from '../../../utilities';
-import Plot, { PlotResult } from '../Plot';
-import { PlotParamsBase, PlotResultBase } from '../types';
+  CombatResult,
+  PlotReconParams,
+  PlotResult,
+} from '../../../types';
+// import utilities from '../../../utilities';
+import Plot from '../Plot';
 import PlotManager from '../PlotManager';
-
-export interface PlotReconParams extends PlotParamsBase {
-  targetZone: string;
-  /** If caught by the enemy, surrender */
-  surrender: boolean;
-  /** Use drones for the operation */
-  useDrones: boolean;
-}
-
-export interface PlotReconResolution extends PlotResultBase {
-  intelligenceModifier: number;
-  capturedAgentIds: string[];
-  combatResult: CombatResult | null;
-}
+import skillChecks from '../../../skillChecks';
+import utilities from '../../../utilities';
 
 export const generateReconPlot = (params: PlotReconParams) => {
   const plot = new Plot('Recon Zone', 'recon-zone', params);
@@ -32,80 +22,88 @@ export const generateReconPlot = (params: PlotReconParams) => {
 };
 
 export const executeReconPlot = (params: PlotReconParams): PlotResult => {
+  // Less participants = higher chance of success/lower chance of detection, less information
+  // Relevant skills: Espionage, Security, Disguise
+
   const { participants, targetZone, surrender } = params;
-  const { gameData } = GameManager.getInstance();
-  const zone = gameData.zones[targetZone!];
+  const zone = GameManager.getInstance().gameData.zones[targetZone!];
   /** Final intelligence modifier for the zone. May be negative
    * if the plot is failed
    */
   let intelMod = 0;
-  let success = false;
   let empireAgents: Person[] = [];
-  let enemyZoneAgents: Person[] = [];
+  const detectedAgents: Person[] = [];
   if (params.useDrones) {
     // Drones are used in the operation
     // This is a placeholder for now
     intelMod = 10;
   } else {
-    enemyZoneAgents = people.getPeople({
-      personFilter: {
-        organizationId: zone.organizationId,
-      },
-      zone: {
-        zoneId: zone.id,
-      },
-      agentFilter: { agentsOnly: true },
+    empireAgents = participants.map(
+      (agent) => GameManager.getInstance().gameData.people[agent],
+    );
+
+    empireAgents.forEach((agent) => {
+      const succeeded = skillChecks.attemptInfiltration(agent, zone);
+      if (!succeeded) {
+        detectedAgents.push(agent);
+      }
     });
-
-    empireAgents = participants.map((agent) => gameData.people[agent]);
-
-    // Detection Phase
-    // Zone agents may detect the player agents
-    const detection = enemyZoneAgents.reduce((total, currentParticipant) => {
-      return total + currentParticipant.skills.security;
-    }, 0);
-
-    const stealth = empireAgents.reduce((total, currentParticipant) => {
-      return (
-        total +
-        currentParticipant.skills.espionage +
-        currentParticipant.skills.disguise
-      );
-    }, 0);
-
-    const detectionRoll =
-      utilities.randomInt(0, detection) +
-      utilities.randomInt(0, detection) +
-      utilities.randomInt(0, detection);
-    const stealthRoll =
-      utilities.randomInt(0, stealth) +
-      utilities.randomInt(0, stealth) +
-      utilities.randomInt(0, stealth);
-
-    success = stealthRoll > detectionRoll;
   }
+
+  // determine which of the zone's agents will respond to detected agents
+  const enemyZoneAgents = people.getPeople({
+    personFilter: {
+      organizationId: zone.organizationId,
+    },
+    zone: {
+      zoneId: zone.id,
+    },
+    agentFilter: { agentsOnly: true },
+  });
+  const maxRespondingAgents = detectedAgents.length + detectedAgents.length / 2;
+
+  // Make this a random selection of agents
+  const respondingAgents = enemyZoneAgents.slice(0, maxRespondingAgents);
   let capturedAgentIds: string[] = [];
   let combatResult: CombatResult | null = null;
+  let success = false;
+  if (participants.length > detectedAgents.length) {
+    success = true;
+    // get the total intelligence gathered by the agents
+    let intelligenceTotal = 0;
+    participants
+      .filter(
+        (agent) =>
+          !detectedAgents.includes(
+            GameManager.getInstance().gameData.people[agent],
+          ),
+      )
+      .forEach((agent) => {
+        intelligenceTotal += skillChecks.gatherIntelligence(
+          GameManager.getInstance().gameData.people[agent],
+          zone,
+        );
+      });
 
-  if (success) {
-    // Intelligence Phase
-    intelMod = utilities.randomInt(5, 10);
-    if (intelMod > 100) {
-      intelMod = 100;
+    if (intelligenceTotal > 100) {
+      intelligenceTotal = 100;
     }
+    intelMod = intelligenceTotal;
   } else {
     if (params.useDrones) {
       // Something should happen
     } else {
       // Enemy Alert Phase
       // Empire agents may be captured here
-      if (!params.useDrones && surrender) {
+      // We don't want to use all of the zone's agents as responders
+      //
+      if (surrender) {
         // If agents are instructed to surrender, they have a chance to be captured
         // For now, we're going to make it a simple coin toss
         capturedAgentIds = participants.filter(() => Math.random() > 0.01);
       } else {
         // Agents will engage in combat with the enemy
-        combatResult = combat.doCombat(empireAgents, enemyZoneAgents);
+        combatResult = combat.doCombat(empireAgents, respondingAgents);
       }
     }
   }
@@ -123,11 +121,12 @@ export const executeReconPlot = (params: PlotReconParams): PlotResult => {
 
   // Update the zone's intelligence level
   const updatedZone: Zone = {
-    ...gameData.zones[zone.id!],
+    ...GameManager.getInstance().gameData.zones[zone.id!],
     intelAttributes: {
-      ...gameData.zones[zone.id!].intelAttributes,
+      ...GameManager.getInstance().gameData.zones[zone.id!].intelAttributes,
       intelligenceLevel:
-        gameData.zones[zone.id!].intelAttributes.intelligenceLevel + intelMod,
+        GameManager.getInstance().gameData.zones[zone.id!].intelAttributes
+          .intelligenceLevel + intelMod,
     },
   };
 
@@ -143,7 +142,7 @@ export const executeReconPlot = (params: PlotReconParams): PlotResult => {
     capturedAgentIds.forEach((agent) => {
       updatedGameData.people[agent] = organization.takeCaptive(
         updatedZone.organizationId,
-        gameData.people[agent],
+        GameManager.getInstance().gameData.people[agent],
       ).people![agent];
       console.log(agent, 'taken captive');
     });

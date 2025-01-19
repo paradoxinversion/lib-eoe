@@ -2,7 +2,7 @@ import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
 import GameEvent from '../../events/GameEvent';
 import GameEventQueue from '../../events/GameEventQueue';
-import { Person } from '../../../types/interfaces/entities';
+import { Person } from '../../../types';
 import { generateEvilApplicantEvent } from '../../events/eventFunctions/applicant';
 
 const recruitAgents = (participantArray: string[]) => {

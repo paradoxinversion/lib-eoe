@@ -1,6 +1,6 @@
-import { Person } from '../../types/interfaces/entities';
+import { Person, ActivityParticipants } from '../../types';
 import { GameManager } from '../game/GameManager';
-import Activity, { ActivityParticipants } from './Activity';
+import Activity from './Activity';
 import activityConfig from './activityConfig';
 
 export default class ActivityManager {

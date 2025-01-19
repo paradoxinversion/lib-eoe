@@ -1,16 +1,13 @@
 import { GameManager } from '../../game/GameManager';
-import Plot, { PlotResult } from '../../plots/Plot';
+import Plot from '../../plots/Plot';
 import {
+  PlotResult,
   PlotReconParams,
   PlotReconResolution,
-} from '../../plots/plotFunctions/recon';
-import GameEvent from '../GameEvent';
+  ReconZoneEventParams,
+} from '../../../types';
 
-export interface ReconZoneEventParams {
-  plot: Plot;
-  plotResolution: PlotReconResolution;
-  plotParams: PlotReconParams;
-}
+import GameEvent from '../GameEvent';
 
 export const generateReconZoneEvent = (plot: Plot) => {
   const params: ReconZoneEventParams = {

@@ -8,4 +8,3 @@ const statusEffects = {
 };
 
 export default statusEffects;
-export type BuildingStatusEffects = keyof typeof statusEffects;

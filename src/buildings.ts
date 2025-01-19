@@ -1,19 +1,17 @@
 /**
  * @deprecated - This file is deprecated and will be removed in the future.
  */
-import { Building, Person } from './types/interfaces/entities';
+import {
+  Building,
+  Person,
+  BuildingStatusEffects,
+  ResourceOutput,
+  GetBuildingsParams,
+} from './types';
 import { getInfrastructure } from './organization';
-import { BuildingStatusEffects } from './statusEffects/building';
 // import { getInfrastructurePercentage } from './actions/infrastructure';
-import { GameData, GameManager } from './managers/game/GameManager';
-
-interface BuildingSchematic {
-  buildingType: string;
-  infrastructureCost: number;
-  upkeepCost: number;
-  housingCapacity: number;
-  maxBeds: number;
-}
+import { GameManager } from './managers/game/GameManager';
+import { GameData } from './types';
 
 const buildingsSchematics = {
   bank: {
@@ -48,8 +46,7 @@ const buildingsSchematics = {
     maxBeds: 10,
   },
 };
-export type BuildingType = keyof typeof buildingsSchematics;
-export type BuildingSchematics = { [key in BuildingType]: BuildingSchematic };
+
 /**
  * Get the infrastructure load of all buildings
  * controlled by the org.
@@ -197,13 +194,6 @@ export const getInfrastructureOutput = (building: Building) => {
   return base + personnelBonuses;
 };
 
-export interface ResourceOutput {
-  science: number;
-  wealth: number;
-  housing: number;
-  infrastructure: number;
-}
-
 export const getResourceOutput = (building: Building): ResourceOutput => {
   return {
     science: getScienceOutput(building),
@@ -311,11 +301,6 @@ const removePersonnel = (person: Person, building: Building) => {
   return updatedGameData;
 };
 
-interface GetBuildingsParams {
-  zoneId?: string | null;
-  organizationId?: string | null;
-  type?: BuildingType | null;
-}
 /**
  *
  */

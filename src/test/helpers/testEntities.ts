@@ -4,7 +4,7 @@ import {
   Nation,
   Person,
   Zone,
-} from '../../types/interfaces/entities';
+} from '../../types/entities';
 
 const evilEmpireOrgId = 'o_879d5c4a-d08b-43d2-af5b-b192babf7e71';
 const evilEmpireNationId = 'n_223c06ae-14e6-4b70-9926-53bf1e6b10c7';
@@ -105,6 +105,7 @@ const overlord: Person = {
     combat: 10,
     security: 58,
     medicine: 55,
+    persuasion: 10,
   },
   residentAt: 'b_8f630bd5-5e39-4e72-870a-99ef3ebb1411',
 };
@@ -206,6 +207,7 @@ const personTemplate: Person = {
     combat: 6,
     security: 25,
     medicine: 53,
+    persuasion: 10,
   },
   residentAt: 'b_',
 };

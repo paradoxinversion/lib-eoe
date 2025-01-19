@@ -1,13 +1,6 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
-import { Person } from '../../../types/interfaces/entities';
-import { PlotParamsStandard, PlotResult } from '../Plot';
-
-export type InciteProtestData = {
-  protesters: {
-    [index: string]: Person;
-  };
-};
+import { Person, PlotParamsStandard, PlotResult } from '../../../types';
 
 export const executeInciteProtestPlot = (
   params: PlotParamsStandard,

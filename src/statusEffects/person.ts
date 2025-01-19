@@ -57,5 +57,4 @@ const personStatusEffects = {
   },
 };
 
-export type PersonStatusEffect = keyof typeof personStatusEffects;
 export default personStatusEffects;

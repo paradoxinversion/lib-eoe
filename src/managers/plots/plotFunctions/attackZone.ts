@@ -7,29 +7,29 @@ import {
   GoverningOrganization,
   Person,
   Zone,
-} from '../../../types/interfaces/entities';
+  PlotAttackZoneOpts,
+  PlotResult,
+} from '../../../types';
 import zones from '../../../actions/zones';
-import { PlotResult } from '../Plot';
-import { PlotParamsBase } from '../types';
+import utilities from '../../../utilities';
 
-export interface PlotAttackZoneParams extends PlotParamsBase {}
-
-interface PlotAttackZoneOpts {
-  zone: {
-    id: string;
-    organizationId: string;
-  };
-  participants: string[];
-}
 /**
- * Attack a zone
+ * Launch a direct assault against the Zone's security forces.
+ *
+ * Notes:
+ * - A percentage of enemy agents <= participants * 1.5 will be involved in the combat.
+ * - Responding agents can be personnel, but troops should be prioritized
  */
 export const attackZone = ({
   zone: { id: zoneId, organizationId: zoneOrgId },
   participants,
 }: PlotAttackZoneOpts): PlotResult => {
-  const { gameData } = GameManager.getInstance();
-  const defendingAgents = people.getPeople({
+  const attackingAgents = participants.map(
+    (agent) => GameManager.getInstance().gameData.people[agent],
+  );
+
+  // Responder Mobilization Phase
+  const defendingAgentPool = people.getPeople({
     personFilter: {
       organizationId: zoneOrgId,
     },
@@ -38,8 +38,25 @@ export const attackZone = ({
     },
     agentFilter: { agentsOnly: true },
   });
-  const attackingAgents = participants.map((agent) => gameData.people[agent]);
-  const result = combat.doCombat(attackingAgents, defendingAgents);
+
+  const totalRespondersMin = defendingAgentPool.length / 2;
+  const totalRespondersMax = defendingAgentPool.length * 1.5;
+  const totalResponders = utilities.randomInt(
+    totalRespondersMin,
+    totalRespondersMax,
+  );
+  const responders: Person[] = [];
+
+  for (let i = 0; i < totalResponders; i++) {
+    const agentIndex = utilities.randomInt(0, defendingAgentPool.length - 1);
+    const agent = defendingAgentPool[agentIndex];
+    if (agent) {
+      responders.push();
+      defendingAgentPool.splice(agentIndex, 1);
+    }
+  }
+  // Combat Phase
+  const result = combat.doCombat(attackingAgents, responders);
 
   const updatedGameData: {
     people: { [x: string]: Person };
@@ -64,8 +81,8 @@ export const attackZone = ({
   if (result.victoryResult === 1) {
     const zoneTransferUpdate = zones.transferZoneControl({
       zoneId,
-      nationId: gameData.player.empireId,
-      organizationId: gameData.player.organizationId,
+      nationId: GameManager.getInstance().gameData.player.empireId,
+      organizationId: GameManager.getInstance().gameData.player.organizationId,
     });
 
     updatedGameData.zones = { [zoneId]: zoneTransferUpdate.zones![zoneId] };
@@ -79,6 +96,7 @@ export const attackZone = ({
   };
   updatedGameData.governingOrganizations = {};
   updatedGameData.governingOrganizations[evilEmpire.id] = evilEmpire;
+  GameManager.getInstance().updateGameData(updatedGameData);
   return {
     success: result.victoryResult === 1,
     resolutionData: result,

@@ -4,9 +4,8 @@ import generators from './generators/game';
 
 import { generateZoneName } from './generators/names';
 import utilities from './utilities';
-import settings from '../config/config';
+import settings from './config/config';
 import {
-  BuildingType,
   addMultiplePersonnel,
   addResident,
   buildingsSchematics,
@@ -18,13 +17,17 @@ import {
   Nation,
   Person,
   Zone,
-} from './types/interfaces/entities';
+  BuildingType,
+  NewGameOptions,
+  PlayerOptions,
+  HireOrganizationAgentsOptions,
+  HireStartingAgentsOptions,
+} from './types';
 import people from './actions/people';
 import Player from './managers/cpu/Player';
 import PlayerManager from './managers/cpu/PlayerManager';
-import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
-import { populatePlots } from './plots';
-import ShufflebagManager from './managers/shufflebag/shufflebagManager';
+import { GoverningOrgStatusEffects } from './types';
+import ShufflebagManager from './managers/shufflebag/ShufflebagManager';
 import Shufflebag from './managers/shufflebag/Shufflebag';
 import ActivityManager from './managers/activities/ActivityManager';
 import PlotManager from './managers/plots/PlotManager';
@@ -38,23 +41,6 @@ const buildingShufflebag = new Shufflebag({
   office: settings.worldGen.buildings.generationFrequency.office,
   hospital: settings.worldGen.buildings.generationFrequency.hospital,
 });
-
-export type NewGameOptions = {
-  pet?: boolean;
-  overlordName?: string;
-  takePrisoners: boolean;
-  /**
-   * If true, staff buildings with empire agents.
-   * */
-  startWithFullStaff: boolean;
-};
-
-type PlayerOptions = {
-  isCPU: boolean;
-  leaderName?: string;
-  organizationEffects: GoverningOrgStatusEffects[];
-  fullStaff: boolean;
-};
 
 /**
  * Attempt to place all citizens in apartments
@@ -496,18 +482,8 @@ const handleNewGame = (options: NewGameOptions) => {
   });
 
   createPlayer({ isCPU: true, organizationEffects: [], fullStaff: false });
-  console.debug(GameManager.getInstance().gameData);
+  console.log(GameManager.getInstance().gameData);
   initializeOrgOpinions();
-};
-
-type HireOrganizationAgentsOptions = {
-  orgId: string;
-  fullStaffDetail: boolean;
-  /**
-   * Agents of the organization will staff all possible building
-   * positions if true.
-   */
-  staffIsOrg: boolean;
 };
 
 const hireOrganizationAgents = (options: HireOrganizationAgentsOptions) => {
@@ -596,25 +572,22 @@ const hireOrganizationAgents = (options: HireOrganizationAgentsOptions) => {
   }
 
   console.debug('Done hiring organization agents');
+  console.debug('Game Data', GameManager.getInstance().gameData);
 };
 
-type HireStartingAgentsOptions = {
-  fullStaffDetail: boolean;
-};
-
-const initializeLoyalties = () => {
-  Object.values(GameManager.getInstance().gameData.people).forEach((person) => {
-    const update = initializeLoyalty(person);
-    if (update.people[person.id].agent) {
-      update.people[person.id].intelAttributes.loyalties = people.setLoyalty(
-        person,
-        person.agent?.organizationId!,
-        80,
-      ).people[person.id].intelAttributes.loyalties;
-    }
-    GameManager.getInstance().updateGameData(update);
-  });
-};
+// const initializeLoyalties = () => {
+//   Object.values(GameManager.getInstance().gameData.people).forEach((person) => {
+//     const update = initializeLoyalty(person);
+//     if (update.people[person.id].agent) {
+//       update.people[person.id].intelAttributes.loyalties = people.setLoyalty(
+//         person,
+//         person.agent?.organizationId!,
+//         80,
+//       ).people[person.id].intelAttributes.loyalties;
+//     }
+//     GameManager.getInstance().updateGameData(update);
+//   });
+// };
 
 const initializeOrgOpinions = () => {
   const organizations = {

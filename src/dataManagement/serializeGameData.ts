@@ -1,10 +1,13 @@
+import ActivityManager from '../managers/activities/ActivityManager';
 import PlayerManager from '../managers/cpu/PlayerManager';
 import { GameManager } from '../managers/game/GameManager';
+import PlotManager from '../managers/plots/PlotManager';
+import { ScienceManager } from '../managers/science/science';
 
 const serializeGameData = () => {
-  const { activityManager, plotManager, gameData } = GameManager.getInstance();
-  const activitiesData = activityManager.serializeActivities();
-  const plotData = plotManager.serializePlots();
+  const { gameData } = GameManager.getInstance();
+  const activitiesData = ActivityManager.getInstance().serializeActivities();
+  const plotData = PlotManager.getInstance().serializePlots();
   const playerData = PlayerManager.getInstance().serializedPlayers();
   const saveData = {
     gameData,
@@ -13,7 +16,7 @@ const serializeGameData = () => {
       plots: plotData,
     },
     scienceData: {
-      activeProjects: GameManager.getInstance().scienceManager.activeProjects,
+      activeProjects: ScienceManager.getInstance().activeProjects,
     },
     playerData,
   };

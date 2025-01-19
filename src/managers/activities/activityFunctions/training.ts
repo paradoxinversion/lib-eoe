@@ -1,9 +1,6 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
-import {
-  Person,
-  PersonStandardAttributes,
-} from '../../../types/interfaces/entities';
+import { Person, PersonStandardAttributes } from '../../../types';
 import utilities from '../../../utilities';
 
 export const executeTrainingActivity = (participantArray: string[]) => {

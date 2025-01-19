@@ -1,6 +1,6 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
-import { Person } from '../../../types/interfaces/entities';
+import { Person } from '../../../types';
 import utilities from '../../../utilities';
 
 const authorPropaganda = (participantArray: string[]) => {

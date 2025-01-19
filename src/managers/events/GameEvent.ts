@@ -1,43 +1,4 @@
-import { GameData } from '../game/GameManager';
-import { EventRequirements } from '../../gameEvents';
-import { EvilApplicantParams } from './eventFunctions/applicant';
-import { AttackZoneParams } from './eventFunctions/attackZone';
-import { IntruderAlertEventParams } from './eventFunctions/intruderAlert';
-import { MonthlyReportEventParams } from './eventFunctions/monthlyReport';
-import { OccupationalHazardParams } from './eventFunctions/occupationalHazard';
-import { ProjectCompleteParams } from './eventFunctions/projectComplete';
-import { ProtestEventParams } from './eventFunctions/protest';
-import { ReconZoneEventParams } from './eventFunctions/recon';
-export interface EventData {
-  type: string;
-  resolution: {
-    updatedGameData?: Partial<GameData>;
-    additionalData?: {
-      [x: string]: Object | string | number | boolean;
-    };
-  };
-}
-
-export interface EventConfig {
-  name: string;
-  resolve: Function;
-  getEventText: Function;
-  icon: string;
-  type: string;
-  forceStop: boolean;
-  requirements?: EventRequirements;
-}
-
-export type EventParams =
-  | ReconZoneEventParams
-  | EvilApplicantParams
-  | MonthlyReportEventParams
-  | AttackZoneParams
-  | IntruderAlertEventParams
-  | OccupationalHazardParams
-  | ProjectCompleteParams
-  | ProtestEventParams
-  | undefined;
+import { EventData, EventConfig, EventParams } from '../../types';
 
 /**
  * A GameEvent.
@@ -45,13 +6,16 @@ export type EventParams =
  * Game Events are considered to have happened in the past, and are resolved in the present.
  */
 class GameEvent {
+  /** A camel-cased version of the GameEvent's name */
+  type: string;
+  /** The event name shown to the player in the UI */
+  eventName: string;
+  /** Parameters necessary to set up the event */
+  params: EventParams;
+  eventData: EventData;
   getEventText: Function;
   eventText?: string;
   resolveEvent: Function;
-  eventData: EventData;
-  eventName: string;
-  params: EventParams;
-  type: string;
   /**
    * Create a game event using configuration.
    */

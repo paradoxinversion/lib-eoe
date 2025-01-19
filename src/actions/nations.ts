@@ -1,12 +1,15 @@
+import actions from '.';
 import { GameManager } from '../managers/game/GameManager';
 
 const getNationCitizens = (nationId: string) => {
-  const { gameData } = GameManager.getInstance();
-  const peopleArray = Object.values(gameData.people);
-  return peopleArray.filter((person) => person.nationId === nationId);
+  return actions.people.getPeople({
+    nation: {
+      nationId,
+    },
+  });
 };
 
-interface GetNationsParams {
+export interface GetNationsParams {
   isEvilEmpire?: boolean;
 }
 

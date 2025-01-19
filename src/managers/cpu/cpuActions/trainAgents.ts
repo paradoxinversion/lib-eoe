@@ -1,5 +1,5 @@
 import people from '../../../actions/people';
-import { SkillTypes } from '../../../types/interfaces/entities';
+import { SkillTypes } from '../../../types';
 import utilities from '../../../utilities';
 import Player from '../Player';
 

@@ -1,27 +1,16 @@
-import { GameData, GameManager } from '../../game/GameManager';
+import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
 import buildings from '../../../actions/buildings';
 import organization from '../../../actions/organization';
 import Shufflebag from '../../shufflebag/Shufflebag';
 import utilities from '../../../utilities';
-import GameEvent, { EventConfig } from '../GameEvent';
-
-export type PetEventTypes =
-  | 'trashKennel'
-  | 'boostMorale'
-  | 'maul'
-  | 'detectIntruder'
-  | 'escape';
-
-export interface PetEventParams {
-  petEvent: PetEventTypes;
-  target?: {
-    person: string;
-    building: string;
-  };
-  damage?: number;
-  message: string;
-}
+import GameEvent from '../GameEvent';
+import {
+  GameData,
+  EventConfig,
+  PetEventParams,
+  PetEventTypes,
+} from '../../../types';
 
 const petEventShufflebag = new Shufflebag({
   trashKennel: 1,

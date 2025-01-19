@@ -1,10 +1,8 @@
 import { GameManager } from '../../game/GameManager';
-import Plot, { PlotResult } from '../../plots/Plot';
-import GameEvent from '../GameEvent';
+import Plot from '../../plots/Plot';
+import { PlotResult, RecallEmbeddedAgentsParams } from '../../../types';
 
-export interface RecallEmbeddedAgentsParams {
-  plot: Plot;
-}
+import GameEvent from '../GameEvent';
 
 export const generateRecallEmbeddedAgentsEvent = (plot: Plot) => {
   return new GameEvent(recallEmbeddedAgentsConfig, {

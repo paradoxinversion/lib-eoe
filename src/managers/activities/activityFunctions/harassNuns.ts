@@ -1,11 +1,8 @@
 import { GameManager } from '../../game/GameManager';
 import utilities from '../../../utilities';
 
-import {
-  CrowdSize,
-  generateEvent as generateDomesticEncounter,
-} from '../../events/eventFunctions/domesticCombatEncounter';
-
+import { generateEvent as generateDomesticEncounter } from '../../events/eventFunctions/domesticCombatEncounter';
+import { CrowdSize } from '../../../types';
 import GameEventQueue from '../../events/GameEventQueue';
 const harassNuns = (participantArray: string[]) => {
   if (participantArray.length === 0) {
@@ -31,7 +28,7 @@ const harassNuns = (participantArray: string[]) => {
   if (empathyPercentage < 25) {
     // Most effective result, highest likelihood of retaliation
     evil *= 5;
-    retaliation = true;
+    retaliation = utilities.randomInt(1, 100) < 50;
     crowdSize = utilities.randomInt(1, 100) < 75 ? 'medium' : 'large';
   } else if (empathyPercentage < 50) {
     // Effective result, moderate likelihood of retaliation

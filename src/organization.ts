@@ -1,21 +1,18 @@
-import { GameData, GameManager } from './managers/game/GameManager';
+import { GameManager } from './managers/game/GameManager';
 import infrastructure from './actions/infrastructure';
 import people from './actions/people';
-import {
-  ResourceOutput,
-  getBuildings,
-  getResourceOutput,
-  getUpkeep,
-} from './buildings';
-import settings from '../config/config';
+import { getBuildings, getResourceOutput, getUpkeep } from './buildings';
+import settings from './config/config';
 import generators from './generators/game';
 import { getCodeName } from './generators/names';
-import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
 import {
   AgentDepartment,
   GoverningOrganization,
   Person,
-} from './types/interfaces/entities';
+  ResourceOutput,
+  GoverningOrgStatusEffects,
+  GameData,
+} from './types';
 import utilities from './utilities';
 
 /**
@@ -342,7 +339,7 @@ export const getOrgScienceOutput = () => {
   return (empireResources.science * infrastructurePercentage) / 100;
 };
 
-interface GetOrganizationsOptions {
+export interface GetOrganizationsOptions {
   exclude?: {
     player?: boolean;
   };

@@ -1,13 +1,7 @@
 import { GameManager } from '../../game/GameManager';
-import { Person } from '../../../types/interfaces/entities';
-import Plot, { PlotResult } from '../Plot';
-import { PlotParamsBase } from '../types';
+import { Person, PlotResult, PlotParamsBase } from '../../../types';
+import Plot from '../Plot';
 import PlotManager from '../PlotManager';
-
-export interface PlotResolutionRecallEmbeddedAgents {
-  /** The agents that are returning */
-  agents: string[];
-}
 
 const generateRecallEmbeddedAgentsPlot = (params: PlotParamsBase) => {
   PlotManager.getInstance().addPlot(

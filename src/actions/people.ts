@@ -1,10 +1,9 @@
 /**
  * People related actions.
  */
-import { GameData, GameManager } from '../managers/game/GameManager';
-import { getActivityParticipants } from '../plots';
+import { GameManager } from '../managers/game/GameManager';
+import {} from '../plots';
 import people, { SimulatedActivityResolution } from '../sim/people';
-import { PersonStatusEffect } from '../statusEffects/person';
 import {
   AgentData,
   AgentDepartment,
@@ -12,13 +11,15 @@ import {
   Person,
   PersonIntelAttributes,
   PersonStandardAttributes,
-} from '../types/interfaces/entities';
+  PersonStatusEffect,
+  GameData,
+} from '../types';
 import utilities from '../utilities';
 import PlotManager from '../managers/plots/PlotManager';
 import ActivityManager from '../managers/activities/ActivityManager';
 export type ComparisonTypes = 'greater' | 'less' | 'equal';
 
-interface GetPeopleParams {
+export interface GetPeopleParams {
   limit?: number;
   zone?: {
     zoneId?: string | null;
@@ -121,7 +122,7 @@ const getPeople = (params: GetPeopleParams = {}) => {
     },
   };
   return Object.values(GameManager.getInstance().gameData.people).filter(
-    (person, index) => {
+    (person) => {
       // if (options.limit && options.limit > 0 && index >= options.limit) {
       //   return false;
       // }
@@ -176,8 +177,9 @@ const getPeople = (params: GetPeopleParams = {}) => {
       }
       if (
         options.agentFilter?.excludeDepartments &&
+        person.agent &&
         options.agentFilter?.excludeDepartments.includes(
-          person.agent?.department!,
+          person.agent?.department,
         )
       ) {
         return false;

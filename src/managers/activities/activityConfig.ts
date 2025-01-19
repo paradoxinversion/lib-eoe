@@ -1,5 +1,4 @@
-import { ScienceProject } from '../science/types';
-import { GoverningOrgStatusEffects } from '../../statusEffects/governingOrg';
+import { ActivityConfig, ActivityRequirements } from '../../types';
 import authorPropaganda from './activityFunctions/authorPropaganda';
 import { education } from './activityFunctions/education';
 import harassNuns from './activityFunctions/harassNuns';
@@ -9,27 +8,6 @@ import siphonDomesticAccounts from './activityFunctions/siphonDomesticAccounts';
 import siphonGlobalAccounts from './activityFunctions/siphonGlobalAccounts';
 import { surveyCitizens } from './activityFunctions/surveyCitizens';
 import { executeTrainingActivity } from './activityFunctions/training';
-
-export interface ActivityRequirements {
-  /** Research required to start the activity */
-  research: ScienceProject[];
-  orgStatusEffects: GoverningOrgStatusEffects[];
-  maxParticipants: number;
-  minParticipants: number;
-}
-
-export interface ActivityConfig {
-  /** The name of the activity (to be shown to the user) */
-  name: string;
-  /** The activity's type */
-  type: string;
-  /** The function to handle the execution of the activity */
-  fn: Function;
-  /** Cost per particpant */
-  costPerParticipant: number;
-  description?: string;
-  requirements?: ActivityRequirements;
-}
 
 const defaultRequirements: ActivityRequirements = {
   maxParticipants: -1,

@@ -1,7 +1,7 @@
-import { GameData, GameManager } from './managers/game/GameManager';
+import { GameManager } from './managers/game/GameManager';
 import people from './actions/people';
 import { getBuildings } from './buildings';
-import { Zone } from './types/interfaces/entities';
+import { Zone, GameData } from './types';
 /**
  *
  */
@@ -72,7 +72,7 @@ const getZoneCitizens = (
   return citizens;
 };
 
-interface TransferZoneControlParams {
+export interface TransferZoneControlParams {
   zoneId: string;
   organizationId: string;
   nationId: string;

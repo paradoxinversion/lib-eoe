@@ -1,11 +1,8 @@
-import { GameData, GameManager } from '../../game/GameManager';
+import { GameManager } from '../../game/GameManager';
+import { ProjectCompleteParams } from '../../../types';
 import { ScienceProjectResult } from '../../science/types';
 import GameEvent from '../GameEvent';
 
-export interface ProjectCompleteParams {
-  projectIndexName: string;
-  empireUpdate: Partial<GameData>;
-}
 export const generateProjectCompleteEvent = (
   projectResult: ScienceProjectResult,
 ) => {

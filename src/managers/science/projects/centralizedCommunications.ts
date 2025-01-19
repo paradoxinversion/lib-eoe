@@ -5,7 +5,8 @@ import {
   ScienceProjectDefinition,
   ScienceProjectResult,
   ScienceProjectStatus,
-} from '../types';
+} from '../../../types';
+import { ScienceManager } from '../science';
 
 const startHandler = function (laboratoryId: string): ScienceProjectStatus {
   const currentScience =
@@ -25,7 +26,7 @@ const progressHandler = function (
   status: ScienceProjectStatus,
 ): ScienceProjectStatus {
   const project =
-    GameManager.getInstance().scienceManager.PROJECT_DEFINITIONS[
+    ScienceManager.getInstance().PROJECT_DEFINITIONS[
       status.indexName as ScienceProject
     ];
   const empireUpdate =

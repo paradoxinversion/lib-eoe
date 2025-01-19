@@ -4,7 +4,7 @@ import {
   ScienceProject,
   ScienceProjectMap,
   ScienceProjectStatus,
-} from './types';
+} from '../../types';
 
 /** The manager for all science projects in the game */
 export class ScienceManager {

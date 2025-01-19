@@ -3,7 +3,11 @@ import GameEvent from '../GameEvent';
  * Create and return a new Standard Report Game Event
  */
 export const generateStandardReportEvent = () => {
-  return new GameEvent(standardReportConfig);
+  return new GameEvent(
+    standardReportConfig,
+    {},
+    'There is nothing special to report.',
+  );
 };
 /**
  * Resolve a Standard Report Event

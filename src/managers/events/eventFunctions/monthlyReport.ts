@@ -1,19 +1,9 @@
 import { GameManager } from '../../game/GameManager';
 import buildings from '../../../actions/buildings';
 import organization from '../../../actions/organization';
-import {
-  GoverningOrganization,
-  Person,
-} from '../../../types/interfaces/entities';
+import { GoverningOrganization, Person } from '../../../types';
 import GameEvent from '../GameEvent';
 import people from '../../../actions/people';
-
-export interface MonthlyReportEventParams {
-  expenses: {
-    payroll: number;
-    upkeep: number;
-  };
-}
 
 export const generateMonthlyReportEvent = () => {
   const { gameData } = GameManager.getInstance();

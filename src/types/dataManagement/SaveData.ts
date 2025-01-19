@@ -1,7 +1,6 @@
-import { GameData } from '../managers/game/GameManager';
-import Plot from '../plots/Plot';
-import { PlayerData } from '../types/player';
-
+import { PlayerData } from '../player';
+import { GameData } from '../managers/game/GameData';
+import Plot from '../../managers/plots/Plot';
 export type SaveData = {
   gameData: GameData;
   plotData: {

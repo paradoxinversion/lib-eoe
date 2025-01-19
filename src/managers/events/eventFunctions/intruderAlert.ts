@@ -3,10 +3,7 @@ import people from '../../../actions/people';
 import organization from '../../../actions/organization';
 import utilities from '../../../utilities';
 import GameEvent from '../GameEvent';
-
-export interface IntruderAlertEventParams {
-  intruderId: string;
-}
+import { IntruderAlertEventParams } from '../../../types';
 
 export const generateIntruderAlertEvent = () => {
   // Determine which nation this intruder is from

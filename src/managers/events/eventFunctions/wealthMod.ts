@@ -1,10 +1,8 @@
 import { GameManager } from '../../game/GameManager';
-import { GoverningOrganization } from '../../../types/interfaces/entities';
+import { GoverningOrganization } from '../../../types/entities';
 import utilities from '../../../utilities';
 import GameEvent from '../GameEvent';
-export interface WealthModEventParams {
-  modAmount: number;
-}
+import { WealthModEventParams } from '../../../types';
 
 /**
  * Create and return a new Wealth Mod Game Event

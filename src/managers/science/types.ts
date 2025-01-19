@@ -1,5 +1,6 @@
-import { GameData, GameManager } from '../game/GameManager';
+import { GameManager } from '../game/GameManager';
 import { SCIENCE_PROJECTS } from './scienceProjects';
+import { GameData } from '../../types';
 
 /**
  * The result of completing a science project
