@@ -1,4 +1,4 @@
-import settings from '../../config/config';
+import settings from '../config/config';
 import buildings, { ResourceOutput } from './buildings';
 import generators from '../generators/game';
 import { getCodeName } from '../generators/names';

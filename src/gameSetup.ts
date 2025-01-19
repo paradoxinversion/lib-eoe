@@ -4,7 +4,7 @@ import generators from './generators/game';
 
 import { generateZoneName } from './generators/names';
 import utilities from './utilities';
-import settings from '../config/config';
+import settings from './config/config';
 import {
   addMultiplePersonnel,
   addResident,

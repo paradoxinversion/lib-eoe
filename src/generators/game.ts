@@ -15,7 +15,7 @@ import {
   GenerateGoverningOrgOpts,
   BuildingType,
 } from '../types';
-import settings from '../../config/config';
+import settings from '../config/config';
 import ShufflebagManager from '../managers/shufflebag/ShufflebagManager';
 // const { v4: uuidv4 } = require('uuid');
 import { v4 as uuidv4 } from 'uuid';

@@ -2,7 +2,7 @@ import { GameManager } from './managers/game/GameManager';
 import infrastructure from './actions/infrastructure';
 import people from './actions/people';
 import { getBuildings, getResourceOutput, getUpkeep } from './buildings';
-import settings from '../config/config';
+import settings from './config/config';
 import generators from './generators/game';
 import { getCodeName } from './generators/names';
 import {

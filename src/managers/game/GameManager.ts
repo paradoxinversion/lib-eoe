@@ -1,5 +1,5 @@
 import { GameLogEvent, GameData } from '../../types';
-import config from '../../../config';
+import config from '../../config';
 
 export class GameManager {
   private static instance: GameManager;
