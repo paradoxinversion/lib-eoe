@@ -8,3 +8,4 @@ export * from './generators';
 export * from './sim';
 export * from './buildings';
 export * from './gameSetup';
+export * from './dataManagement';
