@@ -482,7 +482,7 @@ const handleNewGame = (options: NewGameOptions) => {
   });
 
   createPlayer({ isCPU: true, organizationEffects: [], fullStaff: false });
-  console.debug(GameManager.getInstance().gameData);
+  console.log(GameManager.getInstance().gameData);
   initializeOrgOpinions();
 };
 
