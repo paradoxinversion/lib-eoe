@@ -1,11 +1,8 @@
 import { GameManager } from '../../game/GameManager';
 import utilities from '../../../utilities';
 
-import {
-  CrowdSize,
-  generateEvent as generateDomesticEncounter,
-} from '../../events/eventFunctions/domesticCombatEncounter';
-
+import { generateEvent as generateDomesticEncounter } from '../../events/eventFunctions/domesticCombatEncounter';
+import { CrowdSize } from '../../../types';
 import GameEventQueue from '../../events/GameEventQueue';
 const harassNuns = (participantArray: string[]) => {
   if (participantArray.length === 0) {

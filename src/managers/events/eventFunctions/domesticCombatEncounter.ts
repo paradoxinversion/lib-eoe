@@ -1,22 +1,13 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
-import combat, { CombatResult } from '../../../combat/combat';
+import combat from '../../../combat/combat';
 import utilities from '../../../utilities';
 import GameEvent from '../GameEvent';
-import { CombatEventParams } from './combat';
+import { GeneratDomesticCombatEncounterEventParams } from '../../../types';
 
-export interface DomesticCombatEncounterEventParams extends CombatEventParams {
-  zoneId: string;
-}
-
-export type GeneratEventParams = {
-  zone: string;
-  targetedAgents: string[];
-  crowd: CrowdSize;
-};
-export type CrowdSize = 'small' | 'medium' | 'large';
-
-export const generateEvent = (params: GeneratEventParams) => {
+export const generateEvent = (
+  params: GeneratDomesticCombatEncounterEventParams,
+) => {
   // Get some citizens
   let maxAttackers = 3;
 

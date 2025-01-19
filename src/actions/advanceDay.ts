@@ -11,7 +11,7 @@ import {
 } from '../gameEvents';
 import PlayerManager from '../managers/cpu/PlayerManager';
 import { ScienceManager } from '../managers/science/science';
-import { ScienceProject } from '../managers/science/types';
+import { ScienceProject } from '../types';
 import {
   getOrgIncome,
   getOrgResources,

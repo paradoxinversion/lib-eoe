@@ -1,6 +1,6 @@
 import { GameManager } from '../managers/game/GameManager';
 import { getBuildings, getInfrastructureLoad } from '../buildings';
-import { Building } from '../types/interfaces/entities';
+import { Building } from '../types/entities';
 
 const getInfrastructurePercentage = (organizationId: string) => {
   const infrastructureOutput = getBuildings({

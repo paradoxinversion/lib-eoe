@@ -1,32 +1,20 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
-import combat, { CombatResult } from '../../../combat/combat';
+import combat from '../../../combat/combat';
 import organization from '../../../actions/organization';
 import {
   GoverningOrganization,
   Person,
   Zone,
-} from '../../../types/interfaces/entities';
+  CombatResult,
+  PlotReconParams,
+  PlotResult,
+} from '../../../types';
 // import utilities from '../../../utilities';
-import Plot, { PlotResult } from '../Plot';
-import { PlotParamsBase, PlotResultBase } from '../types';
+import Plot from '../Plot';
 import PlotManager from '../PlotManager';
 import skillChecks from '../../../skillChecks';
 import utilities from '../../../utilities';
-
-export interface PlotReconParams extends PlotParamsBase {
-  targetZone: string;
-  /** If caught by the enemy, surrender */
-  surrender: boolean;
-  /** Use drones for the operation */
-  useDrones: boolean;
-}
-
-export interface PlotReconResolution extends PlotResultBase {
-  intelligenceModifier: number;
-  capturedAgentIds: string[];
-  combatResult: CombatResult | null;
-}
 
 export const generateReconPlot = (params: PlotReconParams) => {
   const plot = new Plot('Recon Zone', 'recon-zone', params);

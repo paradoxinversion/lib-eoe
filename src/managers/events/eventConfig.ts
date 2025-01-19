@@ -1,4 +1,5 @@
-import GameEvent, { EventConfig } from './GameEvent';
+import GameEvent from './GameEvent';
+import { EventConfigMap } from '../../types';
 import { evilApplicantEvilConfig } from './eventFunctions/applicant';
 import { attackZoneConfig } from './eventFunctions/attackZone';
 import { combatEventConfig } from './eventFunctions/combat';
@@ -23,9 +24,7 @@ import { config as raidConfig } from './eventFunctions/raid';
 export function setEmptyParams(this: GameEvent) {
   this.params = {};
 }
-export interface EventConfigMap {
-  [x: string]: EventConfig;
-}
+
 /**
  * Event configuration to be used with GameEvents
  */

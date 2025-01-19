@@ -4,9 +4,9 @@ import zones from '../../../actions/zones';
 import generators from '../../../generators';
 
 // import { calculateAgentSalary, getMaxAgents } from '../../organization';
-import { AgentDepartment, Person } from '../../../types/interfaces/entities';
+import { AgentDepartment, Person, EventConfig } from '../../../types';
 import utilities from '../../../utilities';
-import GameEvent, { EventConfig } from '../GameEvent';
+import GameEvent from '../GameEvent';
 import organization from '../../../actions/organization';
 
 export interface EvilApplicantParams {

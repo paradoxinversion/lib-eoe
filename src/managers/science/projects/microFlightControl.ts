@@ -4,7 +4,7 @@ import {
   ScienceProjectDefinition,
   ScienceProjectResult,
   ScienceProjectStatus,
-} from '../types';
+} from '../../../types';
 
 const startHandler = function (
   laboratoryId: string,

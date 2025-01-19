@@ -1,6 +1,4 @@
-interface ShufflebagFrequency {
-  [x: string]: number;
-}
+import { ShufflebagFrequency } from '../../types/managers/shufflebag';
 export default class Shufflebag {
   frequencyMap: ShufflebagFrequency;
   values: string[];

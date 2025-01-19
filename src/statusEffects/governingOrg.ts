@@ -130,5 +130,4 @@ const statusEffects = {
   },
 };
 
-export type GoverningOrgStatusEffects = keyof typeof statusEffects;
 export default statusEffects;

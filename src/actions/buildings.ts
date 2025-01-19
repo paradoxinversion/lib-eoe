@@ -1,8 +1,12 @@
-import { BuildingType } from '../buildings';
-import { GameData, GameManager } from '../managers/game/GameManager';
+import { GameManager } from '../managers/game/GameManager';
 import { getInfrastructure } from '../organization';
-import { BuildingStatusEffects } from '../statusEffects/building';
-import { Building, Person } from '../types/interfaces/entities';
+import {
+  Building,
+  BuildingType,
+  BuildingStatusEffects,
+  GameData,
+  Person,
+} from '../types';
 
 const modifyBuildingCurrentHealth = (buildingId: string, amt: number) => {
   const { gameData } = GameManager.getInstance();

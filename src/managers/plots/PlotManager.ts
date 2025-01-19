@@ -1,12 +1,9 @@
-import { Person } from '../../types/interfaces/entities';
+import { Person, PlotConfig, PlotResolution } from '../../types';
 import ActivityManager from '../activities/ActivityManager';
 import { GameManager } from '../game/GameManager';
 import Plot from './Plot';
-import plotConfig, { PlotConfig } from './plotConfig';
-export interface PlotResolution {
-  plot: Plot;
-  resolution: any;
-}
+import plotConfig from './plotConfig';
+
 class PlotManager {
   private static instance: PlotManager;
   plotQueue: Plot[];

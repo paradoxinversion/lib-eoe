@@ -4,10 +4,8 @@ import buildings from '../../../actions/buildings';
 import organization from '../../../actions/organization';
 import utilities from '../../../utilities';
 import GameEvent from '../GameEvent';
+import { TemperTantrumParams } from '../../../types';
 
-interface TemperTantrumParams {
-  adminRemains: boolean;
-}
 export const generateTemperTantrumEvent = () => {
   return new GameEvent(temperTantrumEventConfig, {
     adminRemains: utilities.randomInt(0, 1) === 1,

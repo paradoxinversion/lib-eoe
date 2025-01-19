@@ -1,5 +1,6 @@
 import actions from '../actions';
-import { GameData, GameManager } from '../managers/game/GameManager';
+import { GameManager } from '../managers/game/GameManager';
+import { GameData } from '../types';
 import testEntities from './helpers/testEntities';
 
 const gameData: GameData = {

@@ -1,12 +1,7 @@
 import { updateOrgWealth } from '../../organization';
-import { Person } from '../../types/interfaces/entities';
 import { GameManager } from '../game/GameManager';
-import { ActivityLog } from './types';
+import { ActivityLog, Person } from '../../types';
 
-export interface ActivityParticipants {
-  name: string;
-  agents: string[];
-}
 /**
  * Activities are ongoing tasks that agents can participate in.
  */

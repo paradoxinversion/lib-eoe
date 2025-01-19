@@ -1,10 +1,7 @@
 import { GameManager } from '../../game/GameManager';
-import Plot, { PlotResult } from '../../plots/Plot';
+import Plot from '../../plots/Plot';
+import { PlotResult, AttackZoneParams } from '../../../types';
 import GameEvent from '../GameEvent';
-
-export interface AttackZoneParams {
-  plot: Plot;
-}
 
 /**
  * Create and return a new Attack Zone Plot Event

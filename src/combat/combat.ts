@@ -1,15 +1,6 @@
 import people from '../actions/people';
-import { Person } from '../types/interfaces/entities';
-
-interface CombatInitiative {
-  /** The initiative order */
-  initiative: number;
-  /** Is this person in the attacking force? */
-  attackingForce: boolean;
-  /** The index of the character within their source array */
-  characterIndex: number;
-  person: Person;
-}
+import { Person } from '../types/entities';
+import { CombatInitiative } from '../types/managers/combat';
 
 /**
  * Creates a CombatInitiative object.

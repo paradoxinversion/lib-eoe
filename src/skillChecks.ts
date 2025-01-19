@@ -1,5 +1,5 @@
 import people from './actions/people';
-import { Person, Zone } from './types/interfaces/entities';
+import { Person, Zone } from './types/entities';
 import utilities from './utilities';
 
 /**

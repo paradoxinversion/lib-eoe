@@ -1,10 +1,9 @@
 /**
  * People related actions.
  */
-import { GameData, GameManager } from '../managers/game/GameManager';
+import { GameManager } from '../managers/game/GameManager';
 import {} from '../plots';
 import people, { SimulatedActivityResolution } from '../sim/people';
-import { PersonStatusEffect } from '../statusEffects/person';
 import {
   AgentData,
   AgentDepartment,
@@ -12,7 +11,9 @@ import {
   Person,
   PersonIntelAttributes,
   PersonStandardAttributes,
-} from '../types/interfaces/entities';
+  PersonStatusEffect,
+  GameData,
+} from '../types';
 import utilities from '../utilities';
 import PlotManager from '../managers/plots/PlotManager';
 import ActivityManager from '../managers/activities/ActivityManager';

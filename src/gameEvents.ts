@@ -1,9 +1,8 @@
-import { GameData, GameManager } from './managers/game/GameManager';
+import { GameManager } from './managers/game/GameManager';
 import { getEvilEmpire } from './organization';
 import { PlotResolution } from './plots';
 import GameEvent from './managers/events/GameEvent';
 import GameEventQueue from './managers/events/GameEventQueue';
-import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
 import { generateOccupationalHazardEvent } from './managers/events/eventFunctions/occupationalHazard';
 import eventConfig from './managers/events/eventConfig';
 import { generateEvilApplicantEvent } from './managers/events/eventFunctions/applicant';
@@ -22,28 +21,6 @@ import ShufflebagManager from './managers/shufflebag/ShufflebagManager';
 import people from './actions/people';
 import organization from './actions/organization';
 import { generateEvent as generateRaidEvent } from './managers/events/eventFunctions/raid';
-
-export interface EventRequirements {
-  personnel?: {
-    workingAdmins?: boolean;
-    workingScientists?: boolean;
-  };
-  empireWealth?: {
-    min?: number;
-    max?: number;
-  };
-  empireStatuses?: GoverningOrgStatusEffects[];
-}
-
-interface EventData {
-  type: string;
-  resolution: {
-    updatedGameData?: Partial<GameData>;
-    additionalData?: {
-      [x: string]: Object | string | number | boolean;
-    };
-  };
-}
 
 /**
  * Generates events for each plot resolution

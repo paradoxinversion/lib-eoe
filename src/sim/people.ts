@@ -1,20 +1,7 @@
-import { GameData, GameManager } from '../managers/game/GameManager';
+import { GameManager } from '../managers/game/GameManager';
 import people from '../actions/people';
-import { PersonStatusEffect } from '../statusEffects/person';
-import { Person, SkillTypes } from '../types/interfaces/entities';
+import { Person, SkillTypes, SimulatedActivity, GameData } from '../types';
 import utilities from '../utilities';
-
-export interface SimulatedActivity {
-  name: string;
-  text: string;
-  requirements: {
-    loyalty?: 'low' | 'average' | 'high';
-    employedCitizen?: boolean;
-    wealth?: 'low' | 'medium' | 'high' | 'not-broke';
-    hasStatusEffect?: PersonStatusEffect;
-  };
-  handler?: (person: Person) => Partial<GameData>;
-}
 
 const simActivities: { [x: string]: SimulatedActivity } = {
   laze: {

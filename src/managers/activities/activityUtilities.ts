@@ -1,4 +1,4 @@
-import { Person } from '../../types/interfaces/entities';
+import { Person } from '../../types/entities';
 import ActivityManager from './ActivityManager';
 
 export const isPersonParticipant = (person: Person) => {

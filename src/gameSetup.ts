@@ -6,7 +6,6 @@ import { generateZoneName } from './generators/names';
 import utilities from './utilities';
 import settings from '../config/config';
 import {
-  BuildingType,
   addMultiplePersonnel,
   addResident,
   buildingsSchematics,
@@ -18,11 +17,16 @@ import {
   Nation,
   Person,
   Zone,
-} from './types/interfaces/entities';
+  BuildingType,
+  NewGameOptions,
+  PlayerOptions,
+  HireOrganizationAgentsOptions,
+  HireStartingAgentsOptions,
+} from './types';
 import people from './actions/people';
 import Player from './managers/cpu/Player';
 import PlayerManager from './managers/cpu/PlayerManager';
-import { GoverningOrgStatusEffects } from './statusEffects/governingOrg';
+import { GoverningOrgStatusEffects } from './types';
 import ShufflebagManager from './managers/shufflebag/ShufflebagManager';
 import Shufflebag from './managers/shufflebag/Shufflebag';
 import ActivityManager from './managers/activities/ActivityManager';
@@ -37,23 +41,6 @@ const buildingShufflebag = new Shufflebag({
   office: settings.worldGen.buildings.generationFrequency.office,
   hospital: settings.worldGen.buildings.generationFrequency.hospital,
 });
-
-export type NewGameOptions = {
-  pet?: boolean;
-  overlordName?: string;
-  takePrisoners: boolean;
-  /**
-   * If true, staff buildings with empire agents.
-   * */
-  startWithFullStaff: boolean;
-};
-
-type PlayerOptions = {
-  isCPU: boolean;
-  leaderName?: string;
-  organizationEffects: GoverningOrgStatusEffects[];
-  fullStaff: boolean;
-};
 
 /**
  * Attempt to place all citizens in apartments
@@ -499,16 +486,6 @@ const handleNewGame = (options: NewGameOptions) => {
   initializeOrgOpinions();
 };
 
-type HireOrganizationAgentsOptions = {
-  orgId: string;
-  fullStaffDetail: boolean;
-  /**
-   * Agents of the organization will staff all possible building
-   * positions if true.
-   */
-  staffIsOrg: boolean;
-};
-
 const hireOrganizationAgents = (options: HireOrganizationAgentsOptions) => {
   const hireInitial = (recruit: Person, leader: Person) => {
     const agent = hireAgent(
@@ -596,10 +573,6 @@ const hireOrganizationAgents = (options: HireOrganizationAgentsOptions) => {
 
   console.debug('Done hiring organization agents');
   console.debug('Game Data', GameManager.getInstance().gameData);
-};
-
-type HireStartingAgentsOptions = {
-  fullStaffDetail: boolean;
 };
 
 // const initializeLoyalties = () => {

@@ -1,5 +1,5 @@
 import Shufflebag from '../shufflebag/Shufflebag';
-import { PlayerData as IPlayer } from '../../types/player';
+import { PlayerData as IPlayer } from '../../types';
 import cpuActionNothing from './cpuActions/nothing';
 import trainAgents from './cpuActions/trainAgents';
 import { GameManager } from '../game/GameManager';

@@ -1,3 +1,5 @@
+import utilities from '../utilities';
+import { generateCompanyName, generateName } from '../generators/names';
 import {
   AgentData,
   AgentDepartment,
@@ -6,46 +8,17 @@ import {
   Nation,
   Person,
   Zone,
-} from '../types/interfaces/entities';
-
-import utilities from '../utilities';
-import { generateCompanyName, generateName } from '../generators/names';
-import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
-import { BuildingType } from '../buildings';
+  GoverningOrgStatusEffects,
+  GenerateNationOpts,
+  GeneratePersonOpts,
+  GenerateZoneOpts,
+  GenerateGoverningOrgOpts,
+  BuildingType,
+} from '../types';
 import settings from '../../config/config';
 import ShufflebagManager from '../managers/shufflebag/ShufflebagManager';
 // const { v4: uuidv4 } = require('uuid');
 import { v4 as uuidv4 } from 'uuid';
-
-export interface GenerateNationOpts {
-  /** The name of the nation. */
-  name: string;
-  /** The size (amount of zones) of the nation */
-  size: number;
-}
-
-export interface GenerateZoneOpts {
-  /** The ID of the nation the zone belongs to */
-  nationId?: string;
-  /** The name of the zone. */
-  name?: string;
-  /** The size (amount of citizens...?) */
-  size?: number;
-  organizationId?: string;
-  intelligenceLevel?: number;
-}
-
-export interface GeneratePersonOpts {
-  nationId?: string;
-  homeZoneId?: string;
-  name?: string;
-  initIntelligence?: number;
-  initCombat?: number;
-  initAdministration?: number;
-  initLeadership?: number;
-  intelligenceLevel?: number;
-  initLoyalty?: number;
-}
 
 /**
  * Generate a new nation
@@ -307,13 +280,6 @@ const generateAgentData = (
     embeddedAt: null,
   };
 };
-
-export interface GenerateGoverningOrgOpts {
-  /** The ID of the nation the Org belongs to */
-  nationId: string;
-  evil?: boolean;
-  name?: string;
-}
 
 /**
  * Gnerate a Governning Organization

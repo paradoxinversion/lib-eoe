@@ -1,13 +1,7 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
 import combat from '../../../combat';
-import { Person } from '../../../types/interfaces/entities';
-import { PlotResult } from '../Plot';
-
-interface PlotAttackBuildingOpts {
-  buildingId: string;
-  participants: string[];
-}
+import { Person, PlotAttackBuildingOpts, PlotResult } from '../../../types';
 
 export const attackBuilding = (opts: PlotAttackBuildingOpts): PlotResult => {
   const { gameData } = GameManager.getInstance();

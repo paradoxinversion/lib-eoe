@@ -1,9 +1,7 @@
-import Plot, { PlotResult } from '../../plots/Plot';
-import GameEvent from '../GameEvent';
+import Plot from '../../plots/Plot';
+import { PlotResult, InciteProtestParams } from '../../../types';
 
-export type InciteProtestParams = {
-  plot: Plot;
-};
+import GameEvent from '../GameEvent';
 
 export const generateInciteProtestEvent = (plot: Plot) => {
   return new GameEvent(inciteProtestConfig, { plot });

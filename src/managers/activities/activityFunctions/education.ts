@@ -1,7 +1,7 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
 import { updateEvil } from '../../../organization';
-import { Person } from '../../../types/interfaces/entities';
+import { Person } from '../../../types';
 import utilities from '../../../utilities';
 
 export const education = (participantArray: string[]) => {

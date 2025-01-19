@@ -1,11 +1,9 @@
-import combat, { CombatResult } from '../../../combat/combat';
+import combat from '../../../combat/combat';
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
 import zones from '../../../actions/zones';
-import { Person, Zone } from '../../../types/interfaces/entities';
 import utilities from '../../../utilities';
 import GameEvent from '../GameEvent';
-import GameEventQueue from '../GameEventQueue';
 
 export const generateEvent = () => {
   console.debug('Generating raid event');

@@ -1,5 +1,5 @@
 import game from '../generators/game';
-import { AgentDepartment } from '../types/interfaces/entities';
+import { AgentDepartment } from '../types/entities';
 
 describe('generators', () => {
   describe('game', () => {

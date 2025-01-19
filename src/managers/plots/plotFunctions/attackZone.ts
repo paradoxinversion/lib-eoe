@@ -7,21 +7,12 @@ import {
   GoverningOrganization,
   Person,
   Zone,
-} from '../../../types/interfaces/entities';
+  PlotAttackZoneOpts,
+  PlotResult,
+} from '../../../types';
 import zones from '../../../actions/zones';
-import { PlotResult } from '../Plot';
-import { PlotParamsBase } from '../types';
 import utilities from '../../../utilities';
 
-export interface PlotAttackZoneParams extends PlotParamsBase {}
-
-interface PlotAttackZoneOpts {
-  zone: {
-    id: string;
-    organizationId: string;
-  };
-  participants: string[];
-}
 /**
  * Launch a direct assault against the Zone's security forces.
  *

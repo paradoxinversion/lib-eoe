@@ -1,5 +1,5 @@
-import { GameData, GameManager } from '../managers/game/GameManager';
-import { Zone } from '../types/interfaces/entities';
+import { GameManager } from '../managers/game/GameManager';
+import { Zone, GameData } from '../types';
 import buildings from './buildings';
 import people from './people';
 export interface GetZonesOptions {

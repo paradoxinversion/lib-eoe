@@ -1,16 +1,13 @@
 import { GameManager } from '../../game/GameManager';
-import Plot, { PlotResult } from '../../plots/Plot';
+import Plot from '../../plots/Plot';
 import {
+  PlotResult,
+  EmbedAgentsParams,
   PlotParamsEmbedAgents,
   PlotResolutionEmbedAgents,
-} from '../../plots/plotFunctions/embedAgents';
-import GameEvent from '../GameEvent';
+} from '../../../types';
 
-export interface EmbedAgentsParams {
-  plot: Plot;
-  plotResolution: PlotResolutionEmbedAgents;
-  plotParams: PlotParamsEmbedAgents;
-}
+import GameEvent from '../GameEvent';
 
 export const generateEmbedAgentsEvent = (plot: Plot) => {
   const params: EmbedAgentsParams = {

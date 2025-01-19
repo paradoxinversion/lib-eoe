@@ -1,37 +1,5 @@
-import { GameData } from '../game/GameManager';
-import { CombatResult } from '../../combat/combat';
 import plotConfig from './plotConfig';
-import { PlotAttackZoneParams } from './plotFunctions/attackZone';
-import {
-  PlotResolutionEmbedAgents,
-  PlotParamsEmbedAgents,
-} from './plotFunctions/embedAgents';
-import { InciteProtestData } from './plotFunctions/inciteProtest';
-import { PlotReconParams, PlotReconResolution } from './plotFunctions/recon';
-
-/** Basic parameters common to any plot */
-export interface PlotParamsStandard {
-  /** IDs of Agents executing the plot */
-  participants: string[];
-  /** IDs of the zone targeted in the plot */
-  targetZone?: string;
-}
-
-export interface PlotResult {
-  success: boolean;
-  updatedGameData: Partial<GameData>;
-  resolutionData:
-    | PlotReconResolution
-    | CombatResult
-    | PlotResolutionEmbedAgents
-    | InciteProtestData
-    | null;
-}
-
-type PlotParams =
-  | PlotReconParams
-  | PlotAttackZoneParams
-  | PlotParamsEmbedAgents;
+import { PlotParams, PlotResult } from '../../types';
 
 export default class Plot {
   /** The name of the plot (shown to the user) */

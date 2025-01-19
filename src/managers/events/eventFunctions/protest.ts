@@ -1,14 +1,8 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
 import zones from '../../../actions/zones';
-import { Person, Zone } from '../../../types/interfaces/entities';
+import { ProtestEventParams, Zone } from '../../../types';
 import GameEvent from '../GameEvent';
-
-export interface ProtestEventParams {
-  zone: string;
-  targetOrganization: string;
-  protestors: Person[];
-}
 
 export const generateProtestEvent = () => {
   const zone = zones.getRandomZone({

@@ -2,14 +2,15 @@ import settings from '../../config/config';
 import buildings, { ResourceOutput } from './buildings';
 import generators from '../generators/game';
 import { getCodeName } from '../generators/names';
-import { GameData, GameManager } from '../managers/game/GameManager';
-import { GoverningOrgStatusEffects } from '../statusEffects/governingOrg';
+import { GameManager } from '../managers/game/GameManager';
+import { GoverningOrgStatusEffects } from '../types';
 import {
   AgentDepartment,
   Building,
   GoverningOrganization,
   Person,
-} from '../types/interfaces/entities';
+  GameData,
+} from '../types';
 import utilities from '../utilities';
 import infrastructure from './infrastructure';
 import people from './people';

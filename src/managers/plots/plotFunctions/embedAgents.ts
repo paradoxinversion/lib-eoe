@@ -1,18 +1,9 @@
 import { GameManager } from '../../game/GameManager';
-import { Person } from '../../../types/interfaces/entities';
-import Plot, { PlotParamsStandard, PlotResult } from '../Plot';
+import { Person, PlotParamsEmbedAgents, PlotResult } from '../../../types';
+import Plot from '../Plot';
 import PlotManager from '../PlotManager';
 import skillChecks from '../../../skillChecks';
 import actions from '../../../actions';
-
-export interface PlotParamsEmbedAgents extends PlotParamsStandard {
-  targetZone: string;
-  surrender?: boolean;
-}
-export interface PlotResolutionEmbedAgents {
-  /** The agents that were embedded */
-  agents: string[];
-}
 
 const generateEmbedAgentsPlot = (params: PlotParamsEmbedAgents) => {
   PlotManager.getInstance().addPlot(

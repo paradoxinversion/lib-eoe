@@ -1,5 +1,5 @@
-import { GameData, GameManager } from './managers/game/GameManager';
-import { Person } from './types/interfaces/entities';
+import { GameManager } from './managers/game/GameManager';
+import { Person, GameData } from './types';
 import Plot from './managers/plots/Plot';
 import ActivityManager from './managers/activities/ActivityManager';
 export interface PlotResolution {

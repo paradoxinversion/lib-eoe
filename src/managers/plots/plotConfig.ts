@@ -3,28 +3,13 @@ import { executeReconPlot } from './plotFunctions/recon';
 import { executeEmbedAgentsPlot } from './plotFunctions/embedAgents';
 import { executeRecallEmbeddedAgentsPlot } from './plotFunctions/recallEmbeddedAgents';
 import { executeInciteProtestPlot } from './plotFunctions/inciteProtest';
-export type PlotRequirements = {
-  personnel?: {
-    embeddedAgents?: boolean;
-  };
-};
+import { PlotConfig } from '../../types';
+
 export const plotRequirementDefaults = {
   personnel: {
     embeddedAgents: false,
   },
 };
-export interface PlotConfig {
-  /** The name of the activity (to be shown to the user) */
-  name: string;
-  /** The activity's type */
-  type: string;
-  /** The function to handle the execution of the activity */
-  fn: Function;
-  /** Cost per particpant */
-  costPerParticipant: number;
-  description?: string;
-  requirements?: PlotRequirements;
-}
 const plotConfig: { [x: string]: PlotConfig } = {
   'attack-zone': {
     name: 'Attack Zone',

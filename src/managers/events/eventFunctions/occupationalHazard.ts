@@ -1,14 +1,8 @@
 import { GameManager } from '../../game/GameManager';
 import people from '../../../actions/people';
-import { Person } from '../../../types/interfaces/entities';
+import { Person, EventConfig, OccupationalHazardParams } from '../../../types';
 import utilities from '../../../utilities';
-import GameEvent, { EventConfig } from '../GameEvent';
-
-export type OccupationalHazardParams = {
-  agent: string;
-  damage: number;
-  lethalPotential: boolean;
-};
+import GameEvent from '../GameEvent';
 
 export const generateOccupationalHazardEvent = () => {
   // for flavor, this may be limited to people working in certain buildings
