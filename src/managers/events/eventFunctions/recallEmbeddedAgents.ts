@@ -1,4 +1,4 @@
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import Plot from '../../plots/Plot';
 import { PlotResult, RecallEmbeddedAgentsParams } from '../../../types';
 

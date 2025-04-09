@@ -2,7 +2,7 @@ import Shufflebag from '../shufflebag/Shufflebag';
 import { PlayerData as IPlayer } from '../../types';
 import cpuActionNothing from './cpuActions/nothing';
 import trainAgents from './cpuActions/trainAgents';
-import { GameManager } from '../game/GameManager';
+import GameManager from '../game/GameManager';
 import actions from '../../actions';
 const actionShuffleBag = new Shufflebag({
   nothing: 1,
@@ -69,3 +69,4 @@ class Player {
 }
 
 export default Player;
+export type { Player };

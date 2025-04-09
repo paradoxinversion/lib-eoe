@@ -92,3 +92,4 @@ class GameEventQueue {
 }
 
 export default GameEventQueue;
+export type { GameEventQueue };

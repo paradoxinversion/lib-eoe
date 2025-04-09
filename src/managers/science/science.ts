@@ -1,4 +1,4 @@
-import { GameManager } from '../game/GameManager';
+import GameManager from '../game/GameManager';
 import { SCIENCE_PROJECTS } from './scienceProjects';
 import {
   ScienceProject,
@@ -7,7 +7,7 @@ import {
 } from '../../types';
 
 /** The manager for all science projects in the game */
-export class ScienceManager {
+export default class ScienceManager {
   private static instance: ScienceManager;
   /** The list of available science projects in the game */
   PROJECT_DEFINITIONS: ScienceProjectMap;
@@ -120,3 +120,5 @@ export class ScienceManager {
     );
   }
 }
+
+export type { ScienceManager };

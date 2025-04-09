@@ -1,5 +1,5 @@
 import { updateOrgWealth } from '../../organization';
-import { GameManager } from '../game/GameManager';
+import GameManager from '../game/GameManager';
 import { ActivityLog, Person } from '../../types';
 
 /**
@@ -98,3 +98,5 @@ export default class Activity {
     );
   }
 }
+
+export type { Activity };

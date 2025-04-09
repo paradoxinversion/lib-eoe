@@ -1,4 +1,4 @@
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import { ProjectCompleteParams } from '../../../types';
 import { ScienceProjectResult } from '../../science/types';
 import GameEvent from '../GameEvent';

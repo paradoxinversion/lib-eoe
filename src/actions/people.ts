@@ -1,7 +1,7 @@
 /**
  * People related actions.
  */
-import { GameManager } from '../managers/game/GameManager';
+import GameManager from '../managers/game/GameManager';
 import {} from '../plots';
 import people, { SimulatedActivityResolution } from '../sim/people';
 import {

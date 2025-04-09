@@ -1,4 +1,4 @@
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import { GoverningOrganization } from '../../../types/entities';
 import utilities from '../../../utilities';
 import GameEvent from '../GameEvent';

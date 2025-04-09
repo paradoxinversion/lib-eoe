@@ -1,5 +1,5 @@
 import actions from '../actions';
-import { GameManager } from '../managers/game/GameManager';
+import GameManager from '../managers/game/GameManager';
 import { GameData } from '../types';
 import testEntities from './helpers/testEntities';
 

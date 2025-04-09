@@ -1,4 +1,4 @@
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import { applyStatusEffect } from '../../../organization';
 import {
   ScienceProject,
@@ -6,7 +6,7 @@ import {
   ScienceProjectResult,
   ScienceProjectStatus,
 } from '../../../types';
-import { ScienceManager } from '../science';
+import ScienceManager from '../science';
 
 const startHandler = function (laboratoryId: string): ScienceProjectStatus {
   const currentScience =

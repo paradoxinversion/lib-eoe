@@ -2,7 +2,6 @@ export * from './entities';
 export * from './player';
 export * from './statusEffects';
 export * from './managers';
-export * from './managers';
 export * from './gameEvents';
 export * from './generators';
 export * from './sim';

@@ -1,4 +1,4 @@
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import people from '../../../actions/people';
 import { Person, EventConfig, OccupationalHazardParams } from '../../../types';
 import utilities from '../../../utilities';

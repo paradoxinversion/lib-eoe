@@ -10,7 +10,7 @@ import {
   prepareRandomEvents,
 } from '../gameEvents';
 import PlayerManager from '../managers/cpu/PlayerManager';
-import { ScienceManager } from '../managers/science/science';
+import ScienceManager from '../managers/science/science';
 import { ScienceProject } from '../types';
 import {
   getOrgIncome,
@@ -19,7 +19,7 @@ import {
 } from '../organization';
 import people, { SimulateDayResolution } from './people';
 import { generateProjectCompleteEvent } from '../managers/events/eventFunctions/projectComplete';
-import { GameManager } from '../managers/game/GameManager';
+import GameManager from '../managers/game/GameManager';
 import GameEventQueue from '../managers/events/GameEventQueue';
 import PlotManager from '../managers/plots/PlotManager';
 import { PlotResolution } from '../plots';
