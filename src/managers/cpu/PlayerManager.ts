@@ -40,3 +40,4 @@ class PlayerManager {
 }
 
 export default PlayerManager;
+export type { PlayerManager };

@@ -1,5 +1,5 @@
 import actions from '.';
-import { GameManager } from '../managers/game/GameManager';
+import GameManager from '../managers/game/GameManager';
 
 const getNationCitizens = (nationId: string) => {
   return actions.people.getPeople({

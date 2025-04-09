@@ -1,4 +1,4 @@
-import { GameManager } from './managers/game/GameManager';
+import GameManager from './managers/game/GameManager';
 import zones from './actions/zones';
 /**
  * Takes an array of strings and throws an error with those

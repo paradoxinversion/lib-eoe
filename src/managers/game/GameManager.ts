@@ -1,7 +1,7 @@
 import { GameLogEvent, GameData } from '../../types';
 import config from '../../config';
 
-export class GameManager {
+class GameManager {
   private static instance: GameManager;
   initialized: boolean;
   gameData: GameData;
@@ -93,3 +93,5 @@ export class GameManager {
     this.gameData.gameLog.events = [...this.gameData.gameLog.events, event];
   }
 }
+export default GameManager;
+export type { GameManager };

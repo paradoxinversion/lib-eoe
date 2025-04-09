@@ -1,4 +1,4 @@
-import { GameManager } from './managers/game/GameManager';
+import GameManager from './managers/game/GameManager';
 import infrastructure from './actions/infrastructure';
 import people from './actions/people';
 import { getBuildings, getResourceOutput, getUpkeep } from './buildings';

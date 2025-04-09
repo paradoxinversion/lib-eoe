@@ -2,7 +2,7 @@ import settings from '../config/config';
 import buildings, { ResourceOutput } from './buildings';
 import generators from '../generators/game';
 import { getCodeName } from '../generators/names';
-import { GameManager } from '../managers/game/GameManager';
+import GameManager from '../managers/game/GameManager';
 import { GoverningOrgStatusEffects } from '../types';
 import {
   AgentDepartment,

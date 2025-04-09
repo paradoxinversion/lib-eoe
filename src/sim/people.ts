@@ -1,4 +1,4 @@
-import { GameManager } from '../managers/game/GameManager';
+import GameManager from '../managers/game/GameManager';
 import people from '../actions/people';
 import { Person, SkillTypes, SimulatedActivity, GameData } from '../types';
 import utilities from '../utilities';

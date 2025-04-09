@@ -1,4 +1,4 @@
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import buildings from '../../../actions/buildings';
 import organization from '../../../actions/organization';
 import { GoverningOrganization, Person } from '../../../types';

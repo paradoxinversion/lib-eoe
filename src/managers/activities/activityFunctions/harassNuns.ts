@@ -1,4 +1,4 @@
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import utilities from '../../../utilities';
 
 import { generateEvent as generateDomesticEncounter } from '../../events/eventFunctions/domesticCombatEncounter';

@@ -1,4 +1,4 @@
-import { GameManager } from '../managers/game/GameManager';
+import GameManager from '../managers/game/GameManager';
 import { Zone, GameData } from '../types';
 import buildings from './buildings';
 import people from './people';

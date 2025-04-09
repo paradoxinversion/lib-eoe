@@ -1,4 +1,4 @@
-import { ScienceManager } from './science';
+import ScienceManager from './science';
 import { SCIENCE_PROJECTS } from './scienceProjects';
 import * as projects from './projects';
 import * as types from './types';

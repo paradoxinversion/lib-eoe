@@ -1,5 +1,5 @@
 import { Person, ActivityParticipants } from '../../types';
-import { GameManager } from '../game/GameManager';
+import GameManager from '../game/GameManager';
 import Activity from './Activity';
 import activityConfig from './activityConfig';
 
@@ -101,3 +101,5 @@ export default class ActivityManager {
     return activities;
   }
 }
+
+export type { ActivityManager };

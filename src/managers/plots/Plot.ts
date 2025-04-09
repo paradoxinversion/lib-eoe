@@ -29,3 +29,5 @@ export default class Plot {
     return result;
   }
 }
+
+export type { Plot };

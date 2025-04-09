@@ -1,6 +1,6 @@
 import { Person, PlotConfig, PlotResolution } from '../../types';
 import ActivityManager from '../activities/ActivityManager';
-import { GameManager } from '../game/GameManager';
+import GameManager from '../game/GameManager';
 import Plot from './Plot';
 import plotConfig from './plotConfig';
 
@@ -134,3 +134,4 @@ class PlotManager {
 }
 
 export default PlotManager;
+export type { PlotManager };

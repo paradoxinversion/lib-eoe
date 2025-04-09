@@ -1,4 +1,4 @@
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import people from '../../../actions/people';
 import GameEvent from '../../events/GameEvent';
 import GameEventQueue from '../../events/GameEventQueue';

@@ -1,4 +1,4 @@
-import { GameManager } from './managers/game/GameManager';
+import GameManager from './managers/game/GameManager';
 import { getEvilEmpire } from './organization';
 import { PlotResolution } from './plots';
 import GameEvent from './managers/events/GameEvent';

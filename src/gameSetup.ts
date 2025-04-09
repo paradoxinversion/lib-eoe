@@ -1,4 +1,4 @@
-import { GameManager } from './managers/game/GameManager';
+import GameManager from './managers/game/GameManager';
 import { hireAgent } from './organization';
 import generators from './generators/game';
 

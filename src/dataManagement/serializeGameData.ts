@@ -1,8 +1,8 @@
 import ActivityManager from '../managers/activities/ActivityManager';
 import PlayerManager from '../managers/cpu/PlayerManager';
-import { GameManager } from '../managers/game/GameManager';
+import GameManager from '../managers/game/GameManager';
 import PlotManager from '../managers/plots/PlotManager';
-import { ScienceManager } from '../managers/science/science';
+import ScienceManager from '../managers/science/science';
 
 const serializeGameData = () => {
   const { gameData } = GameManager.getInstance();

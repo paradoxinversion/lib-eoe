@@ -19,7 +19,7 @@ class GameEvent {
   /**
    * Create a game event using configuration.
    */
-  constructor(
+  public constructor(
     config: EventConfig,
     eventSetupData: EventParams,
     eventText?: string,
@@ -51,3 +51,4 @@ class GameEvent {
 }
 
 export default GameEvent;
+export type { GameEvent };

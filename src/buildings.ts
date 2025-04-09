@@ -10,7 +10,7 @@ import {
 } from './types';
 import { getInfrastructure } from './organization';
 // import { getInfrastructurePercentage } from './actions/infrastructure';
-import { GameManager } from './managers/game/GameManager';
+import GameManager from './managers/game/GameManager';
 import { GameData } from './types';
 
 const buildingsSchematics = {

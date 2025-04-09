@@ -1,4 +1,4 @@
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import { Person, PlotResult, PlotParamsBase } from '../../../types';
 import Plot from '../Plot';
 import PlotManager from '../PlotManager';

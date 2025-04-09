@@ -1,5 +1,5 @@
 import combat from '../../../combat/combat';
-import { GameManager } from '../../game/GameManager';
+import GameManager from '../../game/GameManager';
 import people from '../../../actions/people';
 import zones from '../../../actions/zones';
 import utilities from '../../../utilities';
